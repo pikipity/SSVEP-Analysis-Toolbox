@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from numpy import ndarray
+from numpy import ndarray, object
 from typing import Union, Optional, Dict, List, Tuple
 
 import scipy.io as sio
@@ -44,7 +44,7 @@ def _loadmat(filename):
         for key in d:
             if isinstance(d[key], sio.matlab.mio5_params.mat_struct):
                 d[key] = _todict(d[key])
-            elif isinstance(d[key], np.ndarray):
+            elif isinstance(d[key], ndarray):
                 d[key] = _tolist(d[key])
         return d
 
@@ -57,24 +57,24 @@ def _loadmat(filename):
             elem = matobj.__dict__[strg]
             if isinstance(elem, sio.matlab.mio5_params.mat_struct):
                 d[strg] = _todict(elem)
-            elif isinstance(elem, np.ndarray):
+            elif isinstance(elem, ndarray):
                 d[strg] = _tolist(elem)
             else:
                 d[strg] = elem
         return d
 
-    def _tolist(ndarray):
+    def _tolist(elem):
         '''
         A recursive function which constructs lists from cellarrays
         (which are loaded as numpy ndarrays), recursing into the elements
         if they contain matobjects.
         '''
-        if ndarray.dtype == np.object:
+        if elem.dtype == object:
             elem_list = []
-            for sub_elem in ndarray:
+            for sub_elem in elem:
                 if isinstance(sub_elem, sio.matlab.mio5_params.mat_struct):
                     elem_list.append(_todict(sub_elem))
-                elif isinstance(sub_elem, np.ndarray):
+                elif isinstance(sub_elem, ndarray):
                     elem_list.append(_tolist(sub_elem))
                 else:
                     elem_list.append(sub_elem)
