@@ -1,0 +1,14 @@
+name: ssvep_analysis_toolbox
+channels:
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - python>=3.9
+  - numpy
+  - scipy
+  - pip
+  - py7zr
+  - pooch
+  - pip:
+    - mat73
