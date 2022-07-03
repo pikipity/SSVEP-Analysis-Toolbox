@@ -154,11 +154,72 @@ class BaseDataset(metaclass=abc.ABCMeta):
         """
         if t_latency is None:
             t_latency = self.default_t_latency
+            
+        sub_data = self.get_sub_data(sub_idx)
         
-        X = [self.get_data_single_trial(sub_idx, block_idx, stim_idx, sig_len, t_latency) for block_idx in blocks for stim_idx in range(self.stim_info['stim_num'])]
+        X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, sig_len, t_latency) for block_idx in blocks for stim_idx in range(self.stim_info['stim_num'])]
         Y = [stim_idx for block_idx in blocks for stim_idx in range(self.stim_info['stim_num'])]
         
         return X, Y
+    
+    def get_data_single_trial(self,
+                             sub_data: ndarray,
+                             block_idx: int,
+                             stim_idx: int,
+                             channels: List[int],
+                             sig_len: float,
+                             t_latency: float) -> ndarray:
+        """
+        Get single trial data
+
+        Parameters
+        ----------
+        sub_data : ndarray
+            Subject data
+            block_num * stimulus_num * ch_num * whole_trial_samples
+        block_idx : int
+            Block index
+        stim_idx : int
+            Stimulus index
+        sig_len : float
+            signal length (in second)
+        t_latency : float
+            latency time (in second)
+
+        Returns
+        -------
+        single_trial_data: ndarray
+            ch_num * (sig_len * self.srate)
+
+        """
+        if block_idx < 0:
+            raise ValueError('Block index cannot be negative')
+        if block_idx > self.block_num-1:
+            raise ValueError('Block index should be smaller than {:d}'.format(self.block_num))
+            
+        if stim_idx < 0:
+            raise ValueError('Stimulus index cannot be negative')
+        if stim_idx > self.stim_info['stim_num']-1:
+            raise ValueError('Stimulus index should be smaller than {:d}'.format(self.stim_info['stim_num']))
+            
+        min_ch_idx = min(channels)
+        if min_ch_idx < 0:
+            raise ValueError('Channel index cannot be negative')
+        max_ch_idx = max(channels)
+        if max_ch_idx > len(self.channels)-1:
+            raise ValueError('Channel index should be smaller than {:d}'.format(len(self.channels)))
+            
+        if sig_len < 0 or t_latency < 0:
+            raise ValueError('Time cannot be negative')
+        if sig_len + t_latency > self.trial_len:
+            raise ValueError('Total time length cannot be larger than single trial time')
+            
+        t_latency = floor(t_latency * self.srate)
+        sig_len = floor(sig_len * self.srate)
+        start_t_idx = t_latency + 1
+        end_t_idx = t_latency + sig_len
+        
+        return sub_data[block_idx,stim_idx,channels,start_t_idx:end_t_idx]
     
     def get_ref_sig(self,
                     sig_len: float,
@@ -226,37 +287,25 @@ class BaseDataset(metaclass=abc.ABCMeta):
         pass
     
     
-    
-    
     @abc.abstractclassmethod
-    def get_data_single_trial(self,
-                             sub_idx: int,
-                             block_idx: int,
-                             stim_idx: int,
-                             sig_len: float,
-                             t_latency: float) -> ndarray:
+    def get_sub_data(self, 
+                     sub_idx: int) -> ndarray:
         """
-        Get single trial data
+        Get single subject data
 
         Parameters
         ----------
         sub_idx : int
             Subject index
-        block_idx : int
-            Block index
-        stim_idx : int
-            Stimulus index
-        sig_len : float
-            signal length (in second)
-        t_latency : float
-            latency time (in second)
 
         Returns
         -------
-        single_trial_data: ndarray
-            ch_num * (sig_len * self.srate)
-
+        sub_data : ndarray
+            Subject data
+            block_num * stimulus_num * ch_num * whole_trial_samples
         """
         pass
+    
+    
     
     
