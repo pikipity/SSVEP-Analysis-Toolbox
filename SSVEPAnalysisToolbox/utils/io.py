@@ -6,7 +6,7 @@ from typing import Union, Optional, Dict, List, Tuple
 import scipy.io as sio
 import mat73
 
-def loadmat(file_path: str) -> Dict[ndarray]:
+def loadmat(file_path: str) -> dict:
     """
     Load mat file
 
@@ -17,7 +17,7 @@ def loadmat(file_path: str) -> Dict[ndarray]:
 
     Returns
     -------
-    mat_data: Dict[ndarray]
+    mat_data: dict
         Data in mat file
     """
 
@@ -25,6 +25,8 @@ def loadmat(file_path: str) -> Dict[ndarray]:
         data = _loadmat(file_path)
     except:
         data = mat73.loadmat(file_path)
+
+    return data
 
 def _loadmat(filename):
     '''
