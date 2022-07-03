@@ -80,24 +80,31 @@ class BenchmarkDataset(BaseDataset):
         source_url = self.url + subject.ID + '.mat.7z'
         desertation = subject.path + subject.ID + '.mat.7z'
         
-        download_single_file(source_url, desertation)
+        data_file = subject.path + subject.ID + '.mat'
         
-        with py7zr.SevenZipFile(desertation,'r') as archive:
-            archive.extractall(subject.path)
+        if not os.path.isfile(data_file):
+            download_single_file(source_url, desertation)
+        
+            with py7zr.SevenZipFile(desertation,'r') as archive:
+                archive.extractall(subject.path)
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = self.path_support_file + file_name
         
-        download_single_file(source_url, desertation)
+        if not os.path.isfile(desertation):
+            download_single_file(source_url, desertation)
         
-    def get_data_single_trial(self,
-                             sub_idx: int,
-                             block_idx: int,
-                             stim_idx: int,
-                             sig_len: float,
-                             t_latency: float) -> ndarray:
+    def get_sub_data(self, 
+                     sub_idx: int) -> ndarray:
+        if sub_idx < 0:
+            raise ValueError('Subject index cannot be negative')
+        if sub_idx > len(self.subjects)-1:
+            raise ValueError('Subject index should be smaller than {:d}'.format(len(self.subjects)))
         
         sub_info = self.subjects[sub_idx]
         file_path = sub_info.path + sub_info.ID + '.mat'
+        
+        
+        
