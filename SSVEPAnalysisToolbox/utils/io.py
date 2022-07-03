@@ -80,7 +80,7 @@ def _loadmat(filename):
                     elem_list.append(sub_elem)
             return elem_list
         else:
-            return ndarray
+            return elem
 
     data = sio.loadmat(filename, struct_as_record=False, squeeze_me=True)
     return _check_keys(data)
