@@ -6,7 +6,18 @@ from scipy import signal
 
 import numpy as np
 
-def suggested_ch() -> List:
+def suggested_weights_filterbank(num_subbands: Optional[int] = 5) -> List[float]:
+    """
+    Provide suggested weights of filterbank for benchmark dataset
+
+    Returns
+    -------
+    weights_filterbank : List[float]
+        Suggested weights of filterbank
+    """
+    return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
+
+def suggested_ch() -> List[int]:
     """
     Provide suggested channels for benchmark dataset
 

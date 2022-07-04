@@ -257,7 +257,9 @@ class BaseDataset(metaclass=abc.ABCMeta):
             raise ValueError('Stimulus index cannot be negative')
         if stim_idx > self.stim_info['stim_num']-1:
             raise ValueError('Stimulus index should be smaller than {:d}'.format(self.stim_info['stim_num']))
-            
+        
+        if type(channels) is not list:
+            channels = [channels]
         min_ch_idx = min(channels)
         if min_ch_idx < 0:
             raise ValueError('Channel index cannot be negative')
