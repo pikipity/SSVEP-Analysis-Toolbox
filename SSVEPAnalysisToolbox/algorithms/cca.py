@@ -15,6 +15,65 @@ import scipy.stats as stats
 from .basemodel import BaseModel
 from .utils import qr_remove_mean, qr_inverse, mldivide
 
+def _r_cca_withUV(X: ndarray,
+                  Y_Q: List[ndarray],
+                  Y_R: List[ndarray],
+                  Y_P: List[ndarray],
+                  U: ndarray,
+                  V: ndarray) -> ndarray:
+    """
+    Calculate correlation of CCA for single trial data using existing U and V
+
+    Parameters
+    ----------
+    X : ndarray
+        Single trial EEG data
+        EEG shape: (filterbank_num, channel_num, signal_len)
+    Y_Q : List[ndarray]
+        Q of reference signals
+    Y_R: List[ndarray]
+        R of reference signals
+    Y_P: List[ndarray]
+        P of reference signals
+    U : ndarray
+        Spatial filter
+        shape: (filterbank_num * stimulus_num * channel_num * n_component)
+    V : ndarray
+        Weights of harmonics
+        shape: (filterbank_num * stimulus_num * harmonic_num * n_component)
+
+    Returns
+    -------
+    R : ndarray
+        Correlation
+        shape: (filterbank_num * stimulus_num)
+    """
+    filterbank_num, channel_num, signal_len = X.shape
+    harmonic_num = Y_R[0].shape[1]
+    stimulus_num = len(Y_Q)
+    
+    Y = [qr_inverse(Y_Q[i],Y_R[i],Y_P[i]).T for i in range(len(Y_Q))]
+    
+    R = np.zeros((filterbank_num, stimulus_num))
+    
+    for k in range(filterbank_num):
+        tmp = X[k,:,:]
+        X_Q, X_R, X_P = qr_remove_mean(tmp.T)
+        for i in range(stimulus_num):
+            A_r = U[k,i,:,:]
+            B_r = V[k,i,:,:]
+            
+            a = A_r.T @ tmp
+            b = B_r.T @ Y[i]
+            a = np.reshape(a, (-1))
+            b = np.reshape(b, (-1))
+            
+            # r2 = stats.pearsonr(a, b)[0]
+            r = stats.pearsonr(a, b)[0]
+            R[k,i] = r
+    return R
+    
+
 def _r_cca(X: ndarray,
            Y_Q: List[ndarray],
            Y_R: List[ndarray],
@@ -124,12 +183,24 @@ class SCCA(BaseModel):
                  n_component: Optional[int] = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
-                 force_output_UV: Optional[bool] = False):
+                 force_output_UV: Optional[bool] = False,
+                 update_UV: Optional[bool] = True):
+        """
+        Special Parameters
+        ----------
+        force_output_UV : Optional[bool] 
+            Whether store U and V. Default is False
+        update_UV: Optional[bool]
+            Whether update U and V in next time of applying "predict" 
+            If false, and U and V have not been stored, they will be stored
+            Default is True
+        """
         super().__init__(ID = 'sCCA',
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
         self.force_output_UV = force_output_UV
+        self.update_UV = update_UV
         
     def fit(self,
             X: Optional[List[ndarray]] = None,
@@ -165,14 +236,20 @@ class SCCA(BaseModel):
         Y_R = self.model['ref_sig_R']
         Y_P = self.model['ref_sig_P']
         force_output_UV = self.force_output_UV
+        update_UV = self.update_UV
         
-        if force_output_UV:
-            r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=force_output_UV))(a) for a in X))
+        if update_UV or self.model['U'] is None or self.model['V'] is None:
+            if force_output_UV or not update_UV:
+                r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                self.model['U'] = U
+                self.model['V'] = V
+            else:
+                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
         else:
-            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=force_output_UV))(a) for a in X)
+            U = self.model['U']
+            V = self.model['V']
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
-        self.model['U'] = U
-        self.model['V'] = V
         
         return Y_pred
