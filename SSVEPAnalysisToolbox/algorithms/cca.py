@@ -20,7 +20,7 @@ def _r_cca(X: ndarray,
            Y_R: List[ndarray],
            Y_P: List[ndarray],
            n_component: int,
-           force_calculate_UV: Optional[bool] = False) -> Union[ndarray, Tuple[ndarray, ndarray, ndarray]]:
+           force_output_UV: Optional[bool] = False) -> Union[ndarray, Tuple[ndarray, ndarray, ndarray]]:
     """
     Calculate correlation of CCA for single trial data
 
@@ -37,7 +37,7 @@ def _r_cca(X: ndarray,
         P of reference signals
     n_component : int
         Number of eigvectors for spatial filters.
-    force_calculate_UV : Optional[bool]
+    force_output_UV : Optional[bool]
         Whether return spatial filter 'U' and weights of harmonics 'V'
 
     Returns
@@ -74,7 +74,7 @@ def _r_cca(X: ndarray,
             else:
                 full_matrices=True
             
-            if n_component == 0 and force_calculate_UV is False:
+            if n_component == 0 and force_output_UV is False:
                 D = slin.svd(svd_X,
                              full_matrices=full_matrices,
                              compute_uv=False,
@@ -110,7 +110,7 @@ def _r_cca(X: ndarray,
             # R1[k,i] = r1
             # R2[k,i] = r2
             R[k,i] = r
-    if force_calculate_UV:
+    if force_output_UV:
         return R, U, V
     else:
         return R
@@ -124,12 +124,12 @@ class SCCA(BaseModel):
                  n_component: Optional[int] = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
-                 force_calculate_UV: Optional[bool] = False):
+                 force_output_UV: Optional[bool] = False):
         super().__init__(ID = 'sCCA',
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
-        self.force_calculate_UV = force_calculate_UV
+        self.force_output_UV = force_output_UV
         
     def fit(self,
             X: Optional[List[ndarray]] = None,
@@ -164,12 +164,12 @@ class SCCA(BaseModel):
         Y_Q = self.model['ref_sig_Q']
         Y_R = self.model['ref_sig_R']
         Y_P = self.model['ref_sig_P']
-        force_calculate_UV = self.force_calculate_UV
+        force_output_UV = self.force_output_UV
         
-        if force_calculate_UV:
-            r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_calculate_UV=force_calculate_UV))(a) for a in X))
+        if force_output_UV:
+            r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=force_output_UV))(a) for a in X))
         else:
-            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_calculate_UV=force_calculate_UV))(a) for a in X)
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=force_output_UV))(a) for a in X)
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         self.model['U'] = U
