@@ -2,6 +2,7 @@
 
 from typing import Union, Optional, Dict, List, Tuple
 from numpy import ndarray, linspace, pi, sin, cos, expand_dims, concatenate
+import numpy as np
 
 def gen_ref_sin(freq: float,
                 srate: int,
@@ -41,3 +42,19 @@ def gen_ref_sin(freq: float,
     y = concatenate(y, axis = 0)
         
     return y
+
+def floor(x: float) -> int:
+    """
+    Floor operation. Convert np.floor result to int
+
+    Parameters
+    ----------
+    x : float
+
+    Returns
+    -------
+    int
+
+    """
+    
+    return int(np.floor(x))

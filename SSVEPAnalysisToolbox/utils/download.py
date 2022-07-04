@@ -29,5 +29,6 @@ def download_single_file(source_url: str,
         
     retrieve(source_url, known_hash, 
              fname = file_name,
-             path = desertation_dir)
+             path = desertation_dir,
+             progressbar=True)
     

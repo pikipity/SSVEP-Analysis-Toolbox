@@ -5,11 +5,12 @@ import numpy as np
 import py7zr
 
 from typing import Union, Optional, Dict, List, Tuple
-from numpy import ndarray
+from numpy import ndarray, transpose
 
 from .basedataset import BaseDataset
 from .subjectinfo import SubInfo
 from ..utils.download import download_single_file
+from ..utils.io import loadmat
 
 class BenchmarkDataset(BaseDataset):
     """
@@ -27,13 +28,13 @@ class BenchmarkDataset(BaseDataset):
     """
 
     _CHANNELS = [
-        'FP1', 'FPZ', 'FP2', 'AF3', 'AF4', 'F7', 'F5', 'F3', 'F1',
-        'FZ', 'F2', 'F4', 'F6', 'F8', 'FT7', 'FC5', 'FC3', 'FC1',
-        'FCZ', 'FC2', 'FC4', 'FC6', 'FT8', 'T7', 'C5', 'C3', 'C1',
-        'CZ', 'C2', 'C4', 'C6', 'T8', 'TP7', 'CP5', 'CP3', 'CP1',
-        'CPZ', 'CP2', 'CP4', 'CP6', 'TP8', 'P7', 'P5', 'P3', 'P1',
-        'PZ', 'P2', 'P4', 'P6', 'P8', 'PO7', 'PO5', 'PO3', 'POZ',
-        'PO4', 'PO6', 'PO8', 'O1', 'OZ', 'O2']
+        'FP1','FPZ','FP2','AF3','AF4','F7','F5','F3','F1','FZ','F2',
+        'F4','F6','F8','FT7','FC5','FC3','FC1','FCz','FC2','FC4','FC6',
+        'FT8','T7','C5','C3','C1','Cz','C2','C4','C6','T8','M1','TP7',
+        'CP5','CP3','CP1','CPZ','CP2','CP4','CP6','TP8','M2','P7','P5',
+        'P3','P1','PZ','P2','P4','P6','P8','PO7','PO5','PO3','POz','PO4',
+        'PO6','PO8','CB1','O1','Oz','O2','CB2'
+    ]
 
     _FREQS = [
         8, 9, 10, 11, 12, 13, 14, 15, 
@@ -54,9 +55,12 @@ class BenchmarkDataset(BaseDataset):
     _SUBJECTS = [SubInfo(ID = 'S{:d}'.format(sub_idx)) for sub_idx in range(1,35+1,1)]
     
     def __init__(self, 
-                 path: Optional[str] = None):
+                 path: Optional[str] = None,
+                 path_support_file: Optional[str] = None):
         if path is None:
             path = os.path.join(os.getcwd(),'benchmark')
+        if path_support_file is None:
+            path_support_file = os.path.join(os.getcwd(),'benchmark_support_file')
         super().__init__(subjects = self._SUBJECTS, 
                          ID = 'Benchmark Dataset', 
                          url = 'http://bci.med.tsinghua.edu.cn/upload/yijun/', 
@@ -72,26 +76,29 @@ class BenchmarkDataset(BaseDataset):
                                           'Sub_info.txt',
                                           '64-channels.loc',
                                           'Freq_Phase.mat'],
-                         path_support_file = path,
-                         default_t_latency = 0.5 + 0.14)
+                         path_support_file = path_support_file,
+                         t_prestim = 0.5,
+                         default_t_latency = 0.14)
     
     def download_single_subject(self,
                                 subject: SubInfo):
         source_url = self.url + subject.ID + '.mat.7z'
-        desertation = subject.path + subject.ID + '.mat.7z'
+        desertation = os.path.join(subject.path, subject.ID + '.mat.7z')
         
-        data_file = subject.path + subject.ID + '.mat'
+        data_file = os.path.join(subject.path, subject.ID + '.mat')
         
         if not os.path.isfile(data_file):
             download_single_file(source_url, desertation)
         
             with py7zr.SevenZipFile(desertation,'r') as archive:
                 archive.extractall(subject.path)
+                
+            os.remove(desertation)
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
-        desertation = self.path_support_file + file_name
+        desertation = os.path.join(self.path_support_file, file_name)
         
         if not os.path.isfile(desertation):
             download_single_file(source_url, desertation)
@@ -104,7 +111,11 @@ class BenchmarkDataset(BaseDataset):
             raise ValueError('Subject index should be smaller than {:d}'.format(len(self.subjects)))
         
         sub_info = self.subjects[sub_idx]
-        file_path = sub_info.path + sub_info.ID + '.mat'
+        file_path = os.path.join(sub_info.path, sub_info.ID + '.mat')
         
+        mat_data = loadmat(file_path)
+        data = mat_data['data']
+        data = transpose(data, (3,2,0,1)) # block_num * stimulus_num * ch_num * whole_trial_samples
         
+        return data
         
