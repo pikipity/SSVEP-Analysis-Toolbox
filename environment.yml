@@ -10,5 +10,6 @@ dependencies:
   - pip
   - py7zr
   - pooch
+  - joblib
   - pip:
     - mat73
