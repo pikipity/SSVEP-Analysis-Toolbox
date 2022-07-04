@@ -24,7 +24,8 @@ test_block, train_block = dataset.leave_one_block_out(block_idx)
 ref_sig = dataset.get_ref_sig(tw,harmonic_num)
 X, Y = dataset.get_data_all_stim(sub_idx,test_block,ch_used,tw)
 
-sCCAModel = SCCA(weights_filterbank = weights_filterbank)
+sCCAModel = SCCA(weights_filterbank = weights_filterbank,
+                 force_calculate_UV = True)
 sCCAModel.fit(ref_sig = ref_sig)
 Y_pred = sCCAModel.predict(X)
 
