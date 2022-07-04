@@ -172,6 +172,56 @@ class BaseDataset(metaclass=abc.ABCMeta):
         
         return test_block, train_block
     
+    def get_data(self,
+                 sub_idx: int,
+                 blocks: List[int],
+                 trials: List[int],
+                 channels: List[int],
+                 sig_len: float,
+                 t_latency: Optional[float] = None) -> Tuple[List[ndarray], List[int]]:
+        """
+        Construct data, corresponding labels, and sine-cosine-based reference signals 
+        from one subject (specific stimuli)
+
+        Parameters
+        ----------
+        sub_idx : int
+            Subject index
+        blocks:
+            List of block indx
+            Note - The index of the 1st block is 0
+        trials : List[int]
+            List of trial indx
+            Note - The index of the 1st trial is 0
+        channels: List[int]
+            List of channels
+        sig_len : float
+            signal length (in second)
+        t_latency : Optional[float]
+            latency time (in second)
+
+        Returns
+        -------
+        X: List[ndarray]
+            List of single trial data
+        Y: List[int]
+            List of corresponding label (stimulus idx)
+            Note - The index of the 1st stimulus is 0
+        """
+        if t_latency is None:
+            t_latency = self.default_t_latency
+        if type(blocks) is not list:
+            blocks = [blocks]
+        if type(trials) is not list:
+            trials = [trials]
+            
+        sub_data = self.get_sub_data(sub_idx)
+        
+        X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, channels, sig_len, t_latency) for block_idx in blocks for stim_idx in trials]
+        Y = [stim_idx for block_idx in blocks for stim_idx in trials]
+        
+        return X, Y
+    
     def get_data_all_stim(self,
                           sub_idx: int,
                           blocks: List[int],
@@ -204,15 +254,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
             List of corresponding label (stimulus idx)
             Note - The index of the 1st stimulus is 0
         """
-        if t_latency is None:
-            t_latency = self.default_t_latency
         if type(blocks) is not list:
             blocks = [blocks]
+        trials = [i for i in range(self.stim_info['stim_num'])]
             
-        sub_data = self.get_sub_data(sub_idx)
-        
-        X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, channels, sig_len, t_latency) for block_idx in blocks for stim_idx in range(self.stim_info['stim_num'])]
-        Y = [stim_idx for block_idx in blocks for stim_idx in range(self.stim_info['stim_num'])]
+        X, Y = self.get_data(sub_idx, blocks, trials, channels, sig_len, t_latency)
         
         return X, Y
     
