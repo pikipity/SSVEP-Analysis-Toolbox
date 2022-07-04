@@ -22,7 +22,8 @@ block_idx = 0
 test_block, train_block = dataset.leave_one_block_out(block_idx)
 
 ref_sig = dataset.get_ref_sig(tw,harmonic_num)
-X, Y = dataset.get_data_all_stim(sub_idx,test_block,ch_used,tw)
+X, Y = dataset.get_data_all_stim(sub_idx,test_block,ch_used,tw,
+                                 shuffle=True)
 
 sCCAModel = SCCA(weights_filterbank = weights_filterbank,
                  force_output_UV = True)

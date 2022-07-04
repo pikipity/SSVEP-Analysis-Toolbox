@@ -7,6 +7,9 @@ import abc
 from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray, expand_dims
 
+import random
+random.seed()
+
 from .subjectinfo import SubInfo
 from ..utils.algsupport import gen_ref_sin, floor
 
@@ -178,7 +181,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  trials: List[int],
                  channels: List[int],
                  sig_len: float,
-                 t_latency: Optional[float] = None) -> Tuple[List[ndarray], List[int]]:
+                 t_latency: Optional[float] = None,
+                 shuffle: Optional[bool] = False) -> Tuple[List[ndarray], List[int]]:
         """
         Construct data, corresponding labels, and sine-cosine-based reference signals 
         from one subject (specific stimuli)
@@ -199,6 +203,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
             signal length (in second)
         t_latency : Optional[float]
             latency time (in second)
+        shuffle : Optional[bool]
+            Whether shuffle trials
 
         Returns
         -------
@@ -220,14 +226,19 @@ class BaseDataset(metaclass=abc.ABCMeta):
         X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, channels, sig_len, t_latency) for block_idx in blocks for stim_idx in trials]
         Y = [stim_idx for block_idx in blocks for stim_idx in trials]
         
-        return X, Y
+        trial_seq = [i for i in range(len(X))]
+        if shuffle:
+            random.shuffle(trial_seq)
+        
+        return [X[i] for i in trial_seq], [Y[i] for i in trial_seq]
     
     def get_data_all_stim(self,
                           sub_idx: int,
                           blocks: List[int],
                           channels: List[int],
                           sig_len: float,
-                          t_latency: Optional[float] = None) -> Tuple[List[ndarray], List[int]]:
+                          t_latency: Optional[float] = None,
+                          shuffle: Optional[bool] = False) -> Tuple[List[ndarray], List[int]]:
         """
         Construct data, corresponding labels, and sine-cosine-based reference signals 
         from one subject (all stimuli)
@@ -245,6 +256,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
             signal length (in second)
         t_latency : Optional[float]
             latency time (in second)
+        shuffle : Optional[bool]
+            Whether shuffle trials
 
         Returns
         -------
@@ -260,7 +273,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
             
         X, Y = self.get_data(sub_idx, blocks, trials, channels, sig_len, t_latency)
         
-        return X, Y
+        trial_seq = [i for i in range(len(X))]
+        if shuffle:
+            random.shuffle(trial_seq)
+        
+        return [X[i] for i in trial_seq], [Y[i] for i in trial_seq]
     
     def get_data_single_trial(self,
                              sub_data: ndarray,
