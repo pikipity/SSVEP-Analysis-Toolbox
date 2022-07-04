@@ -17,7 +17,7 @@ tw = 1
 sub_idx = 0
 block_idx = 0
 
-test_block, train_block = dataset.generate_test_train_blocks_for_specific_block(block_idx)
+test_block, train_block = dataset.leave_one_block_out(block_idx)
 
 ref_sig = dataset.get_ref_sig(tw,harmonic_num)
 X, Y = dataset.get_data_all_stim(sub_idx,train_block,ch_used,tw)

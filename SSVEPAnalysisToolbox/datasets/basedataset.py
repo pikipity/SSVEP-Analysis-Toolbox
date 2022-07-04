@@ -144,10 +144,10 @@ class BaseDataset(metaclass=abc.ABCMeta):
             for file_name in self.support_files:
                 self.download_file(file_name)
     
-    def generate_test_train_blocks_for_specific_block(self,
-                                                      block_idx: int) -> Tuple[List[int], List[int]]:
+    def leave_one_block_out(self,
+                            block_idx: int) -> Tuple[List[int], List[int]]:
         """
-        Generate testing and training blocks for specific block
+        Generate testing and training blocks for specific block based on leave-one-out rule
 
         Parameters
         ----------
