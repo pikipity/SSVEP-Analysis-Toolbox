@@ -78,6 +78,7 @@ class BenchmarkDataset(BaseDataset):
                                           'Freq_Phase.mat'],
                          path_support_file = path_support_file,
                          t_prestim = 0.5,
+                         t_break = 0.5,
                          default_t_latency = 0.14)
     
     def download_single_subject(self,

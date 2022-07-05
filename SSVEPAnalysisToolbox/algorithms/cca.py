@@ -7,6 +7,7 @@ from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray
 from joblib import Parallel, delayed
 from functools import partial
+from copy import deepcopy
 
 import numpy as np
 import scipy.linalg as slin
@@ -464,6 +465,15 @@ class SCCA_canoncorr(BaseModel):
         self.model['U'] = None # Spatial filter of EEG
         self.model['V'] = None # Weights of harmonics
         
+    def __copy__(self):
+        copy_model = SCCA_canoncorr(n_component = self.n_component,
+                                    n_jobs = self.n_jobs,
+                                    weights_filterbank = self.model['weights_filterbank'],
+                                    force_output_UV = self.force_output_UV,
+                                    update_UV = self.update_UV)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+        
     def fit(self,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
@@ -534,6 +544,15 @@ class SCCA_qr(BaseModel):
         
         self.model['U'] = None # Spatial filter of EEG
         self.model['V'] = None # Weights of harmonics
+        
+    def __copy__(self):
+        copy_model = SCCA_qr(n_component = self.n_component,
+                                    n_jobs = self.n_jobs,
+                                    weights_filterbank = self.model['weights_filterbank'],
+                                    force_output_UV = self.force_output_UV,
+                                    update_UV = self.update_UV)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
         
     def fit(self,
             X: Optional[List[ndarray]] = None,
@@ -615,6 +634,14 @@ class ECCA(BaseModel):
         self.model['U3'] = None
         self.model['V3'] = None
         
+    def __copy__(self):
+        copy_model = ECCA(n_component = self.n_component,
+                            n_jobs = self.n_jobs,
+                            weights_filterbank = self.model['weights_filterbank'],
+                            update_UV = self.update_UV)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+        
     def fit(self,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
@@ -652,10 +679,12 @@ class ECCA(BaseModel):
         U3 = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
         V3 = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
         for filterbank_idx in range(filterbank_num):
-            for stim_idx, (template_sig_single, ref_sig_single) in enumerate(zip(template_sig,ref_sig)):
-                U, V, _ = canoncorr(template_sig_single[filterbank_idx,:,:].T, ref_sig_single.T, True)
-                U3[filterbank_idx, stim_idx, :, :] = U[:channel_num,:n_component]
-                V3[filterbank_idx, stim_idx, :, :] = V[:harmonic_num,:n_component]
+            U, V, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
+                                                                                                            Y=ref_sig_single.T) 
+                                                        for template_sig_single, ref_sig_single in zip(template_sig,ref_sig)))
+            for stim_idx, (u, v) in enumerate(zip(U,V)):
+                U3[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
+                V3[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
         self.model['U3'] = U3
         self.model['V3'] = V3
             

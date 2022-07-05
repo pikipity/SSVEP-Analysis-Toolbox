@@ -28,6 +28,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  trial_len: float,
                  stim_info: Dict[str, Union[int, List[float]]],
                  t_prestim: float,
+                 t_break: float,
                  support_files: Optional[List[str]] = None,
                  path_support_file: Optional[str] = None,
                  default_t_latency: Optional[float] = 0):
@@ -74,6 +75,9 @@ class BaseDataset(metaclass=abc.ABCMeta):
         t_prestim: float
             Pre-stimulus time
             
+        t_break: float
+            Time required for shifting visual attention
+            
         support_files: Optional[List[str]]
             List of support file names
             
@@ -82,11 +86,6 @@ class BaseDataset(metaclass=abc.ABCMeta):
             
         default_t_latency: Optional[float]
             Default latency time
-            
-        Raises
-        -----------------------
-        ValueError
-            raise error if lengths of subjects and paths are not equal
         """
         if type(paths) is str:
             paths = [paths for _ in range(len(subjects))]

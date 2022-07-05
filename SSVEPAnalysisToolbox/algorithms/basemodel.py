@@ -35,6 +35,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         if n_component < 0:
             raise ValueError('n_component must be larger than 0')
         
+        self.ID = ID
         self.n_component = n_component
         self.n_jobs = n_jobs
         
@@ -85,5 +86,12 @@ class BaseModel(metaclass=abc.ABCMeta):
         Y : List[int]
             List of recognition labels (stimulus indices)
             List shape: (trial_num,)
+        """
+        pass
+    
+    @abc.abstractclassmethod
+    def __copy__(self):
+        """
+        copy itself
         """
         pass
