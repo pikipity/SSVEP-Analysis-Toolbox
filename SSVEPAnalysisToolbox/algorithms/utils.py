@@ -70,22 +70,72 @@ def qr_inverse(Q: ndarray,
     Parameters
     ----------
     Q : ndarray
-        (M * K)
+        (M * K) - reference
+        (filterbank_num * M * K) - template
     R : ndarray
-        (K * N)
+        (K * N) - reference
+        (filterbank_num * K * N) - template
     P : ndarray
-        (N,)
+        (N,) - reference
+        (filterbank_num * N) - template
 
     Returns
     -------
     X : ndarray
-        (M * N)
+        (M * N) - reference
+        (filterbank_num * M * N) - template
     """
-    tmp = Q @ R
-    X = np.zeros(tmp.shape)
-    for i in range(X.shape[1]):
-        X[:,P[i]] = tmp[:,i]
+    if len(Q.shape)==2: # reference
+        tmp = Q @ R
+        X = np.zeros(tmp.shape)
+        for i in range(X.shape[1]):
+            X[:,P[i]] = tmp[:,i]
+    elif len(Q.shape)==3: # template
+        X = [np.expand_dims(qr_inverse(Q[i,:,:], R[i,:,:], P[i,:]), axis=0) for i in range(Q.shape[0])]
+        X = np.concatenate(X, axis=0)
+    else:
+        raise ValueError('Unknown data type')
     return X
+
+def qr_list(X : List[ndarray]) -> Tuple[List[ndarray], List[ndarray], List[ndarray]]:
+    """
+    QR decomposition of list X
+    Note: Elements in X will be transposed first and then decomposed
+
+    Parameters
+    ----------
+    X : List[ndarray]
+
+    Returns
+    -------
+    Q : List[ndarray]
+    R : List[ndarray]
+    P : List[ndarray]
+    """
+    Q = []
+    R = []
+    P = []
+    for el in X:
+        if len(el.shape) == 2: # reference signal
+            Q_tmp, R_tmp, P_tmp = qr_remove_mean(el.T)
+            Q.append(Q_tmp)
+            R.append(R_tmp)
+            P.append(P_tmp)
+        elif len(el.shape) == 3: # template signal
+            Q_tmp = []
+            R_tmp = []
+            P_tmp = []
+            for k in range(el.shape[0]):
+                Q_tmp_tmp, R_tmp_tmp, P_tmp_tmp = qr_remove_mean(el[k,:,:].T)
+                Q_tmp.append(np.expand_dims(Q_tmp_tmp, axis=0))
+                R_tmp.append(np.expand_dims(R_tmp_tmp, axis=0))
+                P_tmp.append(np.expand_dims(P_tmp_tmp, axis=0))
+            Q.append(np.concatenate(Q_tmp,axis=0))
+            R.append(np.concatenate(R_tmp,axis=0))
+            P.append(np.concatenate(P_tmp,axis=0))
+        else:
+            raise ValueError('Unknown data type')
+    return Q, R, P
 
 def qr_remove_mean(X: ndarray) -> Tuple[ndarray, ndarray, ndarray]:
     """
