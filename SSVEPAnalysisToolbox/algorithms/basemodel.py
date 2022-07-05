@@ -28,7 +28,9 @@ class BaseModel(metaclass=abc.ABCMeta):
         n_jobs : Optional[int], optional
             Number of CPU for computing different trials. The default is None.
         weights_filterbank : Optional[List[float]], optional
-            Weights of spatial filters. The default is None.
+            Weights of spatial filters. 
+            If None, all weights are 1.
+            The default is None.
         """
         if n_component < 0:
             raise ValueError('n_component must be larger than 0')
