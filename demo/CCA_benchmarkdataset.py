@@ -8,52 +8,52 @@ import time
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
+from SSVEPAnalysisToolbox.pipline.piplineindividual import PiplineIndividual, gen_train_test_blocks_leave_one_block_out, gen_train_test_trials_all_trials
 
-weights_filterbank = suggested_weights_filterbank()
-ch_used = suggested_ch()
-harmonic_num = 5
-
+# Prepare dataset
 dataset = BenchmarkDataset(path = '/data/2016_Tsinghua_SSVEP_database')
 dataset.regist_preprocess(lambda X: preprocess(X,dataset.srate))
 dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
+dataset_container = [
+                        dataset
+                    ]
+ch_used = [
+              suggested_ch()
+          ]
+harmonic_num = [
+                   5
+               ]
 
-tw = 4 
-sub_idx = 0
-block_idx = 0
+# Prepare models
+weights_filterbank = suggested_weights_filterbank()
+model_container = [
+                   SCCA_qr(weights_filterbank = weights_filterbank),
+                   SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                   ECCA(weights_filterbank = weights_filterbank)
+                  ]
 
-test_block, train_block = dataset.leave_one_block_out(block_idx)
+# Prepare simulation parameters
+# tw_seq = [i*0.25 for i in range(1,4+1,1)]
+tw_seq = [4]
 
-ref_sig = dataset.get_ref_sig(tw,harmonic_num)
-X, Y = dataset.get_data_all_stim(sub_idx,test_block,ch_used,tw)
+testing_blocks, training_blocks = gen_train_test_blocks_leave_one_block_out(dataset_container)
 
-# t_star1 = time.time()
-# Model1 = SCCA_qr(weights_filterbank = weights_filterbank)
-# Model1.fit(ref_sig = ref_sig)
-# t1_train = time.time() - t_star1
-# t_star1 = time.time()
-# Y_pred1 = Model1.predict(X)
-# t1_test = time.time() - t_star1
-
-# t_star2 = time.time()
-# Model2 = SCCA_canoncorr(weights_filterbank = weights_filterbank)
-# Model2.fit(ref_sig = ref_sig)
-# t2_train = time.time() - t_star2
-# t_star2 = time.time()
-# Y_pred2 = Model2.predict(X)
-# t2_test = time.time() - t_star2
-
-ref_sig = dataset.get_ref_sig(tw,harmonic_num)
-X_train, Y_train = dataset.get_data_all_stim(sub_idx,train_block,ch_used,tw,
-                                            shuffle=True)
-
-t_star3 = time.time()
-Model3 = ECCA(weights_filterbank = weights_filterbank)
-Model3.fit(X_train, Y_train, ref_sig = ref_sig)
-t3_train = time.time() - t_star3
-t_star3 = time.time()
-Y_pred3 = Model3.predict(X)
-t3_test = time.time() - t_star3
+testing_trials, training_trials = gen_train_test_trials_all_trials(dataset_container)
 
 
+pipline = PiplineIndividual(ch_used = ch_used,
+                            harmonic_num = harmonic_num,
+                            model_container = model_container,
+                            dataset_container = dataset_container,
+                            save_model = False,
+                            tw_seq = tw_seq,
+                            training_blocks = training_blocks,
+                            testing_blocks = testing_blocks,
+                            training_trials = training_trials,
+                            testing_trials = testing_trials,
+                            disp_processbar = True,
+                            shuffle_trials = False)
+
+pipline.run(n_jobs = 5)
 
 
