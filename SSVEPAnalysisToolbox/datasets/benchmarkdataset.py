@@ -119,4 +119,10 @@ class BenchmarkDataset(BaseDataset):
         data = transpose(data, (3,2,0,1)) # block_num * stimulus_num * ch_num * whole_trial_samples
         
         return data
+    
+    def get_label_single_trial(self,
+                               sub_idx: int,
+                               block_idx: int,
+                               stim_idx: int) -> int:
+        return stim_idx
         

@@ -223,7 +223,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
         sub_data = self.get_sub_data(sub_idx)
         
         X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, channels, sig_len, t_latency) for block_idx in blocks for stim_idx in trials]
-        Y = [stim_idx for block_idx in blocks for stim_idx in trials]
+        Y = [self.get_label_single_trial(sub_idx,block_idx, stim_idx) for block_idx in blocks for stim_idx in trials]
         
         trial_seq = [i for i in range(len(X))]
         if shuffle:
@@ -482,6 +482,29 @@ class BaseDataset(metaclass=abc.ABCMeta):
         """
         pass
     
+    @abc.abstractclassmethod
+    def get_label_single_trial(self,
+                               sub_idx: int,
+                               block_idx: int,
+                               stim_idx: int) -> int:
+        """
+        Get the label of single trial
+
+        Parameters
+        ----------
+        sub_idx : int
+            Subject index
+        block_idx : int
+            Block index
+        stim_idx : int
+            Trial index
+
+        Returns
+        -------
+        label: int
+            Label of stimulus
+        """
+        pass
     
     
     
