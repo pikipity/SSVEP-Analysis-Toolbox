@@ -169,7 +169,7 @@ class PiplineIndividual(BasePipline):
                 if pbar is not None:
                     pbar.close()
                 print('Dataset {:d}: {:s}'.format(dataset_idx, dataset.ID))
-                pbar = create_pbar([len(self.tw_seq), len(dataset.subjects), len(dataset_training_blocks)],
+                pbar = create_pbar([len(self.tw_seq), len(dataset.subjects), len(dataset_training_blocks), len(self.model_container)*2],
                                    'T: {:d}/{:d}, Sub: {:d}/{:d}, Itr: {:d}/{:d}, Train: {:d}/{:d}, Test: {:d}/{:d}'.format(0,len(self.tw_seq),
                                                                                                                      0,len(dataset.subjects),
                                                                                                                      0,len(dataset_training_blocks),
@@ -210,6 +210,7 @@ class PiplineIndividual(BasePipline):
                             PerformanceContainer_one_iteration[train_model_idx].add('train-times',time.time()-tic)
                             model_container_one_iteration.append(trained_model)
                             if self.disp_processbar:
+                                pbar.update(1)
                                 pbar.set_description('T: {:d}/{:d}, Sub: {:d}/{:d}, Itr: {:d}/{:d}, Train: {:d}/{:d}, Test: {:d}/{:d}'.format(tw_idx+1,len(self.tw_seq),
                                                                                                                                        sub_idx+1,len(dataset.subjects),
                                                                                                                                        iteration_idx+1,len(dataset_training_blocks),
@@ -231,6 +232,7 @@ class PiplineIndividual(BasePipline):
                             PerformanceContainer_one_iteration[test_model_idx].add('predict-labels', pred_label)
                             PerformanceContainer_one_iteration[test_model_idx].add('true-labels', Y)
                             if self.disp_processbar:
+                                pbar.update(1)
                                 pbar.set_description('T: {:d}/{:d}, Sub: {:d}/{:d}, Itr: {:d}/{:d}, Train: {:d}/{:d}, Test: {:d}/{:d}'.format(tw_idx+1,len(self.tw_seq),
                                                                                                                                        sub_idx+1,len(dataset.subjects),
                                                                                                                                        iteration_idx+1,len(dataset_training_blocks),
@@ -241,13 +243,13 @@ class PiplineIndividual(BasePipline):
                         if self.save_model:
                             model_container_one_sub.append(model_container_one_iteration)
                         
-                        if self.disp_processbar:
-                            pbar.update(1)
-                            pbar.set_description('T: {:d}/{:d}, Sub: {:d}/{:d}, Itr: {:d}/{:d}, Train: {:d}/{:d}, Test: {:d}/{:d}'.format(tw_idx+1,len(self.tw_seq),
-                                                                                                                                   sub_idx+1,len(dataset.subjects),
-                                                                                                                                   iteration_idx+1,len(dataset_training_blocks),
-                                                                                                                                   train_model_idx+1,len(self.model_container),
-                                                                                                                                   test_model_idx+1,len(self.model_container)))
+                        # if self.disp_processbar:
+                        #     pbar.update(1)
+                        #     pbar.set_description('T: {:d}/{:d}, Sub: {:d}/{:d}, Itr: {:d}/{:d}, Train: {:d}/{:d}, Test: {:d}/{:d}'.format(tw_idx+1,len(self.tw_seq),
+                        #                                                                                                            sub_idx+1,len(dataset.subjects),
+                        #                                                                                                            iteration_idx+1,len(dataset_training_blocks),
+                        #                                                                                                            train_model_idx+1,len(self.model_container),
+                        #                                                                                                            test_model_idx+1,len(self.model_container)))
                         
                     PerformanceContainer_one_tw.append(PerformanceContainer_one_sub)
                     if self.save_model:
@@ -255,12 +257,12 @@ class PiplineIndividual(BasePipline):
                 PerformanceContainer_one_dataset.append(PerformanceContainer_one_tw)
                 if self.save_model:
                     model_container_one_dataset.append(model_container_one_tw)
-            self.trained_model_container.append(PerformanceContainer_one_dataset)
+            self.performance_container.append(PerformanceContainer_one_dataset)
             if self.save_model:
-                self.performance_container.append(model_container_one_dataset)
+                self.trained_model_container.append(model_container_one_dataset)
 
         if self.disp_processbar:
-            print('Finish')
+            print('\nFinish')
         
                     
                         
