@@ -33,8 +33,8 @@ model_container = [
                   ]
 
 # Prepare simulation parameters
-# tw_seq = [i*0.25 for i in range(1,4+1,1)]
-tw_seq = [4]
+tw_seq = [i*0.25 for i in range(1,2+1,1)]
+tw_seq.append(4)
 
 testing_blocks, training_blocks = gen_train_test_blocks_leave_one_block_out(dataset_container)
 
@@ -55,5 +55,19 @@ pipline = PiplineIndividual(ch_used = ch_used,
                             shuffle_trials = False)
 
 pipline.run(n_jobs = 5)
+
+# dataset_idx = 0
+# method_idx = 2
+# acc_store = np.zeros((35,3))
+
+# for tw_idx in range(3):
+#     for sub_idx in range(35):
+#         tmp=[]
+#         for b_idx in range(6):
+#             y_prd = pipline.performance_container[dataset_idx][tw_idx][sub_idx][b_idx][method_idx].container['predict-labels'][0]
+#             y_true = pipline.performance_container[dataset_idx][tw_idx][sub_idx][b_idx][method_idx].container['true-labels'][0]
+#             acc = cal_acc(y_true, y_prd)
+#             tmp.append(acc)
+#         acc_store[sub_idx,tw_idx] = sum(tmp)/len(tmp)
 
 
