@@ -38,29 +38,41 @@ def create_pbar(loop_list_num: List[int],
 class PerformanceContainer:
     """
     Container of performance, containing:
-        - true_label: True labels
-        - pred_label: Predicted labels
+        - true_label_train: True labels for train
+        - pred_label_train: Predicted labels for train
+        - true_label_test: True labels for test
+        - pred_label_test: Preducted labels for test
         - train_time: Training times
-        - test_time: Testing times
+        - test_time_train: Testing times for train
+        - test_time_test: Testing times for test
     """
     def __init__(self, 
                  method_ID: str):
         self.method_ID = method_ID
         self.clear()
         
-    def add_true_label(self,true_label:list):
-        self.true_label.append(true_label)
-    def add_pred_label(self,pred_label:list):
-        self.pred_label.append(pred_label)
+    def add_true_label_train(self,true_label:list):
+        self.true_label_train.extend(true_label)
+    def add_pred_label_train(self,pred_label:list):
+        self.pred_label_train.extend(pred_label)
+    def add_true_label_test(self,true_label:list):
+        self.true_label_test.extend(true_label)
+    def add_pred_label_test(self,pred_label:list):
+        self.pred_label_test.extend(pred_label)
     def add_train_time(self,train_time:list):
         self.train_time.append(train_time)
-    def add_test_time(self,test_time:list):
-        self.test_time.append(test_time)
+    def add_test_time_train(self,test_time:list):
+        self.test_time_train.append(test_time)
+    def add_test_time_test(self,test_time:list):
+        self.test_time_test.append(test_time)
     def clear(self):
-        self.true_label = []
-        self.pred_label = []
+        self.true_label_train = []
+        self.pred_label_train = []
+        self.true_label_test = []
+        self.pred_label_test = []
         self.train_time = []
-        self.test_time = []
+        self.test_time_train = []
+        self.test_time_test = []
 
 class TrialInfo:
     """
@@ -137,6 +149,55 @@ class TrialInfo:
         self.tw = tw
         self.shuffle.append(shuffle)
         return self
+    
+    def get_data(self,
+                 dataset_container: list) -> Tuple[list, list, list]:
+        """
+        Get data based trian information
+
+        Parameters
+        ----------
+        dataset_container : list
+            List of datasets
+
+        Returns
+        -------
+        X: list
+            Data
+        Y: list
+            Labels
+        ref_sig: list
+            Reference signal
+
+        """
+        dataset = dataset_container[self.dataset_idx[0]]
+        ref_sig = dataset.get_ref_sig(self.tw,self.harmonic_num)
+        X = []
+        Y = []
+        for (dataset_idx,
+            sub_idx,
+            block_idx,
+            trial_idx,
+            ch_idx,
+            t_latency,
+            shuffle) in zip(self.dataset_idx, 
+                           self.sub_idx,
+                           self.block_idx,
+                           self.trial_idx,
+                           self.ch_idx,
+                           self.t_latency,
+                           self.shuffle):
+            dataset = dataset_container[dataset_idx]
+            X_tmp, Y_tmp = dataset.get_data(sub_idx = sub_idx,
+                                            blocks = block_idx,
+                                            trials = trial_idx,
+                                            channels = ch_idx,
+                                            sig_len = self.tw,
+                                            t_latency = t_latency,
+                                            shuffle = shuffle)
+        X.extend(X_tmp)
+        Y.extend(Y_tmp)
+        return X, Y, ref_sig
         
 
 class BaseEvaluator:
@@ -176,7 +237,8 @@ class BaseEvaluator:
         self.trained_model_container = []
         
     def run(self,
-            n_jobs : Optional[int] = None):
+            n_jobs : Optional[int] = None,
+            eval_train : bool = False):
         """
         Run evaluator
 
@@ -184,6 +246,8 @@ class BaseEvaluator:
         ----------
         n_jobs : Optional[int], optional
             Number of CPUs. The default is None.
+        eval_train : bool
+            Whether evaluate train performance
         """
         if n_jobs is not None:
             for i in range(len(self.model_container)):
@@ -204,33 +268,7 @@ class BaseEvaluator:
             #     print(train_trial_info.__dict__)
             if len(train_trial_info.dataset_idx) == 0:
                 raise ValueError('Train trial {:d} information is empty'.format(trial_idx))
-            dataset = self.dataset_container[train_trial_info.dataset_idx[0]]
-            ref_sig = dataset.get_ref_sig(train_trial_info.tw,train_trial_info.harmonic_num)
-            X = []
-            Y = []
-            for (dataset_idx,
-                sub_idx,
-                block_idx,
-                trial_idx,
-                ch_idx,
-                t_latency,
-                shuffle) in zip(train_trial_info.dataset_idx, 
-                               train_trial_info.sub_idx,
-                               train_trial_info.block_idx,
-                               train_trial_info.trial_idx,
-                               train_trial_info.ch_idx,
-                               train_trial_info.t_latency,
-                               train_trial_info.shuffle):
-                dataset = self.dataset_container[dataset_idx]
-                X_tmp, Y_tmp = dataset.get_data(sub_idx = sub_idx,
-                                                blocks = block_idx,
-                                                trials = trial_idx,
-                                                channels = ch_idx,
-                                                sig_len = train_trial_info.tw,
-                                                t_latency = t_latency,
-                                                shuffle = shuffle)
-                X.extend(X_tmp)
-                Y.extend(Y_tmp)
+            X, Y, ref_sig = train_trial_info.get_data(self.dataset_container)
             
             # Train models 
             model_one_trial = []
@@ -240,6 +278,13 @@ class BaseEvaluator:
                 trained_model.fit(X=X, Y=Y, ref_sig=ref_sig) 
                 performance_one_trial[train_model_idx].add_train_time(time.time()-tic)
                 model_one_trial.append(trained_model)
+            if eval_train:
+                for test_model_idx, model_tmp in enumerate(model_one_trial):
+                    tic = time.time()
+                    pred_label = model_tmp.predict(X)
+                    performance_one_trial[test_model_idx].add_test_time_train(time.time()-tic)
+                    performance_one_trial[test_model_idx].add_pred_label_train(pred_label)
+                    performance_one_trial[test_model_idx].add_true_label_train(Y)
                 
             # Get test data
             test_trial_info = trial[1]
@@ -248,41 +293,15 @@ class BaseEvaluator:
             #     print(test_trial_info.__dict__)
             if len(test_trial_info.dataset_idx) == 0:
                 raise ValueError('Test trial {:d} information is empty'.format(trial_idx))
-            dataset = self.dataset_container[test_trial_info.dataset_idx[0]]
-            ref_sig = dataset.get_ref_sig(test_trial_info.tw,test_trial_info.harmonic_num)
-            X = []
-            Y = []
-            for (dataset_idx,
-                sub_idx,
-                block_idx,
-                trial_idx,
-                ch_idx,
-                t_latency,
-                shuffle) in zip(test_trial_info.dataset_idx, 
-                               test_trial_info.sub_idx,
-                               test_trial_info.block_idx,
-                               test_trial_info.trial_idx,
-                               test_trial_info.ch_idx,
-                               test_trial_info.t_latency,
-                               test_trial_info.shuffle):
-                dataset = self.dataset_container[dataset_idx]
-                X_tmp, Y_tmp = dataset.get_data(sub_idx = sub_idx,
-                                                blocks = block_idx,
-                                                trials = trial_idx,
-                                                channels = ch_idx,
-                                                sig_len = test_trial_info.tw,
-                                                t_latency = t_latency,
-                                                shuffle = shuffle)
-                X.extend(X_tmp)
-                Y.extend(Y_tmp)
+            X, Y, ref_sig = test_trial_info.get_data(self.dataset_container)
                 
             # Test models
             for test_model_idx, model_tmp in enumerate(model_one_trial):
                 tic = time.time()
                 pred_label = model_tmp.predict(X)
-                performance_one_trial[test_model_idx].add_test_time(time.time()-tic)
-                performance_one_trial[test_model_idx].add_pred_label(pred_label)
-                performance_one_trial[test_model_idx].add_true_label(Y)
+                performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
+                performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
+                performance_one_trial[test_model_idx].add_true_label_test(Y)
                 
             self.performance_container.append(performance_one_trial)
             if self.save_model:
@@ -290,8 +309,30 @@ class BaseEvaluator:
                 
             if self.disp_processbar:
                 pbar.update(1)
-                
-        pbar.close()
+        
         if self.disp_processbar:
+            pbar.close()
             print('========================\n   End\n========================\n')     
+            
+    def search_trial_idx(self,
+                         train_or_test: str,
+                         trial_info: dict) -> list:
+        if train_or_test.lower() == "train":
+            idx = 0
+        elif train_or_test.lower() == "test":
+            idx = 1
+        else:
+            raise ValueError("Unknown train_or_test type. It must be 'train' or 'test'")
+        res = []
+        for trial_idx, trial in enumerate(self.trial_container):
+            store_flag = True
+            for search_key, search_value in trial_info.items():
+                store_flag = store_flag and (trial[idx].__dict__[search_key] == search_value)
+            if store_flag:
+                res.append(trial_idx)
+                
+        return res
+            
+
+        
                 

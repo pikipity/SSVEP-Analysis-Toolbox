@@ -3,12 +3,13 @@
 import sys
 sys.path.append('..')
 
-import time
+import numpy as np
 
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import TrialInfo, BaseEvaluator
+from SSVEPAnalysisToolbox.evaluator.performance import cal_acc_trials, cal_itr_trials
 
 # Prepare dataset
 dataset = BenchmarkDataset(path = '/data/2016_Tsinghua_SSVEP_database')
@@ -60,15 +61,29 @@ model_container = [
                    ECCA(weights_filterbank = weights_filterbank)
                   ]
 
+# Evaluate models
 cca_evaluator = BaseEvaluator(dataset_container = dataset_container,
                               model_container = model_container,
                               trial_container = trial_container,
                               save_model = False,
                               disp_processbar = True)
 
-cca_evaluator.run(n_jobs = 7)
+cca_evaluator.run(n_jobs = 7,
+                  eval_train = False)
 
-
+# Calculate performance
+acc_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
+itr_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
+train_or_test = 'test'
+for sub_idx in range(sub_num):
+    for tw_idx, tw in enumerate(tw_seq):
+        trial_info = {'sub_idx':[sub_idx],
+                      'tw':tw}
+        trial_idx = cca_evaluator.search_trial_idx(train_or_test, trial_info)
+        
+        for method_idx in range(len(model_container)):
+            acc_store[method_idx,sub_idx,tw_idx] = cal_acc_trials(train_or_test, [cca_evaluator.performance_container[i][method_idx] for i in trial_idx])
+            itr_store[method_idx,sub_idx,tw_idx] = cal_itr_trials(train_or_test, [cca_evaluator.performance_container[i][method_idx] for i in trial_idx],tw,dataset.t_break,dataset.t_latency,dataset.stim_info['stim_num'])
 
 
 # from SSVEPAnalysisToolbox.pipline.piplineindividual import PiplineIndividual, gen_train_test_blocks_leave_one_block_out, gen_train_test_trials_all_trials

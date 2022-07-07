@@ -104,6 +104,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
         self.path_support_file = path_support_file
         self.default_t_latency = default_t_latency
         self.t_prestim = t_prestim
+        self.t_break = t_break
         
         # Set paths for subjects
         for sub_idx, path in enumerate(paths):
