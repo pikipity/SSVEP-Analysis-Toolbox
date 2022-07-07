@@ -31,7 +31,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  t_break: float,
                  support_files: Optional[List[str]] = None,
                  path_support_file: Optional[str] = None,
-                 default_t_latency: Optional[float] = 0):
+                 default_t_latency: float = 0):
         """
         Parameters required for all datasets
         

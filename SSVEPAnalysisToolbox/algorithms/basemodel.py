@@ -13,7 +13,7 @@ class BaseModel(metaclass=abc.ABCMeta):
     """
     def __init__(self,
                  ID: str,
-                 n_component: Optional[int] = 1,
+                 n_component: int = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None):
         """

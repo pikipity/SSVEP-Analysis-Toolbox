@@ -440,11 +440,11 @@ class SCCA_canoncorr(BaseModel):
     Required memory - Small
     """
     def __init__(self,
-                 n_component: Optional[int] = 1,
+                 n_component: int = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
-                 force_output_UV: Optional[bool] = False,
-                 update_UV: Optional[bool] = True):
+                 force_output_UV: bool = False,
+                 update_UV: bool = True):
         """
         Special Parameters
         ----------
@@ -520,11 +520,11 @@ class SCCA_qr(BaseModel):
     Required memory - Large
     """
     def __init__(self,
-                 n_component: Optional[int] = 1,
+                 n_component: int = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
-                 force_output_UV: Optional[bool] = False,
-                 update_UV: Optional[bool] = True):
+                 force_output_UV: bool = False,
+                 update_UV: bool = True):
         """
         Special Parameters
         ----------
@@ -603,11 +603,11 @@ class ECCA(BaseModel):
     eCCA
     """
     def __init__(self,
-                 n_component: Optional[int] = 1,
+                 n_component: int = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
                  # force_output_UV: Optional[bool] = False,
-                 update_UV: Optional[bool] = True):
+                 update_UV: bool = True):
         """
         Special Parameters
         ----------
