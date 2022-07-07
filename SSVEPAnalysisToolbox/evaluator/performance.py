@@ -26,11 +26,11 @@ def cal_itr_trials(train_or_test: str,
     for performance in performance_container:
         if train_or_test.lower() == "train":
             acc = cal_acc(performance.true_label_train, performance.pred_label_train)
-            t_comp = performance.test_time_train/len(performance.true_label_train)
+            t_comp = sum(performance.test_time_train)/len(performance.true_label_train)
             list_acc.append(cal_itr(tw,t_break,t_latency,t_comp,N, acc))
         elif train_or_test.lower() == "test":
             acc = cal_acc(performance.true_label_test, performance.pred_label_test)
-            t_comp = performance.test_time_test/len(performance.true_label_test)
+            t_comp = sum(performance.test_time_test)/len(performance.true_label_test)
             list_acc.append(cal_itr(tw,t_break,t_latency,t_comp,N, acc))
         else:
             raise ValueError("Unknown train_or_test type. It must be 'train' or 'test'")
