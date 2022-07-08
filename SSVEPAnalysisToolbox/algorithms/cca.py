@@ -611,8 +611,6 @@ class ECCA(BaseModel):
         """
         Special Parameters
         ----------
-        # force_output_UV : Optional[bool] 
-        #     Whether store U and V. Default is False
         update_UV: Optional[bool]
             Whether update U and V in next time of applying "predict" 
             If false, and U and V have not been stored, they will be stored
@@ -654,8 +652,8 @@ class ECCA(BaseModel):
             raise ValueError('eCCA requires training data')
             
         # generate reference realted QR
-        ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
-            
+        ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig) # List of shape: (stimulus_num,);
+                                                           # Template shape: (harmonic_num, signal_len)
         self.model['ref_sig_Q'] = ref_sig_Q # List of shape: (stimulus_num,);
         self.model['ref_sig_R'] = ref_sig_R
         self.model['ref_sig_P'] = ref_sig_P
