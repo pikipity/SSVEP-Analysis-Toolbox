@@ -72,14 +72,6 @@ savedata(data_file, data, 'mat')
 # itr_store = data["itr_store"]
 
 
-    
-# # Load results
-# with open('cca_benchmarkdataset_res', 'rb') as f:
-#     data = np.load(f, allow_pickle=True)
-#     data = data.item()
-# acc_store = data["acc_store"]
-# itr_store = data["itr_store"]
-
 # import matplotlib.pyplot as plt
 # fig = plt.figure()
 # ax = fig.add_axes([0,0,1,1])
