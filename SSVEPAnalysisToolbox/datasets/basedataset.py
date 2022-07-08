@@ -123,20 +123,25 @@ class BaseDataset(metaclass=abc.ABCMeta):
         self.download_support_files()
         
         # regist default preprocess and filterbank functions
+        self.reset_preprocess()
+        self.reset_filterbank()
+
+    def reset_preprocess(self):
+        self.regist_preprocess(default_preprocess)
+
         def default_preprocess(X: ndarray) -> ndarray:
             """
             default preprocess (do nothing)
             """
             return X
-        
+    def reset_filterbank(self):
+        self.regist_filterbank(default_filterbank)
+
         def default_filterbank(X: ndarray) -> ndarray:
             """
             default filterbank (1 filterbank contains original signal)
             """
             return expand_dims(X,0)
-        
-        self.regist_preprocess(default_preprocess)
-        self.regist_filterbank(default_filterbank)
     
     def download_all(self):
         """
@@ -352,6 +357,14 @@ class BaseDataset(metaclass=abc.ABCMeta):
         # end_t_idx = eeg_total.shape[-1]
         eeg_total = self.preprocess_fun(eeg_total)
         eeg_total = self.filterbank_fun(eeg_total)
+
+        if len(eeg_total.shape) == 1:
+            eeg_total = expand_dims(eeg_total, axis = 0)
+            eeg_total = expand_dims(eeg_total, axis = 0)
+        elif len(eeg_total.shape) == 2:
+            eeg_total = expand_dims(eeg_total, axis = 0)
+        else:
+            raise ValueError("EEG shape has error. Please check the output of the filterbank function should have three dimention. The 1st dimention is the filterbank number")
         
         start_t_idx = t_latency
         end_t_idx = t_latency + sig_len
