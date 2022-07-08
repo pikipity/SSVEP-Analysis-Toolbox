@@ -7,12 +7,13 @@ from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterban
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
+from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
 
 import numpy as np
 
 # Prepare dataset
 dataset = BenchmarkDataset(path = '/data/2016_Tsinghua_SSVEP_database')
-dataset.regist_preprocess(lambda X: preprocess(X,dataset.srate))
+dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))
 dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.stim_info['stim_num'])]
@@ -58,11 +59,19 @@ acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluato
                                                                          tw_seq = tw_seq,
                                                                          train_or_test = 'test')
             
-# # Save results
-# data = {"acc_store": acc_store,
-#         "itr_store": itr_store}
-# with open('cca_benchmarkdataset_res', 'wb') as f:
-#     np.save(f, data)
+# Save results
+data = {"acc_store": acc_store,
+        "itr_store": itr_store}
+data_file = 'cca_benchmarkdataset_res.mat'
+savedata(data_file, data, 'mat')
+
+# Load data
+# data_file = 'cca_benchmarkdataset_res.mat'
+# data = loaddata(data_file, 'mat')
+# acc_store = data["acc_store"]
+# itr_store = data["itr_store"]
+
+
     
 # # Load results
 # with open('cca_benchmarkdataset_res', 'rb') as f:

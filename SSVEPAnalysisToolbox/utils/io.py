@@ -5,6 +5,66 @@ from typing import Union, Optional, Dict, List, Tuple
 
 import scipy.io as sio
 import mat73
+import numpy as np
+
+def savedata(file: str,
+             data: dict,
+             save_type: str = 'mat'):
+    """
+    Save data
+
+    Parameters
+    ----------
+    file : str
+        File name 
+    data : dict
+        Saving data
+        Keys are variable names
+        Values are variable values
+    save_type : str, optional
+        File type
+        'mat' - matlab file in .mat format
+        'np' - Binary file in NumPy .npy format
+        The default is 'mat'.
+    """
+    if save_type.lower() == 'mat':
+        sio.savemat(file, data)
+    elif save_type.lower() == 'np':
+        with open(file, 'wb') as f:
+            np.save(f, data, allow_pickle=True, fix_imports=True)
+    else:
+        raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
+        
+def loaddata(file: str,
+             save_type: str = 'mat') -> dict:
+    """
+    Load data
+
+    Parameters
+    ----------
+    file : str
+        File name
+    save_type : str, optional
+        File type
+        'mat' - matlab file in .mat format
+        'np' - Binary file in NumPy .npy format
+        The default is 'mat'.
+
+    Return
+    -----------
+    data: dict
+        Loaded data
+    """
+    if save_type.lower() == 'mat':
+        data = loadmat(file)
+    elif save_type.lower() == 'np':
+        with open(file, 'rb') as f:
+            data = np.load(f, allow_pickle=True)
+            data = data.item()
+    else:
+        raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
+        
+    return data
 
 def loadmat(file_path: str) -> dict:
     """
