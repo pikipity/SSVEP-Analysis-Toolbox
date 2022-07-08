@@ -12,7 +12,7 @@ from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
 import numpy as np
 
 # Prepare dataset
-dataset = BenchmarkDataset(path = '/data/2016_Tsinghua_SSVEP_database')
+dataset = BenchmarkDataset(path = '2016_Tsinghua_SSVEP_database')
 dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))
 dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
 ch_used = suggested_ch()
