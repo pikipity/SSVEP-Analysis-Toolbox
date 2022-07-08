@@ -21,6 +21,8 @@ class BenchmarkDataset(BaseDataset):
     Following the cue offset, all stimuli started to flicker on the screen concurrently and lasted 5 s.
     After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
     Each trial lasted a total of 6 s.
+
+    Total: around 3.45 GB
     
     Paper:
     Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for SSVEP-based braincomputer interfaces,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 25, no. 10, pp. 17461752, 2017.
