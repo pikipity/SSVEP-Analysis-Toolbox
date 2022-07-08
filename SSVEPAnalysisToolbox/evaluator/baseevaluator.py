@@ -9,6 +9,73 @@ from numpy import ndarray
 
 from tqdm import tqdm
 import time
+import numpy as np
+
+def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
+                                         tw_seq: List[float],
+                                         dataset_container: list,
+                                         harmonic_num: int,
+                                         trials: List[int],
+                                         ch_used: List[int],
+                                         t_latency: Optional[float] = None,
+                                         shuffle: bool = False) -> list:
+    """
+    Generate evaluation trials for one dataset
+    Evaluations will be carried out on each subject and each signal length
+    Training and testing datasets are separated based on the leave-one-block-out rule
+
+    Parameters
+    ----------
+    dataset_idx : int
+        dataset index of dataset_container
+    tw_seq : List[float]
+        List of signal length
+    dataset_container : list
+        List of datasets
+    harmonic_num : int
+        Number of harmonics
+    trials: List[int]
+        List of trial index
+    ch_used : List[int]
+        List of channels
+    t_latency : Optional[float]
+        Latency time
+        If None, default latency time of dataset will be used
+    shuffle : bool
+        Whether shuffle
+
+    Returns
+    -------
+    trial_container : list
+        List of trial information
+
+    """
+    sub_num = len(dataset_container[dataset_idx].subjects)
+    trial_container = []
+    for tw in tw_seq:
+        for sub_idx in range(sub_num):
+            for block_idx in range(dataset_container[dataset_idx].block_num):
+                test_block, train_block = dataset_container[dataset_idx].leave_one_block_out(block_idx)
+                train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                      sub_idx = sub_idx,
+                                                      block_idx = train_block,
+                                                      trial_idx = trials,
+                                                      ch_idx = ch_used,
+                                                      harmonic_num = harmonic_num,
+                                                      tw = tw,
+                                                      t_latency = t_latency,
+                                                      shuffle = shuffle)
+                test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                      sub_idx = sub_idx,
+                                                      block_idx = test_block,
+                                                      trial_idx = trials,
+                                                      ch_idx = ch_used,
+                                                      harmonic_num = harmonic_num,
+                                                      tw = tw,
+                                                      t_latency = t_latency,
+                                                      shuffle = shuffle)
+                trial_container.append([train_trial, test_trial])
+    return trial_container
 
 def create_pbar(loop_list_num: List[int],
                 desc: str = ''):
@@ -254,8 +321,12 @@ class BaseEvaluator:
                 self.model_container[i].n_jobs = n_jobs
                 
         if self.disp_processbar:
-            print('========================\n   Start\n========================\n')
-            pbar = create_pbar([len(self.trial_container)])
+            print('\n========================\n   Start\n========================\n')
+            if eval_train:
+                pbar = create_pbar([len(self.trial_container), len(self.model_container)*3])
+            else:
+                pbar = create_pbar([len(self.trial_container), len(self.model_container)*2])
+            pbar_update_val = 1
             
         for trial_idx, trial in enumerate(self.trial_container):
             # Create performance for one trial
@@ -278,6 +349,8 @@ class BaseEvaluator:
                 trained_model.fit(X=X, Y=Y, ref_sig=ref_sig) 
                 performance_one_trial[train_model_idx].add_train_time(time.time()-tic)
                 model_one_trial.append(trained_model)
+                if self.disp_processbar:
+                    pbar.update(pbar_update_val)
             if eval_train:
                 for test_model_idx, model_tmp in enumerate(model_one_trial):
                     tic = time.time()
@@ -285,6 +358,8 @@ class BaseEvaluator:
                     performance_one_trial[test_model_idx].add_test_time_train(time.time()-tic)
                     performance_one_trial[test_model_idx].add_pred_label_train(pred_label)
                     performance_one_trial[test_model_idx].add_true_label_train(Y)
+                    if self.disp_processbar:
+                        pbar.update(pbar_update_val)
                 
             # Get test data
             test_trial_info = trial[1]
@@ -302,21 +377,56 @@ class BaseEvaluator:
                 performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
                 performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
                 performance_one_trial[test_model_idx].add_true_label_test(Y)
+                if self.disp_processbar:
+                    pbar.update(pbar_update_val)
                 
             self.performance_container.append(performance_one_trial)
             if self.save_model:
                 self.trained_model_container.append(model_one_trial)
                 
-            if self.disp_processbar:
-                pbar.update(1)
+            
         
         if self.disp_processbar:
             pbar.close()
-            print('========================\n   End\n========================\n')     
+            print('\n========================\n   End\n========================\n')     
             
     def search_trial_idx(self,
                          train_or_test: str,
                          trial_info: dict) -> list:
+        """
+        According to given trial information, search trials
+
+        Parameters
+        ----------
+        train_or_test : str
+            Given trial information related to training or testing trials
+        trial_info : dict
+            Trial information. It can contain following items:
+                - dataset_idx : list
+                    List of dataset index
+                sub_idx : list
+                    List of subjects
+                block_idx : list
+                    List of blocks
+                trial_idx : list
+                    List of trials
+                ch_idx : list
+                    List of channels
+                t_latency ; list
+                    List of latency time
+                harmonic_num : int
+                    Number of harmonics for sine-cosine-based references
+                tw : float
+                    Signal window length
+                shuffle : List[bool]
+                    Whether shuffle trials
+
+        Returns
+        -------
+        trial_idx: list
+            List of indices of trials that satify the given information
+
+        """
         if train_or_test.lower() == "train":
             idx = 0
         elif train_or_test.lower() == "test":
