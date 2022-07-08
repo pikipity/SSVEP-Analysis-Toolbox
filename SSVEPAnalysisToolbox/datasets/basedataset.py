@@ -3,6 +3,7 @@
 Base class of SSVEP datasets
 """
 
+import os
 import abc
 from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray, expand_dims
@@ -21,7 +22,6 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  subjects: List[SubInfo],
                  ID: str,
                  url: str,
-                 paths: Union[str, List[str]],
                  channels: List[str],
                  srate: int,
                  block_num: int,
@@ -29,6 +29,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  stim_info: Dict[str, Union[int, List[float]]],
                  t_prestim: float,
                  t_break: float,
+                 paths: Optional[Union[str, List[str]]] = None,
                  support_files: Optional[List[str]] = None,
                  path_support_file: Optional[str] = None,
                  default_t_latency: float = 0):
@@ -87,10 +88,15 @@ class BaseDataset(metaclass=abc.ABCMeta):
         default_t_latency: Optional[float]
             Default latency time
         """
+        if paths is None:
+            paths = os.path.join(os.getcwd(),'benchmark')
+        if path_support_file is None:
+            path_support_file = os.path.join(os.getcwd(),'benchmark_support_file')
         if type(paths) is str:
             paths = [paths for _ in range(len(subjects))]
         if len(subjects) != len(paths):
             raise ValueError('Lengths of subjects and paths are not equal. ')
+        
         
         self.subjects = subjects
         self.ID = ID

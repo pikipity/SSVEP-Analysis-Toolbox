@@ -17,15 +17,12 @@ class BenchmarkDataset(BaseDataset):
     Benchmark Dataset
     
     This dataset gathered SSVEP-BCI recordings of 35 healthy subjects (17 females, aged 17-34 years, mean age: 22 years) focusing on 40 characters flickering at different frequencies (8-15.8 Hz with an interval of 0.2 Hz).
-    
     For each subject, the experiment consisted of 6 blocks. Each block contained 40 trials corresponding to all 40 characters indicated in a random order. Each trial started with a visual cue (a red square) indicating a target stimulus. The cue appeared for 0.5 s on the screen.
-    
     Following the cue offset, all stimuli started to flicker on the screen concurrently and lasted 5 s.
-    
     After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
-    
     Each trial lasted a total of 6 s.
     
+    Paper:
     Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for SSVEP-based braincomputer interfaces,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 25, no. 10, pp. 17461752, 2017.
     """
 
@@ -59,10 +56,6 @@ class BenchmarkDataset(BaseDataset):
     def __init__(self, 
                  path: Optional[str] = None,
                  path_support_file: Optional[str] = None):
-        if path is None:
-            path = os.path.join(os.getcwd(),'benchmark')
-        if path_support_file is None:
-            path_support_file = os.path.join(os.getcwd(),'benchmark_support_file')
         super().__init__(subjects = self._SUBJECTS, 
                          ID = 'Benchmark Dataset', 
                          url = 'http://bci.med.tsinghua.edu.cn/upload/yijun/', 
