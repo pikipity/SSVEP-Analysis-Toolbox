@@ -62,7 +62,7 @@ acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluato
 # Save results
 data = {"acc_store": acc_store,
         "itr_store": itr_store}
-data_file = 'cca_benchmarkdataset_res.mat'
+data_file = 'res/cca_benchmarkdataset_res.mat'
 savedata(data_file, data, 'mat')
 
 # Load data
