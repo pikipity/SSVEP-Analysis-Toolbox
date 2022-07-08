@@ -25,6 +25,8 @@ class BenchmarkDataset(BaseDataset):
     After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
     
     Each trial lasted a total of 6 s.
+    
+    Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for SSVEP-based braincomputer interfaces,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 25, no. 10, pp. 17461752, 2017.
     """
 
     _CHANNELS = [
