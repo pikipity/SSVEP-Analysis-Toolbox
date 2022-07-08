@@ -90,10 +90,10 @@ class BaseDataset(metaclass=abc.ABCMeta):
         """
         if paths is None:
             paths = os.path.join(os.getcwd(),'benchmark')
-        if path_support_file is None:
-            path_support_file = os.path.join(os.getcwd(),'benchmark_support_file')
         if type(paths) is str:
             paths = [paths for _ in range(len(subjects))]
+        if path_support_file is None:
+            path_support_file = paths[0] # os.path.join(os.getcwd(),'benchmark_support_file')
         if len(subjects) != len(paths):
             raise ValueError('Lengths of subjects and paths are not equal. ')
         
