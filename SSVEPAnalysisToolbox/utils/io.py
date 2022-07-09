@@ -6,6 +6,7 @@ from typing import Union, Optional, Dict, List, Tuple
 import scipy.io as sio
 import mat73
 import numpy as np
+import os
 
 def savedata(file: str,
              data: dict,
@@ -27,9 +28,17 @@ def savedata(file: str,
         'np' - Binary file in NumPy .npy format
         The default is 'mat'.
     """
+    desertation_dir = os.path.dirname(file)
+    if not os.path.exists(desertation_dir):
+        os.makedirs(desertation_dir)
+    
     if save_type.lower() == 'mat':
+        if os.path.isfile(file):
+            os.remove(file)
         sio.savemat(file, data)
     elif save_type.lower() == 'np':
+        if os.path.isfile(file):
+            os.remove(file)
         with open(file, 'wb') as f:
             np.save(f, data, allow_pickle=True, fix_imports=True)
     else:
