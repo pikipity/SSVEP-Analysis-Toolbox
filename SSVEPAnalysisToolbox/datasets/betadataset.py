@@ -20,6 +20,8 @@ class BETADataset(BaseDataset):
     Each trial comprises 0.5-s data before the event onset and 0.5-s data after the time window of 2 s or 3 s. 
     For S1-S15, the time window is 2 s and the trial length is 3 s, whereas for S16-S70 the time window is 3 s and the trial length is 4 s. 
     Additional details about the channel and condition information can be found in the following supplementary information.
+
+    Total: around 4.91 GB
     
     Paper: 
     B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, “BETA: A large benchmark database toward SSVEP-BCI application,” Front. Neurosci., vol. 14, p. 627, 2020.
@@ -129,7 +131,7 @@ class BETADataset(BaseDataset):
         
         mat_data = loadmat(file_path)
         data = mat_data['data']['EEG']
-        data = transpose(data, (3,2,0,1)) # block_num * stimulus_num * ch_num * whole_trial_samples
+        data = transpose(data, (2,3,0,1)) # block_num * stimulus_num * ch_num * whole_trial_samples
 
         return data
 
