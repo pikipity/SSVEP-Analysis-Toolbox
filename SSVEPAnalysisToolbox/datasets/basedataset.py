@@ -89,7 +89,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
             Default latency time
         """
         if paths is None:
-            paths = os.path.join(os.getcwd(),'benchmark')
+            paths = os.path.join(os.getcwd(),ID)
         if type(paths) is str:
             paths = [paths for _ in range(len(subjects))]
         if path_support_file is None:
