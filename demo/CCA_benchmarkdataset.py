@@ -8,6 +8,7 @@ from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
+from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot
 
 import numpy as np
 
@@ -72,11 +73,45 @@ savedata(data_file, data, 'mat')
 # itr_store = data["itr_store"]
 
 
-# import matplotlib.pyplot as plt
-# fig = plt.figure()
-# ax = fig.add_axes([0,0,1,1])
-# ax.bar([1,2,3,4],np.mean(acc_store,1))
-# plt.show()
+# Plot Performance of bar plots
+bar_plot_with_errorbar(acc_store,
+                     x_label = 'Signal Length (s)',
+                     y_label = 'Acc',
+                     x_ticks = tw_seq,
+                     legend = [model.ID for model in model_container],
+                     errorbar_type = '95ci',
+                     grid = True,
+                     ylim = [0, 1])
+
+bar_plot_with_errorbar(itr_store,
+                     x_label = 'Signal Length (s)',
+                     y_label = 'ITR',
+                     x_ticks = tw_seq,
+                     legend = [model.ID for model in model_container],
+                     errorbar_type = '95ci',
+                     grid = True,
+                     ylim = [0, 190])
+
+# Plot Performance of shadow lines
+shadowline_plot(tw_seq,
+                acc_store,
+                'x-',
+                x_label = 'Signal Length (s)',
+                y_label = 'Acc',
+                legend = [model.ID for model in model_container],
+                errorbar_type = '95ci',
+                grid = True,
+                ylim = [0, 1])
+
+shadowline_plot(tw_seq,
+                itr_store,
+                'x-',
+                x_label = 'Signal Length (s)',
+                y_label = 'ITR',
+                legend = [model.ID for model in model_container],
+                errorbar_type = '95ci',
+                grid = True,
+                ylim = [0, 190])
 
 
 
