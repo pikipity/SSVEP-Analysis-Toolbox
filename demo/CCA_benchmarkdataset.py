@@ -74,45 +74,48 @@ savedata(data_file, data, 'mat')
 
 
 # Plot Performance of bar plots
-bar_plot_with_errorbar(acc_store,
-                     x_label = 'Signal Length (s)',
-                     y_label = 'Acc',
-                     x_ticks = tw_seq,
-                     legend = [model.ID for model in model_container],
-                     errorbar_type = '95ci',
-                     grid = True,
-                     ylim = [0, 1])
+fig, _ = bar_plot_with_errorbar(acc_store,
+                                x_label = 'Signal Length (s)',
+                                y_label = 'Acc',
+                                x_ticks = tw_seq,
+                                legend = [model.ID for model in model_container],
+                                errorbar_type = '95ci',
+                                grid = True,
+                                ylim = [0, 1])
+fig.savefig('res/cca_benchmarkdataset_acc_bar.png')
 
-bar_plot_with_errorbar(itr_store,
-                     x_label = 'Signal Length (s)',
-                     y_label = 'ITR',
-                     x_ticks = tw_seq,
-                     legend = [model.ID for model in model_container],
-                     errorbar_type = '95ci',
-                     grid = True,
-                     ylim = [0, 190])
+fig, _ = bar_plot_with_errorbar(itr_store,
+                                x_label = 'Signal Length (s)',
+                                y_label = 'ITR',
+                                x_ticks = tw_seq,
+                                legend = [model.ID for model in model_container],
+                                errorbar_type = '95ci',
+                                grid = True,
+                                ylim = [0, 190])
+fig.savefig('res/cca_benchmarkdataset_itr_bar.png')
 
 # Plot Performance of shadow lines
-shadowline_plot(tw_seq,
-                acc_store,
-                'x-',
-                x_label = 'Signal Length (s)',
-                y_label = 'Acc',
-                legend = [model.ID for model in model_container],
-                errorbar_type = '95ci',
-                grid = True,
-                ylim = [0, 1])
+fig, _ = shadowline_plot(tw_seq,
+                        acc_store,
+                        'x-',
+                        x_label = 'Signal Length (s)',
+                        y_label = 'Acc',
+                        legend = [model.ID for model in model_container],
+                        errorbar_type = '95ci',
+                        grid = True,
+                        ylim = [0, 1])
+fig.savefig('res/cca_benchmarkdataset_acc_shadowline.png')
 
-shadowline_plot(tw_seq,
-                itr_store,
-                'x-',
-                x_label = 'Signal Length (s)',
-                y_label = 'ITR',
-                legend = [model.ID for model in model_container],
-                errorbar_type = '95ci',
-                grid = True,
-                ylim = [0, 190])
-
+fig, _ = shadowline_plot(tw_seq,
+                        itr_store,
+                        'x-',
+                        x_label = 'Signal Length (s)',
+                        y_label = 'ITR',
+                        legend = [model.ID for model in model_container],
+                        errorbar_type = '95ci',
+                        grid = True,
+                        ylim = [0, 190])
+fig.savefig('res/cca_benchmarkdataset_itr_shadowline.png')
 
 
 
