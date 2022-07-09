@@ -101,6 +101,8 @@ def shadowline_plot(X: Union[list, ndarray],
     if ylim is not None:
         ax.set_ylim(ylim)
 
+    return fig, ax
+
 def bar_plot_with_errorbar(Y: ndarray,
              bar_sep: float = 0.25,
              x_label: Optional[str] = None,
@@ -202,6 +204,8 @@ def bar_plot_with_errorbar(Y: ndarray,
         ax.set_xlim(xlim)
     if ylim is not None:
         ax.set_ylim(ylim)
+
+    return fig, ax
         
 def cal_CI95(X: ndarray) -> ndarray:
     """
