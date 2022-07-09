@@ -82,7 +82,7 @@ fig, _ = bar_plot_with_errorbar(acc_store,
                                 errorbar_type = '95ci',
                                 grid = True,
                                 ylim = [0, 1])
-fig.savefig('res/cca_benchmarkdataset_acc_bar.png')
+fig.savefig('res/cca_benchmarkdataset_acc_bar.jpg', bbox_inches='tight', dpi=300)
 
 fig, _ = bar_plot_with_errorbar(itr_store,
                                 x_label = 'Signal Length (s)',
@@ -92,7 +92,7 @@ fig, _ = bar_plot_with_errorbar(itr_store,
                                 errorbar_type = '95ci',
                                 grid = True,
                                 ylim = [0, 190])
-fig.savefig('res/cca_benchmarkdataset_itr_bar.png')
+fig.savefig('res/cca_benchmarkdataset_itr_bar.jpg', bbox_inches='tight', dpi=300)
 
 # Plot Performance of shadow lines
 fig, _ = shadowline_plot(tw_seq,
@@ -104,7 +104,7 @@ fig, _ = shadowline_plot(tw_seq,
                         errorbar_type = '95ci',
                         grid = True,
                         ylim = [0, 1])
-fig.savefig('res/cca_benchmarkdataset_acc_shadowline.png')
+fig.savefig('res/cca_benchmarkdataset_acc_shadowline.jpg', bbox_inches='tight', dpi=300)
 
 fig, _ = shadowline_plot(tw_seq,
                         itr_store,
@@ -115,7 +115,7 @@ fig, _ = shadowline_plot(tw_seq,
                         errorbar_type = '95ci',
                         grid = True,
                         ylim = [0, 190])
-fig.savefig('res/cca_benchmarkdataset_itr_shadowline.png')
+fig.savefig('res/cca_benchmarkdataset_itr_shadowline.jpg', bbox_inches='tight', dpi=300)
 
 
 
