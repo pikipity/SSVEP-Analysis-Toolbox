@@ -68,7 +68,7 @@ class BenchmarkDataset(BaseDataset):
                          trial_len = 6, 
                          stim_info = {'stim_num': 40,
                                       'freqs': self._FREQS,
-                                      'phases': self._PHASES},
+                                      'phases': [i * np.pi for i in self._PHASES]},
                          support_files = ['Readme.txt',
                                           'Sub_info.txt',
                                           '64-channels.loc',
