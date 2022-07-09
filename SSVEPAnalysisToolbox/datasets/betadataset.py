@@ -2,7 +2,7 @@
 
 import os
 import numpy as np
-import py7zr
+import tarfile
 
 from typing import Union, Optional, Dict, List, Tuple
 from numpy import ndarray, transpose
@@ -16,7 +16,10 @@ class BETADataset(BaseDataset):
     """
     BETA Dataset
     
-    
+    EEG data after preprocessing are store as a 4-way tensor, with a dimension of channel x time point x block x condition. 
+    Each trial comprises 0.5-s data before the event onset and 0.5-s data after the time window of 2 s or 3 s. 
+    For S1-S15, the time window is 2 s and the trial length is 3 s, whereas for S16-S70 the time window is 3 s and the trial length is 4 s. 
+    Additional details about the channel and condition information can be found in the following supplementary information.
     
     Paper: 
     B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, “BETA: A large benchmark database toward SSVEP-BCI application,” Front. Neurosci., vol. 14, p. 627, 2020.
@@ -41,3 +44,97 @@ class BETADataset(BaseDataset):
         15, 15.2, 15.4, 15.6, 15.8, 
         8, 8.2, 8.4
     ]
+
+    _PHASES = [
+        1.5, 0,
+        0.5, 1, 1.5, 0, 0.5,
+        1, 1.5, 0, 0.5, 1,
+        1.5, 0, 0.5, 1, 1.5,
+        0, 0.5, 1, 1.5, 0,
+        0.5, 1, 1.5, 0, 0.5,
+        1, 1.5, 0, 0.5, 1,
+        1.5, 0, 0.5, 1, 1.5,
+        0, 0.5, 1
+    ]
+
+    _SUBJECTS = [SubInfo(ID = 'S{:d}'.format(sub_idx)) for sub_idx in range(1,70+1,1)]
+
+    def __init__(self, 
+                 path: Optional[str] = None,
+                 path_support_file: Optional[str] = None):
+        super().__init__(subjects = self._SUBJECTS, 
+                         ID = 'BETA Dataset', 
+                         url = 'http://bci.med.tsinghua.edu.cn/upload/liubingchuan/', 
+                         paths = path, 
+                         channels = self._CHANNELS, 
+                         srate = 250, 
+                         block_num = 4, 
+                         trial_len = 2, 
+                         stim_info = {'stim_num': len(self._FREQS),
+                                      'freqs': self._FREQS,
+                                      'phases': [i * np.pi for i in self._PHASES]},
+                         support_files = ['note.pdf',
+                                          'description.pdf'],
+                         path_support_file = path_support_file,
+                         t_prestim = 0.5,
+                         t_break = 0.5,
+                         default_t_latency = 0.13)
+    
+    def download_single_subject(self,
+                                subject: SubInfo):
+        data_file = os.path.join(subject.path, subject.ID + '.mat')
+        
+        if not os.path.isfile(data_file):
+            sub_idx = int(subject.ID[1:])
+            if sub_idx <= 10:
+                file_name = 'S1-S10.tar.gz'
+            elif sub_idx <= 20:
+                file_name = 'S11-S20.tar.gz'
+            elif sub_idx <= 30:
+                file_name = 'S21-S30.tar.gz'
+            elif sub_idx <= 40:
+                file_name = 'S31-S40.tar.gz'
+            elif sub_idx <= 50:
+                file_name = 'S41-S50.tar.gz'
+            elif sub_idx <= 60:
+                file_name = 'S51-S60.tar.gz'
+            elif sub_idx <= 70:
+                file_name = 'S61-S70.tar.gz'
+            source_url = self.url + file_name
+            desertation = os.path.join(subject.path, file_name)
+            download_single_file(source_url, desertation)
+        
+            with tarfile.open(desertation,'r') as archive:
+                archive.extractall(subject.path)
+                
+            os.remove(desertation)
+
+    def download_file(self,
+                      file_name: str):
+        source_url = self.url + file_name
+        desertation = os.path.join(self.path_support_file, file_name)
+        
+        if not os.path.isfile(desertation):
+            download_single_file(source_url, desertation)
+
+    def get_sub_data(self, 
+                     sub_idx: int) -> ndarray:
+        if sub_idx < 0:
+            raise ValueError('Subject index cannot be negative')
+        if sub_idx > len(self.subjects)-1:
+            raise ValueError('Subject index should be smaller than {:d}'.format(len(self.subjects)))
+        
+        sub_info = self.subjects[sub_idx]
+        file_path = os.path.join(sub_info.path, sub_info.ID + '.mat')
+        
+        mat_data = loadmat(file_path)
+        data = mat_data['data']['EEG']
+        data = transpose(data, (3,2,0,1)) # block_num * stimulus_num * ch_num * whole_trial_samples
+
+        return data
+
+    def get_label_single_trial(self,
+                               sub_idx: int,
+                               block_idx: int,
+                               stim_idx: int) -> int:
+        return stim_idx
