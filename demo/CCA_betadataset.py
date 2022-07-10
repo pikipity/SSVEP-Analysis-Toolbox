@@ -13,7 +13,7 @@ from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowli
 import numpy as np
 
 # Prepare dataset
-dataset = BETADataset(path = None)
+dataset = BETADataset(path = '2020_BETA_SSVEP_database_update')
 dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))
 dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
 ch_used = suggested_ch()
