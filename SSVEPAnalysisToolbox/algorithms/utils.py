@@ -6,6 +6,45 @@ from numpy import ndarray
 import scipy.linalg as slin
 import numpy as np
 
+def gen_template(X: List[ndarray],
+                 Y: List[int]) -> List[ndarray]:
+    """
+    Average training data according to training label to generate template signal
+
+    Parameters
+    ----------
+    X : List[ndarray]
+        Training data
+        List shape: (trial_num,)
+        EEG shape: (filterbank_num, channel_num, signal_len)
+    Y : List[int]
+        Training label
+        List shape: (trial_num,)
+
+    Returns
+    -------
+    template_sig : List[ndarray]
+        Template signal
+        List of shape: (stimulus_num,)
+        Template shape: (filterbank_num, channel_num, signal_len)
+    """
+    # Get possible stimulus class
+    unique_Y = list(set(Y))
+    unique_Y.sort()
+    # 
+    template_sig = []
+    for i in unique_Y:
+        # i-th class trial index
+        target_idx = [k for k in range(len(Y)) if Y[k] == unique_Y[i]]
+        # Get i-th class training data
+        template_sig_single = [np.expand_dims(X[k], axis=0) for k in target_idx]
+        template_sig_single = np.concatenate(template_sig_single, axis=0)
+        # Average all i-th class training data
+        template_sig_single = np.mean(template_sig_single, axis=0)
+        # Store i-th class template
+        template_sig.append(template_sig_single)
+    return template_sig
+
 def canoncorr(X: ndarray, 
               Y: ndarray,
               force_output_UV: Optional[bool] = False) -> Union[Tuple[ndarray, ndarray, ndarray], ndarray]:
