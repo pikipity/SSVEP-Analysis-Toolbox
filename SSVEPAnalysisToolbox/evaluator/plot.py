@@ -103,6 +103,80 @@ def shadowline_plot(X: Union[list, ndarray],
 
     return fig, ax
 
+
+def bar_plot(Y: ndarray,
+             bar_sep: float = 0.25,
+             x_label: Optional[str] = None,
+             y_label: Optional[str] = None,
+             x_ticks: Optional[List[str]] = None,
+             grid: bool = True,
+             xlim: Optional[List[float]] = None,
+             ylim: Optional[List[float]] = None):
+    """
+    Plot bars
+
+    For each group, a set of bars will be ploted on all variables
+    Bar heights are equal to the mean of all observations
+    (x axis: variable; y axis: observation)
+
+    Parameters
+    -----------
+    Y: ndarray
+        Plot data
+        Shape: (observation_num, variable_num)
+    bar_sep: Optional[float]
+        Separation between two variables
+        Default is 0.25
+    x_label: str
+        Label of x axis
+        Default is None
+    y_label: str
+        Label of y axis
+        Default is None
+    x_ticks: List[str]
+        Ticks of x axis
+        Default is None
+    grid: bool
+        Whether plot grid
+    xlim: List[float]
+        Range of x axis
+    ylim: List[float]
+        Range of y axis
+    """
+    if len(Y.shape) > 2:
+        raise ValueError("Plot data must have 3 dimentions")
+    observation_num, variable_num = Y.shape
+    if x_ticks is not None:
+        if len(x_ticks) != variable_num:
+            raise ValueError("Length of 'x_ticks' should be equal to 3rd dimention of data")
+
+    x_center = np.arange(1, variable_num+1, 1)
+    width = (1-bar_sep)/1
+    
+    # colors = cm.get_cmap('hsv', group_num).colors
+    
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    Y_mean = np.mean(Y,0)
+    ax.bar(x_center, Y_mean, width = width)
+
+    if x_label is not None:
+        ax.set_xlabel(x_label)
+    if y_label is not None:
+        ax.set_ylabel(y_label)
+    if x_ticks is not None:
+        ax.set_xticks(x_center, x_ticks)
+    else:
+        ax.set_xticks(x_center, x_center)
+    ax.grid(grid)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    return fig, ax
+
+
 def bar_plot_with_errorbar(Y: ndarray,
              bar_sep: float = 0.25,
              x_label: Optional[str] = None,

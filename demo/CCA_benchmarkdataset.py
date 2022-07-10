@@ -8,7 +8,7 @@ from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
-from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot
+from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, bar_plot
 
 import numpy as np
 
@@ -59,10 +59,20 @@ acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluato
                                                                          dataset_idx = 0,
                                                                          tw_seq = tw_seq,
                                                                          train_or_test = 'test')
+
+# Calculate training time and testing time
+train_time = np.zeros((1,len(model_container)))
+test_time = np.zeros((1,len(model_container)))
+for performance_trial in cca_evaluator.performance_container:
+    for method_idx, method_performance in enumerate(performance_trial):
+        train_time[0,method_idx] = train_time[0,method_idx] + sum(method_performance.train_time)
+        test_time[0,method_idx] = test_time[0,method_idx] + sum(method_performance.test_time_test)
             
 # Save results
 data = {"acc_store": acc_store,
-        "itr_store": itr_store}
+        "itr_store": itr_store,
+        "train_time": train_time,
+        "test_time": test_time}
 data_file = 'res/cca_benchmarkdataset_res.mat'
 savedata(data_file, data, 'mat')
 
@@ -71,6 +81,21 @@ savedata(data_file, data, 'mat')
 # data = loaddata(data_file, 'mat')
 # acc_store = data["acc_store"]
 # itr_store = data["itr_store"]
+
+# Plot training time and testing time
+fig, _ = bar_plot(train_time,
+                  x_label = 'Methods',
+                  y_label = 'Total training time',
+                  x_ticks = [model.ID for model in model_container],
+                  grid = True)
+fig.savefig('res/cca_benchmarkdataset_traintime_bar.jpg', bbox_inches='tight', dpi=300)
+
+fig, _ = bar_plot(test_time,
+                  x_label = 'Methods',
+                  y_label = 'Total testing time',
+                  x_ticks = [model.ID for model in model_container],
+                  grid = True)
+fig.savefig('res/cca_benchmarkdataset_testtime_bar.jpg', bbox_inches='tight', dpi=300)
 
 
 # Plot Performance of bar plots
