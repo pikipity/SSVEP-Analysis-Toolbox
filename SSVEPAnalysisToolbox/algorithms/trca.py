@@ -48,37 +48,65 @@ def _trca_U(X: list) -> ndarray:
 
     return eig_vec
 
-def _r_corr(X: ndarray,
-            Y: List[ndarray],
-            U: ndarray) -> ndarray:
+def _r_cca_canoncorr_withUV(X: ndarray,
+                            Y: List[ndarray],
+                            U: ndarray,
+                            V: ndarray) -> ndarray:
     """
-    Calculate correlation
+    Calculate correlation of CCA based on canoncorr for single trial data using existing U and V
 
     Parameters
-    ------------
+    ----------
     X : ndarray
         Single trial EEG data
         EEG shape: (filterbank_num, channel_num, signal_len)
     Y : List[ndarray]
-        List of template signals
+        List of reference signals
     U : ndarray
-        Shape: (filterbank_num * stimulus_num * channel_num * n_component)
+        Spatial filter
+        shape: (filterbank_num * stimulus_num * channel_num * n_component)
+    V : ndarray
+        Weights of harmonics
+        shape: (filterbank_num * stimulus_num * harmonic_num * n_component)
+
+    Returns
+    -------
+    R : ndarray
+        Correlation
+        shape: (filterbank_num * stimulus_num)
     """
     filterbank_num, channel_num, signal_len = X.shape
+    if len(Y[0].shape)==2:
+        harmonic_num = Y[0].shape[0]
+    elif len(Y[0].shape)==3:
+        harmonic_num = Y[0].shape[1]
+    else:
+        raise ValueError('Unknown data type')
     stimulus_num = len(Y)
+    
     R = np.zeros((filterbank_num, stimulus_num))
-
+    
     for k in range(filterbank_num):
         tmp = X[k,:,:]
         for i in range(stimulus_num):
-            Y_tmp = Y[i][k,:,:]
-            a = U[k,i,:,:].T @ tmp
-            b = U[k,i,:,:].T @ Y_tmp
+            if len(Y[i].shape)==2:
+                Y_tmp = Y[i]
+            elif len(Y[i].shape)==3:
+                Y_tmp = Y[i][k,:,:]
+            else:
+                raise ValueError('Unknown data type')
+            
+            A_r = U[k,i,:,:]
+            B_r = V[k,i,:,:]
+            
+            a = A_r.T @ tmp
+            b = B_r.T @ Y_tmp
             a = np.reshape(a, (-1))
             b = np.reshape(b, (-1))
+            
+            # r2 = stats.pearsonr(a, b)[0]
             r = stats.pearsonr(a, b)[0]
             R[k,i] = r
-    
     return R
 
 
@@ -143,7 +171,7 @@ class TRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_corr, Y=template_sig, U=U))(X=a) for a in X)
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -215,7 +243,7 @@ class ETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_corr, Y=template_sig, U=U))(X=a) for a in X)
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
