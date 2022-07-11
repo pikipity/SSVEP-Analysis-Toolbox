@@ -72,12 +72,6 @@ def _r_corr(X: ndarray,
         tmp = X[k,:,:]
         for i in range(stimulus_num):
             Y_tmp = Y[i][k,:,:]
-            # if U.shape[1] == stimulus_num:
-            #     U_i = i
-            # elif U.shape[1] == 1:
-            #     U_i = 0
-            # else:
-            #     raise ValueError("Shape of U is not correct")
             a = U[k,i,:,:].T @ tmp
             b = U[k,i,:,:].T @ Y_tmp
             a = np.reshape(a, (-1))
@@ -208,17 +202,6 @@ class ETRCA(BaseModel):
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca, repeats = stimulus_num, axis = 1)
-        # U_trca = np.transpose(U_trca, (0,3,2,1))
-        # tmp = np.repeat(U_trca, stimulus_num, axis = 1)
-
-        # U_trca = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-        # for stim_idx, u in enumerate(U):
-        #     try:
-        #         U_trca[:, stim_idx, :, 0] = tmp[:, stim_idx, :, stim_idx]
-        #     except IndexError:
-        #         print(tmp.shape)
-        #         print(U_trca.shape)
-        #         print(stim_idx)
 
         self.model['U'] = U_trca
 
