@@ -4,8 +4,8 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import ECCA
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA
+# from SSVEPAnalysisToolbox.algorithms.cca import ECCA
+from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
@@ -26,7 +26,8 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i*0.25 for i in range(1,4+1,1)]
+# tw_seq = [i*0.25 for i in range(1,4+1,1)]
+tw_seq = [i/10 for i in range(3,11)]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -40,9 +41,10 @@ trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
 # Prepare models
 weights_filterbank = suggested_weights_filterbank()
 model_container = [
-                   ECCA(weights_filterbank = weights_filterbank),
+                #    ECCA(weights_filterbank = weights_filterbank),
                    TRCA(weights_filterbank = weights_filterbank),
-                   ETRCA(weights_filterbank = weights_filterbank)
+                   ETRCA(weights_filterbank = weights_filterbank),
+                   MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank)
                   ]
 
 # Evaluate models
