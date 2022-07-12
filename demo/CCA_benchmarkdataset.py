@@ -26,7 +26,6 @@ dataset_container = [
 
 # Prepare train and test trials
 tw_seq = [i*0.25 for i in range(1,4+1,1)]
-# tw_seq = [4]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
