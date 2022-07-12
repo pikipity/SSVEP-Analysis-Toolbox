@@ -699,3 +699,113 @@ class ECCA(BaseModel):
                                                         np.sign(r4_single) * np.square(r4_single)))) for r1_single, r2_single, r3_single, r4_single in zip(r1, r2, r3, r4)]
         
         return Y_pred
+
+class MSCCA(BaseModel):
+    """
+    ms-CCA
+    """
+    def __init__(self,
+                 n_neighbor: int = 12,
+                 n_component: int = 1,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        """
+        Special parameter
+        ------------------
+        n_neighbor: int
+            Number of neighbors considered for computing spatical filter
+        """
+        super().__init__(ID = 'ms-CCA',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.n_neighbor = n_neighbor
+        
+        self.model['U'] = None
+        self.model['V'] = None
+        
+    def __copy__(self):
+        copy_model = MSCCA(n_component = self.n_component,
+                            n_jobs = self.n_jobs,
+                            weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+        
+    def fit(self,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if ref_sig is None:
+            raise ValueError('eCCA requires sine-cosine-based reference signal')
+        if Y is None:
+            raise ValueError('eCCA requires training label')
+        if X is None:
+            raise ValueError('eCCA requires training data')
+        
+        # save reference
+        self.model['ref_sig'] = ref_sig
+
+        # generate template 
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                           # Template shape: (filterbank_num, channel_num, signal_len)
+        self.model['template_sig'] = template_sig
+
+        # spatial filters of template and reference: U3 and V3
+        #   U3: (filterbank_num * stimulus_num * channel_num * n_component)
+        #   V3: (filterbank_num * stimulus_num * harmonic_num * n_component)
+        filterbank_num = template_sig[0].shape[0]
+        stimulus_num = len(template_sig)
+        channel_num = template_sig[0].shape[1]
+        harmonic_num = ref_sig[0].shape[0]
+        n_component = self.n_component
+        n_neighbor = self.n_neighbor
+        # construct reference and template signals for ms-cca
+        d0 = int(np.floor(n_neighbor/2))
+        ref_sig_mscca = []
+        template_sig_mscca = []
+        for class_idx in range(1,stimulus_num+1):
+            if class_idx <= d0:
+                start_idx = 0
+                end_idx = n_neighbor
+            elif class_idx > d0 and class_idx < (stimulus_num-d0+1):
+                start_idx = class_idx - d0 - 1
+                end_idx = class_idx + (n_neighbor-d0-1)
+            else:
+                start_idx = stimulus_num - n_neighbor
+                end_idx = stimulus_num
+            ref_sig_tmp = [ref_sig[i] for i in range(start_idx, end_idx)]
+            ref_sig_mscca.append(np.concatenate(ref_sig_tmp, axis = -1))
+            template_sig_tmp = [template_sig[i] for i in range(start_idx, end_idx)]
+            template_sig_mscca.append(np.concatenate(template_sig_tmp, axis = -1))
+        U = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+        V = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
+        for filterbank_idx in range(filterbank_num):
+            U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
+                                                                                                            Y=ref_sig_single.T) 
+                                                        for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
+            for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
+                U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
+                V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
+        self.model['U'] = U
+        self.model['V'] = V
+            
+        
+    def predict(self,
+                X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+
+        ref_sig = self.model['ref_sig']
+        template_sig = self.model['template_sig']
+        U = self.model['U']
+        V = self.model['V']
+
+        r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=ref_sig, U=U, V=V))(X=a) for a in X)
+        r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        
+        Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
+                                                        np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
+        
+        return Y_pred

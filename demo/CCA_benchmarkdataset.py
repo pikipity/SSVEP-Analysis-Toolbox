@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA
+from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
@@ -26,6 +26,7 @@ dataset_container = [
 
 # Prepare train and test trials
 tw_seq = [i*0.25 for i in range(1,4+1,1)]
+# tw_seq = [4]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -41,7 +42,8 @@ weights_filterbank = suggested_weights_filterbank()
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
                    SCCA_canoncorr(weights_filterbank = weights_filterbank),
-                   ECCA(weights_filterbank = weights_filterbank)
+                   ECCA(weights_filterbank = weights_filterbank),
+                   MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank)
                   ]
 
 # Evaluate models
