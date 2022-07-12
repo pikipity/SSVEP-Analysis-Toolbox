@@ -218,7 +218,7 @@ class TrialInfo:
         return self
     
     def get_data(self,
-                 dataset_container: list) -> Tuple[list, list, list]:
+                 dataset_container: list) -> Tuple[list, list, list, list]:
         """
         Get data based trian information
 
@@ -235,10 +235,12 @@ class TrialInfo:
             Labels
         ref_sig: list
             Reference signal
-
+        freqs: list
+            List of stimulus frequencies corresponding to reference signal
         """
         dataset = dataset_container[self.dataset_idx[0]]
         ref_sig = dataset.get_ref_sig(self.tw,self.harmonic_num)
+        freqs = dataset.stim_info['freqs']
         X = []
         Y = []
         for (dataset_idx,
@@ -264,7 +266,7 @@ class TrialInfo:
                                             shuffle = shuffle)
         X.extend(X_tmp)
         Y.extend(Y_tmp)
-        return X, Y, ref_sig
+        return X, Y, ref_sig, freqs
         
 
 class BaseEvaluator:
@@ -339,14 +341,14 @@ class BaseEvaluator:
             #     print(train_trial_info.__dict__)
             if len(train_trial_info.dataset_idx) == 0:
                 raise ValueError('Train trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig = train_trial_info.get_data(self.dataset_container)
+            X, Y, ref_sig, freqs = train_trial_info.get_data(self.dataset_container)
             
             # Train models 
             model_one_trial = []
             for train_model_idx, model_tmp in enumerate(self.model_container):
                 trained_model = model_tmp.__copy__()
                 tic = time.time()
-                trained_model.fit(X=X, Y=Y, ref_sig=ref_sig) 
+                trained_model.fit(X=X, Y=Y, ref_sig=ref_sig, freqs=freqs) 
                 performance_one_trial[train_model_idx].add_train_time(time.time()-tic)
                 model_one_trial.append(trained_model)
                 if self.disp_processbar:
@@ -368,7 +370,7 @@ class BaseEvaluator:
             #     print(test_trial_info.__dict__)
             if len(test_trial_info.dataset_idx) == 0:
                 raise ValueError('Test trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig = test_trial_info.get_data(self.dataset_container)
+            X, Y, ref_sig, _ = test_trial_info.get_data(self.dataset_container)
                 
             # Test models
             for test_model_idx, model_tmp in enumerate(model_one_trial):
