@@ -728,7 +728,8 @@ class MSCCA(BaseModel):
         self.model['V'] = None
         
     def __copy__(self):
-        copy_model = MSCCA(n_component = self.n_component,
+        copy_model = MSCCA(n_neighbor = self.n_neighbor,
+                            n_component = self.n_component,
                             n_jobs = self.n_jobs,
                             weights_filterbank = self.model['weights_filterbank'])
         copy_model.model = deepcopy(self.model)
