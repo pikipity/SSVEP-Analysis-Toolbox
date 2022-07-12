@@ -14,7 +14,7 @@ import scipy.linalg as slin
 import scipy.stats as stats
 
 from .basemodel import BaseModel
-from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template
+from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort
 
 
 
@@ -438,6 +438,7 @@ class SCCA_canoncorr(BaseModel):
         return copy_model
         
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
@@ -518,6 +519,7 @@ class SCCA_qr(BaseModel):
         return copy_model
         
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
@@ -604,6 +606,7 @@ class ECCA(BaseModel):
         return copy_model
         
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
@@ -712,6 +715,9 @@ class MSCCA(BaseModel):
         """
         Special parameter
         ------------------
+        freqs: List[float]
+            List of stimulus frequencies
+            This list is applied to sort reference and template signals
         n_neighbor: int
             Number of neighbors considered for computing spatical filter
         """
@@ -732,15 +738,25 @@ class MSCCA(BaseModel):
         return copy_model
         
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
+        """
+        Special parameter
+        ------------------
+        freqs: List[float]
+            List of stimulus frequencies
+            This list is applied to sort reference and template signals
+        """
+        if freqs is None:
+            raise ValueError('ms-CCA requires the list of stimulus frequencies')
         if ref_sig is None:
-            raise ValueError('eCCA requires sine-cosine-based reference signal')
+            raise ValueError('ms-CCA requires sine-cosine-based reference signal')
         if Y is None:
-            raise ValueError('eCCA requires training label')
+            raise ValueError('ms-CCA requires training label')
         if X is None:
-            raise ValueError('eCCA requires training data')
+            raise ValueError('ms-CCA requires training data')
         
         # save reference
         self.model['ref_sig'] = ref_sig
@@ -761,6 +777,11 @@ class MSCCA(BaseModel):
         n_neighbor = self.n_neighbor
         # construct reference and template signals for ms-cca
         d0 = int(np.floor(n_neighbor/2))
+        U = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+        V = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
+        _, freqs_idx, return_freqs_idx = sort(freqs)
+        ref_sig_sort = [ref_sig[i] for i in freqs_idx]
+        template_sig_sort = [template_sig[i] for i in freqs_idx]
         ref_sig_mscca = []
         template_sig_mscca = []
         for class_idx in range(1,stimulus_num+1):
@@ -773,22 +794,22 @@ class MSCCA(BaseModel):
             else:
                 start_idx = stimulus_num - n_neighbor
                 end_idx = stimulus_num
-            ref_sig_tmp = [ref_sig[i] for i in range(start_idx, end_idx)]
+            ref_sig_tmp = [ref_sig_sort[i] for i in range(start_idx, end_idx)]
             ref_sig_mscca.append(np.concatenate(ref_sig_tmp, axis = -1))
-            template_sig_tmp = [template_sig[i] for i in range(start_idx, end_idx)]
+            template_sig_tmp = [template_sig_sort[i] for i in range(start_idx, end_idx)]
             template_sig_mscca.append(np.concatenate(template_sig_tmp, axis = -1))
-        U = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-        V = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
         for filterbank_idx in range(filterbank_num):
             U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
-                                                                                                            Y=ref_sig_single.T) 
+                                                                                                                    Y=ref_sig_single.T) 
                                                         for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
+            # U_tmp = [U_tmp[i] for i in return_freqs_idx]
+            # V_tmp = [V_tmp[i] for i in return_freqs_idx]
             for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
                 U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
                 V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
-        self.model['U'] = U
-        self.model['V'] = V
-            
+        self.model['U'] = U[:, return_freqs_idx, :, :]
+        self.model['V'] = V[:, return_freqs_idx, :, :]
+        
         
     def predict(self,
                 X: List[ndarray]) -> List[int]:
