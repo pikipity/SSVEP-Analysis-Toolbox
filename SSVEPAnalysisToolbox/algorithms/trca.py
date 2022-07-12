@@ -132,6 +132,7 @@ class TRCA(BaseModel):
         return copy_model
 
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
@@ -202,6 +203,7 @@ class ETRCA(BaseModel):
         return copy_model
 
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
