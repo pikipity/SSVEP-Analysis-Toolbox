@@ -418,7 +418,7 @@ class SCCA_canoncorr(BaseModel):
             If false, and U and V have not been stored, they will be stored
             Default is True
         """
-        super().__init__(ID = 'sCCA_canoncorr',
+        super().__init__(ID = 'sCCA (canoncorr)',
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
@@ -499,7 +499,7 @@ class SCCA_qr(BaseModel):
             If false, and U and V have not been stored, they will be stored
             Default is True
         """
-        super().__init__(ID = 'sCCA_qr',
+        super().__init__(ID = 'sCCA (qr)',
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
