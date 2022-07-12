@@ -44,6 +44,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         
     @abc.abstractclassmethod
     def fit(self,
+            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
@@ -52,6 +53,9 @@ class BaseModel(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
+        freqs : Optional[List[float]], optional
+            List of stimulus frequencies. The default is None.
+            List shape: (trial_num,)
         X : Optional[List[ndarray]], optional
             List of training EEG data. The default is None.
             List shape: (trial_num,)
