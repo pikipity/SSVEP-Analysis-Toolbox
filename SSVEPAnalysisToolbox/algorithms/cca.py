@@ -739,13 +739,6 @@ class MSCCA(BaseModel):
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
-        """
-        Special parameter
-        ------------------
-        freqs: List[float]
-            List of stimulus frequencies
-            This list is applied to sort reference and template signals
-        """
         if freqs is None:
             raise ValueError('ms-CCA requires the list of stimulus frequencies')
         if ref_sig is None:
