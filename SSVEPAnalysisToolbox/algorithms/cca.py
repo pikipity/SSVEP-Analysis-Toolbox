@@ -802,8 +802,6 @@ class MSCCA(BaseModel):
             U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
                                                                                                                     Y=ref_sig_single.T) 
                                                         for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
-            # U_tmp = [U_tmp[i] for i in return_freqs_idx]
-            # V_tmp = [V_tmp[i] for i in return_freqs_idx]
             for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
                 U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
                 V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
