@@ -715,9 +715,6 @@ class MSCCA(BaseModel):
         """
         Special parameter
         ------------------
-        freqs: List[float]
-            List of stimulus frequencies
-            This list is applied to sort reference and template signals
         n_neighbor: int
             Number of neighbors considered for computing spatical filter
         """
