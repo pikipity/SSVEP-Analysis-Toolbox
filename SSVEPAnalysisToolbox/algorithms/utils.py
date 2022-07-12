@@ -6,6 +6,30 @@ from numpy import ndarray
 import scipy.linalg as slin
 import numpy as np
 
+def sort(X: list) -> Tuple[list, list, list]:
+    """
+    Sort given list
+
+    Parameters
+    -----------
+    X : list
+
+    Returns
+    -----------
+    sorted_X : list
+        Sorted X
+    sort_idx : list
+        Indices that is applied to transfer list from X to sorted_X
+    return_idx : list
+        Indices that is applied to transfer list from sorted_X to X
+    """
+    sort_idx = list(np.argsort(X))
+    sorted_X = [X[i] for i in sort_idx]
+    return_idx = [None] * len(sort_idx)
+    for loc, idx in enumerate(sort_idx):
+        return_idx[idx] = loc
+    return sorted_X, sort_idx, return_idx
+
 def gen_template(X: List[ndarray],
                  Y: List[int]) -> List[ndarray]:
     """
