@@ -85,7 +85,7 @@ data_file = 'res/betadataset_res.mat'
 savedata(data_file, data, 'mat')
 
 # Load data
-# data_file = 'res/benchmarkdataset_res.mat'
+# data_file = 'res/betadataset_res.mat'
 # data = loaddata(data_file, 'mat')
 # acc_store = data["acc_store"]
 # itr_store = data["itr_store"]
