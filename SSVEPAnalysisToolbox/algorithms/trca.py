@@ -215,7 +215,15 @@ class TRCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
 
         template_sig = self.model['template_sig']
         U = self.model['U'] 
@@ -288,7 +296,15 @@ class ETRCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
 
         template_sig = self.model['template_sig']
         U = self.model['U'] 
@@ -390,7 +406,15 @@ class MSETRCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
 
         template_sig = self.model['template_sig']
         U = self.model['U'] 
@@ -590,7 +614,15 @@ class MSCCA_and_MSETRCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
 
         r1 = self.predict_mscca(X)
         r2 = self.predict_msetrca(X)
