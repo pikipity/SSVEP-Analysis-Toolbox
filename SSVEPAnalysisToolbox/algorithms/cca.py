@@ -453,7 +453,15 @@ class SCCA_canoncorr(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
         n_component = self.n_component
         Y = self.model['ref_sig']
         force_output_UV = self.force_output_UV
@@ -537,7 +545,15 @@ class SCCA_qr(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
         n_component = self.n_component
         Y_Q = self.model['ref_sig_Q']
         Y_R = self.model['ref_sig_R']
@@ -658,7 +674,15 @@ class ECCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
         n_component = self.n_component
         update_UV = self.update_UV
         
@@ -805,7 +829,15 @@ class MSCCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
 
         ref_sig = self.model['ref_sig']
         template_sig = self.model['template_sig']
