@@ -228,10 +228,6 @@ class TDCA(BaseModel):
             Sw_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, num = trial_num,
                                                                                      division_num = trial_num))(X = X_tmp_tmp, X_mean = X_mean_tmp)
                                                                                      for X_tmp_tmp, X_mean_tmp in zip(X_tmp, X_mean))
-            # Sw_list = [Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, X_mean = P_combine_X_train_mean_single_class, 
-            #                                                                             num = trial_num,
-            #                                                                             division_num = trial_num))(X = X_tmp_tmp) 
-            #                                                                             for X_tmp_tmp in P_combine_X_train_single_class) for P_combine_X_train_single_class, P_combine_X_train_mean_single_class in zip(P_combine_X_train, P_combine_X_train_mean)]
             Sb_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, X_mean = P_combine_X_train_all_mean,
                                                                                      num = stimulus_num,
                                                                                      division_num = stimulus_num))(X = P_combine_X_train_mean_single_class)
