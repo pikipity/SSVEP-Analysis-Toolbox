@@ -248,7 +248,15 @@ class TDCA(BaseModel):
         weights_filterbank = self.model['weights_filterbank']
         if weights_filterbank is None:
             weights_filterbank = [1 for _ in range(X[0].shape[0])]
-        weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
         n_delay = self.n_delay
 
         X_delay = _gen_delay_X(X, n_delay)
