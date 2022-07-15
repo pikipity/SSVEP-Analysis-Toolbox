@@ -75,6 +75,8 @@ for trial_idx, performance_trial in enumerate(evaluator.performance_container):
     for method_idx, method_performance in enumerate(performance_trial):
         train_time[method_idx, trial_idx] = sum(method_performance.train_time)
         test_time[method_idx, trial_idx] = sum(method_performance.test_time_test)
+train_time = train_time.T
+test_time = test_time.T
             
 # Save results
 data = {"acc_store": acc_store,
