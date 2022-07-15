@@ -218,7 +218,8 @@ class TrialInfo:
         return self
     
     def get_data(self,
-                 dataset_container: list) -> Tuple[list, list, list, list]:
+                 dataset_container: list,
+                 ignore_stim_phase: bool) -> Tuple[list, list, list, list]:
         """
         Get data based trian information
 
@@ -239,7 +240,7 @@ class TrialInfo:
             List of stimulus frequencies corresponding to reference signal
         """
         dataset = dataset_container[self.dataset_idx[0]]
-        ref_sig = dataset.get_ref_sig(self.tw,self.harmonic_num)
+        ref_sig = dataset.get_ref_sig(self.tw,self.harmonic_num, ignore_stim_phase)
         freqs = dataset.stim_info['freqs']
         X = []
         Y = []
@@ -278,7 +279,8 @@ class BaseEvaluator:
                  model_container : list,
                  trial_container : list,
                  save_model: bool = False,
-                 disp_processbar: bool = True):
+                 disp_processbar: bool = True,
+                 ignore_stim_phase: bool = False):
         """
         Parameters for all evaluators
 
@@ -295,12 +297,15 @@ class BaseEvaluator:
             Whether save models
         disp_processbar : Optional[bool], optional
             Whether display process bar
+        ignore_stim_phase: bool
+            Whether ignore stimulus phases when generating reference signals
         """
         self.dataset_container = dataset_container
         self.model_container = model_container
         self.trial_container = trial_container
         self.save_model = save_model
         self.disp_processbar = disp_processbar
+        self.ignore_stim_phase = ignore_stim_phase
         
         self.performance_container = []
         self.trained_model_container = []
@@ -341,7 +346,7 @@ class BaseEvaluator:
             #     print(train_trial_info.__dict__)
             if len(train_trial_info.dataset_idx) == 0:
                 raise ValueError('Train trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig, freqs = train_trial_info.get_data(self.dataset_container)
+            X, Y, ref_sig, freqs = train_trial_info.get_data(self.dataset_container, self.ignore_stim_phase)
             
             # Train models 
             model_one_trial = []
@@ -370,7 +375,7 @@ class BaseEvaluator:
             #     print(test_trial_info.__dict__)
             if len(test_trial_info.dataset_idx) == 0:
                 raise ValueError('Test trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig, _ = test_trial_info.get_data(self.dataset_container)
+            X, Y, ref_sig, _ = test_trial_info.get_data(self.dataset_container, self.ignore_stim_phase)
                 
             # Test models
             for test_model_idx, model_tmp in enumerate(model_one_trial):

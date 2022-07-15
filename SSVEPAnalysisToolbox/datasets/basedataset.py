@@ -373,7 +373,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
     
     def get_ref_sig(self,
                     sig_len: float,
-                    N: int) -> List[ndarray]:
+                    N: int,
+                    ignore_stim_phase: bool = False) -> List[ndarray]:
         """
         Construct sine-cosine-based reference signals  for all stimuli
         
@@ -390,7 +391,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
             List of reference signals
         """
         L = floor(sig_len * self.srate)
-        ref_sig = [gen_ref_sin(freq, self.srate, L, N, phase) for freq, phase in zip(self.stim_info['freqs'], self.stim_info['phases'])]
+        if ignore_stim_phase:
+            phases = [0 for _ in range(len(self.stim_info['freqs']))]
+        else:
+            phases = self.stim_info['phases']
+        ref_sig = [gen_ref_sin(freq, self.srate, L, N, phase) for freq, phase in zip(self.stim_info['freqs'], phases)]
         return ref_sig
     
     def regist_preprocess(self,

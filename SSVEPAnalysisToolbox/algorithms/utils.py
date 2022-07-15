@@ -6,6 +6,48 @@ from numpy import ndarray
 import scipy.linalg as slin
 import numpy as np
 
+def sum_list(X: list) -> ndarray:
+    """
+    Calculate sum of a list
+
+    Parameters
+    ------------
+    X: list
+
+    Returns
+    -------------
+    sum_X: ndarray
+    """
+    sum_X = None
+    for x in X:
+        if type(x) is list:
+            x = sum_list(x)
+        if sum_X is None:
+            sum_X = x
+        else:
+            sum_X = sum_X + x
+    return sum_X
+
+def mean_list(X: list) -> ndarray:
+    """
+    Calculate mean of a list
+
+    Parameters
+    -----------
+    X: list
+
+    Returns
+    ----------
+    mean_X: ndarray
+    """
+    tmp = []
+    for X_single_trial in X:
+        if type(X_single_trial) is list:
+            X_single_trial = mean_list(X_single_trial)
+        tmp.append(np.expand_dims(X_single_trial, axis = 0))
+    tmp = np.concatenate(tmp, axis = 0)
+    return np.mean(tmp, axis=0)
+
 def sort(X: list) -> Tuple[list, list, list]:
     """
     Sort given list
