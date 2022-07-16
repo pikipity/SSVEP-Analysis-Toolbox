@@ -40,13 +40,10 @@ def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
     dataset_container = evaluator.dataset_container
     model_container = evaluator.model_container
     sub_num = len(dataset_container[dataset_idx].subjects)
-    t_break = dataset_container[dataset_idx].t_break
     N = dataset_container[dataset_idx].stim_info['stim_num']
 
     confusion_matrix = np.zeros((len(model_container),sub_num, len(tw_seq), N, N))
-    
-    # acc_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
-    # itr_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
+
     for sub_idx in range(sub_num):
         for tw_idx, tw in enumerate(tw_seq):
             trial_info = {'dataset_idx':[dataset_idx],
@@ -55,22 +52,15 @@ def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
             trial_idx = evaluator.search_trial_idx(train_or_test, trial_info)
             
             for method_idx in range(len(model_container)):
-                # tmp_acc = []
-                # tmp_itr = []
                 for i in trial_idx:
-                    true_label_list = evaluator.performance_container[i][method_idx].true_label_train
-                    pred_label_list = evaluator.performance_container[i][method_idx].pred_label_test
+                    if idx == 0:
+                        true_label_list = evaluator.performance_container[i][method_idx].true_label_train
+                        pred_label_list = evaluator.performance_container[i][method_idx].pred_label_train
+                    else:
+                        true_label_list = evaluator.performance_container[i][method_idx].true_label_test
+                        pred_label_list = evaluator.performance_container[i][method_idx].pred_label_test
                     for true_label, pred_label in zip(true_label_list, pred_label_list):
                         confusion_matrix[method_idx, sub_idx, tw_idx, true_label, pred_label] = confusion_matrix[method_idx, sub_idx, tw_idx, true_label, pred_label] + 1
-                #     performance_container = [evaluator.performance_container[i][method_idx]]
-                #     tmp_acc.append(cal_acc_trials(train_or_test, performance_container))
-                #     t_latency = evaluator.trial_container[i][idx].t_latency[dataset_idx]
-                #     tw = evaluator.trial_container[i][idx].tw
-                #     if t_latency is None:
-                #         t_latency = dataset_container[dataset_idx].default_t_latency
-                #     tmp_itr.append(cal_itr_trials(train_or_test, performance_container, tw, t_break, t_latency, N))
-                # acc_store[method_idx,sub_idx,tw_idx] = mean(tmp_acc)
-                # itr_store[method_idx,sub_idx,tw_idx] = mean(tmp_itr)
     return confusion_matrix
 
 def cal_performance_onedataset_individual_diffsiglen(evaluator: object,

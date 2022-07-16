@@ -8,7 +8,7 @@ from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, M
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
-from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen
+from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
 from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, bar_plot
 
@@ -67,6 +67,10 @@ acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluato
                                                                          dataset_idx = 0,
                                                                          tw_seq = tw_seq,
                                                                          train_or_test = 'test')
+confusion_matrix = cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator = evaluator,
+                                                                        dataset_idx = 0,
+                                                                        tw_seq = tw_seq,
+                                                                        train_or_test = 'test')                                                                       
 
 # Calculate training time and testing time
 train_time = np.zeros((len(model_container), len(evaluator.performance_container)))
@@ -82,7 +86,8 @@ test_time = test_time.T
 data = {"acc_store": acc_store,
         "itr_store": itr_store,
         "train_time": train_time,
-        "test_time": test_time}
+        "test_time": test_time,
+        "confusion_matrix": confusion_matrix}
 data_file = 'res/benchmarkdataset_res.mat'
 savedata(data_file, data, 'mat')
 
@@ -93,6 +98,7 @@ savedata(data_file, data, 'mat')
 # itr_store = data["itr_store"]
 # train_time = data["train_time"]
 # test_time = data["test_time"]
+# confusion_matrix = data["confusion_matrix"]
 
 # Plot training time and testing time
 fig, _ = bar_plot(train_time,
