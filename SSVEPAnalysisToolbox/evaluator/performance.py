@@ -118,19 +118,18 @@ def cal_performance_onedataset_individual_diffsiglen(evaluator: object,
                 for i in trial_idx:
                     performance_container = [evaluator.performance_container[i][method_idx]]
                     tmp_acc.append(cal_acc_trials(train_or_test, performance_container))
-                    N = len(set(performance_container[0].true_label_train))
                     t_latency = evaluator.trial_container[i][idx].t_latency[dataset_idx]
                     tw = evaluator.trial_container[i][idx].tw
                     if t_latency is None:
                         t_latency = dataset_container[dataset_idx].default_t_latency
-                    tmp_itr.append(cal_itr_trials(train_or_test, performance_container, tw, t_break, t_latency, N))
+                    tmp_itr.append(cal_itr_trials(train_or_test, performance_container, tw, t_break, t_latency))
                 acc_store[method_idx,sub_idx,tw_idx] = mean(tmp_acc)
                 itr_store[method_idx,sub_idx,tw_idx] = mean(tmp_itr)
     return acc_store, itr_store
 
 def cal_itr_trials(train_or_test: str,
                    performance_container: list,
-                   tw,t_break,t_latency,N) -> float:
+                   tw,t_break,t_latency) -> float:
     """
     Calculate itr of trials
 
@@ -150,10 +149,12 @@ def cal_itr_trials(train_or_test: str,
         if train_or_test.lower() == "train":
             acc = cal_acc(performance.true_label_train, performance.pred_label_train)
             t_comp = sum(performance.test_time_train)/len(performance.true_label_train)
+            N = len(set(performance.true_label_train))
             list_acc.append(cal_itr(tw,t_break,t_latency,t_comp,N, acc))
         elif train_or_test.lower() == "test":
             acc = cal_acc(performance.true_label_test, performance.pred_label_test)
             t_comp = sum(performance.test_time_test)/len(performance.true_label_test)
+            N = len(set(performance.true_label_test))
             list_acc.append(cal_itr(tw,t_break,t_latency,t_comp,N, acc))
         else:
             raise ValueError("Unknown train_or_test type. It must be 'train' or 'test'")
