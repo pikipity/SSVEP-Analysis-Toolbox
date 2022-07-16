@@ -9,7 +9,7 @@ from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
-from SSVEPAnalysisToolbox.utils.io import savedata, loaddata
+from SSVEPAnalysisToolbox.utils.io import savedata
 from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, bar_plot
 
 import numpy as np
@@ -87,18 +87,11 @@ data = {"acc_store": acc_store,
         "itr_store": itr_store,
         "train_time": train_time,
         "test_time": test_time,
-        "confusion_matrix": confusion_matrix}
+        "confusion_matrix": confusion_matrix,
+        "tw_seq":tw_seq,
+        "method_ID": [model.ID for model in model_container]}
 data_file = 'res/benchmarkdataset_res.mat'
 savedata(data_file, data, 'mat')
-
-# Load data
-# data_file = 'res/benchmarkdataset_res.mat'
-# data = loaddata(data_file, 'mat')
-# acc_store = data["acc_store"]
-# itr_store = data["itr_store"]
-# train_time = data["train_time"]
-# test_time = data["test_time"]
-# confusion_matrix = data["confusion_matrix"]
 
 # Plot training time and testing time
 fig, _ = bar_plot(train_time,
