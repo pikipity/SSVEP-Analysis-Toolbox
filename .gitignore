@@ -4,3 +4,5 @@ demo/2016_Tsinghua_SSVEP_database/*
 demo/BETA Dataset/*
 demo/2020_BETA_SSVEP_database_update/*
 demo/res/*.mat
+Docs/_build/*
+.vscode/*
