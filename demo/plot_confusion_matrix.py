@@ -76,8 +76,8 @@ for dataset_idx, data_file in enumerate(data_file_list):
         ax.tick_params(which="minor", bottom=False, left=False)
         ax.tick_params(axis='x',labelsize=5)
         ax.tick_params(axis='y',labelsize=5)
-        ax.set_xlabel('True Label')
-        ax.set_ylabel('Predicted Label')
+        ax.set_ylabel('True Label')
+        ax.set_xlabel('Predicted Label')
 
         save_path = 'res/{:s}/{:s}_T{:n}.jpg'.format(save_folder[dataset_idx],
                                                         method_ID[method_idx].strip(),
