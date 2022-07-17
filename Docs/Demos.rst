@@ -12,7 +12,7 @@ This demo shows the following points:
 + How to create recognition models. 
 + How to use the provided evaluator ``BaseEvaluator`` to verify recognition performance.
 
-Note: 
+Notes: 
 
 + This demo uses ``gen_trials_onedataset_individual_diffsiglen`` to generate evaluation trials used for ``BaseEvaluator``. These trials are used to evaluate indivudal performance on various signal lengths. If your target is not to evaluate these performance, you can follow this function to prepare your own evaluation trials.
 + This demo uses ``cal_performance_onedataset_individual_diffsiglen`` and ``cal_confusionmatrix_onedataset_individual_diffsiglen`` to calculate recognition performance (accuracies and ITRs) and confusion matrices. These two functions are also used to calculate individual performance on various signal lengths. For your own evaluation trials, you can follow these two functions to evaluate your own performance.
