@@ -17,7 +17,8 @@ def shadowline_plot(X: Union[list, ndarray],
                     errorbar_type: str = 'std',
                     grid: bool = True,
                     xlim: Optional[List[float]] = None,
-                    ylim: Optional[List[float]] = None):
+                    ylim: Optional[List[float]] = None,
+                    figsize: List[float] = [6.4, 4.8]):
     """
     Plot shadow lines
     Line values are equal to the mean of all observations
@@ -68,7 +69,7 @@ def shadowline_plot(X: Union[list, ndarray],
         if len(legend) != group_num:
             raise ValueError("Length of 'legend' should be equal to 1st dimention of data")
             
-    fig = plt.figure()
+    fig = plt.figure(figsize=figsize)
     ax = fig.add_axes([0,0,1,1])
     colors = []
     for group_idx in range(group_num):
@@ -111,7 +112,8 @@ def bar_plot(Y: ndarray,
              x_ticks: Optional[List[str]] = None,
              grid: bool = True,
              xlim: Optional[List[float]] = None,
-             ylim: Optional[List[float]] = None):
+             ylim: Optional[List[float]] = None,
+             figsize: List[float] = [6.4, 4.8]):
     """
     Plot bars
 
@@ -155,7 +157,7 @@ def bar_plot(Y: ndarray,
     
     # colors = cm.get_cmap('hsv', group_num).colors
     
-    fig = plt.figure()
+    fig = plt.figure(figsize = figsize)
     ax = fig.add_axes([0,0,1,1])
     Y_mean = np.mean(Y,0)
     ax.bar(x_center, Y_mean, width = width)
@@ -186,7 +188,8 @@ def bar_plot_with_errorbar(Y: ndarray,
              errorbar_type: str = 'std',
              grid: bool = True,
              xlim: Optional[List[float]] = None,
-             ylim: Optional[List[float]] = None):
+             ylim: Optional[List[float]] = None,
+             figsize: List[float] = [6.4, 4.8]):
     """
     Plot bars
 
@@ -227,6 +230,8 @@ def bar_plot_with_errorbar(Y: ndarray,
     ylim: List[float]
         Range of y axis
     """
+    if len(Y.shape) == 2:
+        Y = np.expand_dims(Y, axis=0)
     if len(Y.shape) != 3:
         raise ValueError("Plot data must have 3 dimentions")
     group_num, observation_num, variable_num = Y.shape
@@ -242,7 +247,7 @@ def bar_plot_with_errorbar(Y: ndarray,
     
     # colors = cm.get_cmap('hsv', group_num).colors
     
-    fig = plt.figure()
+    fig = plt.figure(figsize=figsize)
     ax = fig.add_axes([0,0,1,1])
     x = x_center - 0.5 + bar_sep/2 + width/2
     for group_idx in range(group_num):
