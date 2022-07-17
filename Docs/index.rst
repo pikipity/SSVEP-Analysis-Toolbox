@@ -8,6 +8,16 @@ SSVEP Analysis Toolbox
 
 This repository provides a python package for SSVEP datasets and recognition algorithms. The goal of this toolbox is to make researchers be familier with SSVEP signals and related recognition algorithms quickly, and focus on improving algorithms with shortest preparation time.
 
+Contents
+-------------
+
+.. toctree::
+   :maxdepth: 2
+   
+   Installation
+   Demos
+   License
+
 Features
 --------------
 
@@ -52,14 +62,6 @@ Datasets and Algorithms
 
   + ...
 
-Contents
--------------
 
-.. toctree::
-   :maxdepth: 2
-   
-   Installation
-   Demos
-   License
 
 
