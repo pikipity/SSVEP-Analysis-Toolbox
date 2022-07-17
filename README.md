@@ -8,7 +8,7 @@ This repository provides a python package for SSVEP datasets and recognition alg
 + Provide a standard processing procedure for faire performance comparisons
 + Python implementations of SSVEP recognition algorithms
 
-## Contents
+## Datasets and Algorithms
 
 + Datasets
   + **Benchmark** dataset: Y. Wang, X. Chen, X. Gao, and S. Gao, "A benchmark dataset for SSVEP-based braincomputer interfaces," *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 25, no. 10, pp. 17461752, 2017. DOI: [10.1109/TNSRE.2016.2627556](https://doi.org/10.1109/TNSRE.2016.2627556).
