@@ -58,5 +58,8 @@ Contents
 .. toctree::
    :maxdepth: 2
    
+   Installation
+   Demos
    License
+
 
