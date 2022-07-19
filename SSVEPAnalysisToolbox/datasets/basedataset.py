@@ -138,7 +138,12 @@ class BaseDataset(metaclass=abc.ABCMeta):
             """
             default filterbank (1 filterbank contains original signal)
             """
-            return expand_dims(X,0)
+            if len(X.shape) == 2:
+                return expand_dims(X,0)
+            elif len(X.shape) == 3:
+                return X
+            else:
+                raise ValueError("The shapes of EEG signals are not correct")
         self.regist_filterbank(default_filterbank)
     def download_all(self):
         """
