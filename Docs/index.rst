@@ -15,6 +15,7 @@ Contents
    :maxdepth: 2
    
    Installation
+   API
    Demos
    License
 
