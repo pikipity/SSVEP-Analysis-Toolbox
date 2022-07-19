@@ -3,6 +3,9 @@ User API
 
 .. contents:: Table of Contents
 
+.. role::  raw-html(raw)
+    :format: html
+
 Datasets
 --------------------
 
@@ -142,5 +145,25 @@ All datasets have these functions.
 
 .. py:function:: reset_preprocess
 
-    Reset the preprocess function. 
+    Set the preprocess function as the default preprocess function. The default preprocess function is empty. It will directly return the original EEG signals without any preprocessing.
+
+.. py:function:: reset_filterbank
+
+    Set the filterbank function as the default filterbank function. In the default filterbank function, the original EEG signals will be considered as one filterbank. If the original EEG signal is a 2D signal (channels :raw-html:`&#215;` samples), one more dimention will be expanded (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples). If the original EEG signal is a 3D signal, original signal will be returned without any processing. 
+
+.. py:function:: leave_one_block_out
+
+    According to the given testing block index, generate lists of testing and training block indices following the leave-one-block-out rule.  
+
+    .. tip::
+
+        Leave-one-block-out rule: One block works as the testing block. All other blocks work as the training blocks.
+
+    :param block_idx: Given testing block index. 
+
+.. py:function:: get_data
+
+    
+
+
 
