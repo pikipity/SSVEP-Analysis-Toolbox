@@ -160,10 +160,14 @@ All datasets have these functions.
         Leave-one-block-out rule: One block works as the testing block. All other blocks work as the training blocks.
 
     :param block_idx: Given testing block index. 
+    :return: 
+
+        + ``test_block``: List of testing block indices
+        + ``train_block``: List of training block indices
 
 .. py:function:: get_data
 
-    
+
 
 
 
