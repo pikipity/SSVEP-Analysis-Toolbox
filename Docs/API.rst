@@ -147,9 +147,35 @@ All datasets have these functions.
 
     Set the preprocess function as the default preprocess function. The default preprocess function is empty. It will directly return the original EEG signals without any preprocessing.
 
+.. py:function:: regist_preprocess
+
+    Hook the user-defined preprocessing function. 
+
+    :param preprocess_fun: User-defined preprocessing function.
+
+    .. note::
+
+        The given ``preprocess_fun`` should be a callable function name (only name). This callable function should only have one input parameter ``X``. ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
+        
+        If your preprocess function needs other input parameters, you may use `lambda function <https://www.w3schools.com/python/python_lambda.asp>`_. Check demos to get more hints.
+
 .. py:function:: reset_filterbank
 
     Set the filterbank function as the default filterbank function. In the default filterbank function, the original EEG signals will be considered as one filterbank. If the original EEG signal is a 2D signal (channels :raw-html:`&#215;` samples), one more dimention will be expanded (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples). If the original EEG signal is a 3D signal, original signal will be returned without any processing. 
+
+.. py:function:: regist_filterbank
+
+    Hook the user-defined filterbank function.
+
+    :param filterbank_fun: User-defined filterbank function.
+
+    .. note::
+
+        The given ``filterbank_fun`` should be a callable function name (only name). This callable function should only have one input parameter ``X``. ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
+
+        The output of the given ``filterbank_fun`` should be a 3D EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples). The bandpass filtered EEG signals of filterbanks should be stored in the first dimension. 
+
+        If your filterbank function needs other input parameters, you may use `lambda function <https://www.w3schools.com/python/python_lambda.asp>`_. Check demos to get more hints.
 
 .. py:function:: leave_one_block_out
 
@@ -162,12 +188,258 @@ All datasets have these functions.
     :param block_idx: Given testing block index. 
     :return: 
 
-        + ``test_block``: List of testing block indices
+        + ``test_block``: List of one testing block index
         + ``train_block``: List of training block indices
 
 .. py:function:: get_data
 
+    Extract EEG signals and corresponding labels from the dataset
 
+    :param sub_idx: Subject index.
+    :param blocks: List of block indices.
+    :param trials: List of trial indices.
+    :param channels: List of channel indices.
+    :param sig_len: Signal length (in second).
+    :param t_latency: Latency time (in second). Default is the default/suggested latency time of the dataset.
+    :param shuffle: If ``True``, the order of trials will be shuffled. Otherwise, the order of trials will follow the given ``blocks`` and ``trials``.
+
+    :return:
+
+        + ``X``: List of single trial EEG signals.
+        + ``Y``: List of labels.
+
+    .. note::
+
+        The preprocess and filterbanks are applied to windowed signals (not whole trial signal), which is close to the real online situation. The extraction will follow these steps:
+
+        1. Cut the signal according to given ``sig_len``. The pre-stimulus time ``t_prestim`` will be removed. The latency time is maintained.
+        2. Apply the hooked preprocessing function.
+        3. Apply the bandpass filters of filterbanks.
+        4. Remove the latency time. 
+
+.. py:function:: get_data_all_stim
+
+    Extract EEG signals of all trials in given blocks and corresponding labels from the dataset. This function is similar as ``get_data`` but it does not need ``trials`` and will extract all trials of given blocks.
+
+    :param sub_idx: Subject index.
+    :param blocks: List of block indices.
+    :param channels: List of channel indices.
+    :param sig_len: Signal length (in second).
+    :param t_latency: Latency time (in second). Default is the default/suggested latency time of the dataset.
+    :param shuffle: If ``True``, the order of trials will be shuffled. Otherwise, the order of trials will follow the given ``blocks`` and ``trials``.
+
+    :return:
+
+        + ``X``: List of single trial EEG signals.
+        + ``Y``: List of labels.
+
+.. py:function:: get_ref_sig
+
+    Generate sine-cosine-based reference signals. The reference signals of :math:`i\text{-th}` stimulus can be presented as
+
+    .. math::
+
+        \mathbf{Y}_i(t) = \left[ \begin{array}{c}
+                            \sin(2\pi f_i t + \theta_i)\\
+                            \cos(2\pi f_i t + \theta_i)\\
+                            \vdots\\
+                            \sin(2\pi N_h f_i t + N_h \theta_i)\\
+                            \cos(2\pi N_h f_i t + N_h \theta_i)
+                        \end{array} \right]
+
+    where :math:`f_i` and :math:`\theta_i` denote the stimulus frequency and phase of the :math:`i\text{-th}` stimulus, and :math:`N_h` denotes the total number of harmonic components.
+
+    :param sig_len: Signal length (in second). It should be same as the signal length of extracted EEG signals.
+    :param N: Total number of harmonic components.
+    :param ignore_stim_phase: If ``True``, all stimulus phases will be set as 0. Otherwise, the stimulus phases stored in the dataset will be applied.
+
+    :return: 
+
+        + ``ref_sig``: List of reference signals. Each stimulus have one set of reference signals.
+
+How to define your own dataset class
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use the abstract class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` as the father class to define your own dataset class. In your own dataset class, the following functions should be defined:
+
+1. ``__init__``: Except ``path`` and ``path_support_file``, other parameters mentioned in `Section "Parameters of datasets" <#parameters-of-datasets>`_ normally have been defined in the dataset. Therefore, the initialization function should be re-defined. You may ask for ``__init__`` of the father class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` to store these parameters in class.
+2.  Following abstract functions in ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` are empty and should be defined in your own dataset class:
+
+    .. py:function:: download_single_subject
+
+        Donwload one subject's data file. 
+
+        :param subject: One ``SubInfo`` instance stored in ``subjects`` mentioned in `Section "Parameters of datasets" <#parameters-of-datasets>`_.
+
+    .. py:function:: download_file
+
+        Download one supported file.
+
+        :param file_name: File name that will be downloaded.
+
+    .. tip::
+
+        You may use `"download_single_file" function <#SSVEPAnalysisToolbox.utils.download.download_single_file>`_ to download the required file. You also may need `"tarfile" <https://docs.python.org/3/library/tarfile.html>`_ or `"py7zr" <https://github.com/miurahr/py7zr>`_ to uncompress data files.
+
+    .. py:function:: get_sub_data
+
+        Read one subject data from the local data file. 
+
+        :param sub_idx: Subject index.
+
+        :return:
+
+            + ``data``: The provided data should be a 4D data (blocks :raw-html:`&#215;` trials :raw-html:`&#215;` channels :raw-html:`&#215;` samples). Each trial should contain the whole trial data including pre-stimulus time, and latency time.
+
+    .. note::
+
+        The ``data`` provided by `"get_sub_data" function <#get_sub_data>`_ must be 4D. The order of dimentions should be exactly (blocks :raw-html:`&#215;` trials :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
+
+    .. py:function:: get_label_single_trial
+
+        Generate the label of one specific trial.
+
+        :param sub_idx: Subject index.
+
+        :param block_idx: Block index.
+
+        :param stim_idx: Trial index.
+
+        :return:
+
+            + ``label``: Label of the specific trial. The label should be one integer number.
+
+Utility Function
+------------------------------
+
+Download functions
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. py:function:: SSVEPAnalysisToolbox.utils.download.download_single_file
+
+    Download one file. 
+
+    :param source_url: Source URL.
+
+    :param desertation: Local path for storing the downloaded file. The path should be an absolute path with the file name.
+
+    :param known_hash: Hash code of the downloaded file. Set ``None`` if the hash code is unknown. 
+
+IO functions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. py:function:: SSVEPAnalysisToolbox.utils.io.savedata
+
+    Save a dictionary data.
+
+    :param file: Path of saving file including the absolute path and file name.
+
+    :param data: Dictionary data that will be saved.
+
+    :save_type: There are two options of the saving data type: 
+
+        + ``'mat'``: Save data as a matlab ``.mat`` file. The varaible names are the key values of the dictionary. The variable values are the values of the dictionary. If use this option, this function will work like `"scipy.io.savemat" <https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.savemat.html>`_.
+
+        + ``'np'``: Save data as a numpy ``.npy`` binary file. If use this option, this function will work like `"numpy.save" <https://numpy.org/doc/stable/reference/generated/numpy.save.html>`_.
+
+.. py:function:: SSVEPAnalysisToolbox.utils.io.loaddata
+
+    Load a local data file.
+
+    :param file: Local data path including the absolute path and file name.
+
+    :param save_type: There are two options of the local data type:
+
+        + ``'mat'``: Local data is a matlab ``.mat`` file. The varaible names are the key values of the dictionary. The variable values are the values of the dictionary. If use this option, this function will work like `"scipy.io.loadmat" <https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.loadmat.html>`_ or `"mat73.loadmat" <https://github.com/skjerns/mat7.3>`_.
+
+        + ``'np'``: Local data is a numpy ``.npy`` binary file. If use this option, this function will work like `"numpy.load" <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`_.
+
+    :return:
+
+        + ``data``: Loaded dictionary data.
+
+Computation functions
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. py:function:: SSVEPAnalysisToolbox.utils.algsupport.gen_ref_sin
+
+    Generate sine-cosine-based reference signal of one stimulus. This function is similar as `"get_ref_sig" function <#get_ref_sig>`_ in dataset class. But this function is more flexible, requires more input parameters, and is only for one stimulus.
+
+    :param freq: One stimulus frequency.
+
+    :param srate: Sampling rate.
+
+    :param L: Signal length (in samples). 
+
+    :param N: Total number of harmonic components.
+
+    :param phase: One stimulus phase.
+
+    :return:
+
+        + ``ref_sig``: Reference signals of one stimulus. The dimention is (2N :raw-html:`&#215;` L).
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.sum_list
+
+    Iteratively sum all values in a list. If the input list contains lists, these contained lists will be summed first. 
+
+    :param X: List that will be sumed. 
+
+    :return:
+
+        + ``sum_X``: Summation result.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.mean_list
+
+    Iteratively calculate average value of a list. If the input list contains lists, these contained lists will be averaged first.
+
+    :param X: List that will be averaged.
+
+    :return:
+
+        + ``mean_X``: Average result.
+
+
+
+Benchmark and BETA datasets related functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These functions are related to suggested filterbanks, channels, preprocessing function, and weights of filterbanks for the benchmark and BETA datasets. They also can be regarded as demos of preparing your own related functions. Values are refered to the following two papers:
+
++ Y. Wang, X. Chen, X. Gao, and S. Gao, "A benchmark dataset for SSVEP-based braincomputer interfaces," *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 25, no. 10, pp. 1746-1752, 2017. DOI: `10.1109/TNSRE.2016.2627556 <https://doi.org/10.1109/TNSRE.2016.2627556>`_.
++ B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, "BETA: A large benchmark database toward SSVEP-BCI application," *Front. Neurosci.*, vol. 14, p. 627, 2020. DOI: `10.3389/fnins.2020.00627 <https://doi.org/10.3389/fnins.2020.00627>`_.
+
+.. py:function:: filterbank
+
+    Suggested filterbank function. It contains five filterbanks. Each filterbank is a `Chebyshev type I bandpass filter <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cheby1.html>`_ where ``N`` and ``Wn`` are generated by `"cheb1ord" <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cheb1ord.html#scipy.signal.cheb1ord>`_ with ``gpass=3`` and ``gstop=40``, and ``rp=0.5``. The passband of the :math:`i\text{-th}` filterbank is from :math:`8i` Hz to :math:`90` Hz. The stopband of the :math:`i\text{-th}` filterbank is from :math:`(8i-2)` Hz to :math:`100` Hz.
+
+    :param X: EEG signal following `"regist_filterbank" function <#regist_filterbank>`_.
+
+    :param srate: Sampling frequency (Hz).
+
+.. note::
+
+    The `"filterbank" function <#filterbank>`_ needs one more input parameter ``srate`` compared to requriements of the `"regist_filterbank" function <#regist_filterbank>`_. If your dataset instance is ``dataset``, you can hook this filterbank function by ``dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))``.
+
+.. py:function:: suggested_weights_filterbank
+
+    Generate suggested weights of filterbanks. The weight of :math:`i\text{-th}` filterbank is :math:`(i^{-1.25}+0.25)`.
+
+.. py:function:: suggested_ch
+
+    Generate a list of suggested channel indices. 
+
+.. py:function:: preprocess
+
+    Suggested preprocess function. Only one notch filter at 50 Hz is applied. This filter is a `IIR notching digital comb filter <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.iircomb.html>`_ where ``w0`` is 50, ``Q`` is 35, ``fs`` is the input parameter ``srate``.
+
+    :param X: EEG signal following `"regist_preprocess" function <#regist_preprocess>`_.
+
+    :param srate: Sampling frequency.
+
+.. note::
+
+    The `"preprocess" function <#preprocess>`_ needs one more input parameter ``srate`` compared to requriements of the `"regist_preprocess" function <#regist_preprocess>`_. If your dataset instance is ``dataset``, you can hook this filterbank function by ``dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))``.
 
 
 
