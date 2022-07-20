@@ -29,7 +29,7 @@ def gen_ref_sin(freq: float,
     -------
     ref_sig: ndarray
         Sine-cosine-based reference signal
-        N * L
+        2N * L
     """
     
     t = linspace(0, (L-1)/srate, L)
