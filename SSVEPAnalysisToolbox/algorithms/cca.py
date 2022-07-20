@@ -345,12 +345,12 @@ def _r_cca_qr(X: ndarray,
     else:
         return R
    
-def SCCA(n_component: Optional[int] = 1,
+def SCCA(n_component: int = 1,
          n_jobs: Optional[int] = None,
          weights_filterbank: Optional[List[float]] = None,
-         force_output_UV: Optional[bool] = False,
-         update_UV: Optional[bool] = True,
-         cca_type: Optional[str] = 'qr'):
+         force_output_UV: bool = False,
+         update_UV: bool = True,
+         cca_type: str = 'qr'):
     """
     Generate sCCA model
 
