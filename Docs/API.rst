@@ -399,6 +399,103 @@ Computation functions
 
         + ``mean_X``: Average result.
 
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.sort
+
+    Sort the given list
+
+    :param X: List that will be sorted.
+
+    :return:
+
+        + ``sorted_X``: Sorted ``X``.
+        + ``sort_idx``: List of indices that can transfer ``X`` to ``sorted_X``.
+        + ``return_idx``: List of indices that can transfer ``sorted_X`` to ``X``.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.gen_template
+
+    Generate averaged templates. For each stimulus, EEG signals of all trials are averaged as the template signals.
+
+    :param X: List of EEG signals. Each element is one single trial EEG signal. The dimentions of EEG signals should be (filterbanks :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
+
+    :param Y: List of labels. Each element is one single trial label. The labels should be integer numbers.
+
+    :return:
+
+        + ``template_sig``: List of template signals. Each element is one class template signals. The dimentions of template signals are (filterbanks :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.canoncorr
+
+    Calculate canoncial correlation of two matrices following `"canoncorr" in MATLAB <https://www.mathworks.com/help/stats/canoncorr.html>`_.
+
+    :param X: First input matrix. The rows correspond to observations, and the columns correspond to variables.
+
+    :param Y: Second input matrix. The rows correspond to observations, and the columns correspond to variables.
+
+    :param force_output_UV: If ``True``, canonical coefficients will be calculated and provided. Otherwise, only the correlations are computed and provided.
+
+    :return:
+        + ``A``: Canonical coefficients of ``X``. If ``force_output_UV == True``, this value will be returned.
+        + ``B``: Canonical coefficients of ``Y``. If ``force_output_UV == True``, this value will be returned.
+        + ``r``: Canonical correlations.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.qr_inverse
+
+    Inverse QR decomposition.
+
+    :param Q: Orthogonal factor obtained from the QR decomposition.
+
+    :param R: Upper-triangular factor obtained from the QR decomposition.
+
+    :param P: Permutation information obtained from the QR decomposition.
+
+    :return:
+
+        + ``X``: Results of the inverse QR decomposition. :math:`\mathbf{X}=\mathbf{Q}\times\mathbf{R}`. The column order of ``X`` has been adjusted according to ``P``.
+
+.. note::
+
+    In `"qr_inverse" function <#SSVEPAnalysisToolbox.algorithms.utils.qr_inverse>`_, the inputs ``Q``, ``R`` and ``P`` can be 2D or 3D. If the dimension is 2D, it is the conventional inverse QR decomposition. If the dimension is 3D, the conventional inverse QR decomposition will be applied along the first dimension. 
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.qr_remove_mean
+
+    QR decomposition. Before the QR decomposition, the column means are firstly removed from the input matrix.
+
+    :param X: Input matrix.
+
+    :return:
+
+        + ``Q``: Orthogonal factor.
+        + ``R``: Upper-triangular factor.
+        + ``P``: Permutation information.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.qr_list
+
+    Apply `"qr_remove_mean" function <#SSVEPAnalysisToolbox.algorithms.utils.qr_remove_mean>`_ to each element in the given list.
+
+    :param X: List of input matrices for the QR decomposition.
+
+    :return:
+
+        + ``Q``: List of orthogonal factors.
+        + ``R``: List of upper-triangular factors.
+        + ``P``: List of permutation information.
+
+.. note::
+
+    In `"qr_list" function <#SSVEPAnalysisToolbox.algorithms.utils.qr_list>`_, elements of the input list can be 2D or 3D. If 2D, `"qr_remove_mean" function <#SSVEPAnalysisToolbox.algorithms.utils.qr_remove_mean>`_ is directly applied to each element. If 3D, `"qr_remove_mean" function <#SSVEPAnalysisToolbox.algorithms.utils.qr_remove_mean>`_ is applied to each element along the first dimension. 
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.utils.mldivide
+
+    Calculate A\\B. The minimum norm least-squares solution of solving :math:`\mathbf{A}\times \mathbf{x} = \mathbf{B}` for :math:`\mathbf{x}`. 
+
+    :param A: First input matrix.
+
+    :param B: Second input matrix.
+
+    :return:
+
+        + ``x``: Minimum norm least-squares solution. :math:`\mathbf{x} = \mathbf{A}^{-1}\times\mathbf{B}`. The inverse of the matrix ``A`` is performed by the `pseudo-inverse <https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.pinv.html>`_. 
+
 
 
 Benchmark and BETA datasets related functions
