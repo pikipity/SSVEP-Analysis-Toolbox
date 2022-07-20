@@ -10,7 +10,6 @@ from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata
-from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, bar_plot
 
 import numpy as np
 
