@@ -17,6 +17,7 @@ Contents
    Installation
    API
    Demos
+   AskforHelp
    License
 
 Features
