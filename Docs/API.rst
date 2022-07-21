@@ -309,7 +309,7 @@ You can use the abstract class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` 
 
             + ``label``: Label of the specific trial. The label should be one integer number.
 
-Utility Function
+Utility Functions
 ------------------------------
 
 Download functions
@@ -539,4 +539,355 @@ These functions are related to suggested filterbanks, channels, preprocessing fu
     The `"preprocess" function <#preprocess>`_ needs one more input parameter ``srate`` compared to requriements of the `"regist_preprocess" function <#regist_preprocess>`_. If your dataset instance is ``dataset``, you can hook this filterbank function by ``dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))``.
 
 
+Recognition algorithms
+-------------------------
 
+Common functions for all models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All following recognition models have these functions. The inputs and outputs are same so they will not be repeatedly introduced in following sections.
+
+.. py:function:: __copy__
+
+    Copy the recognition model.
+
+    :return:
+
+        + ``model``: The returned new model is same as the original one.
+
+.. py:function:: fit
+
+    Train the recognition model. The trained model parameters will be stored in the class parameter `model`.
+
+    :param freqs: List of stimulus frequencies. 
+
+    :param X: List of training EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
+
+    :param Y: List of training labels. Each element is one single trial label that is an integer number.
+
+    :param ref_sig: List of reference signals. Each element is the reference signal of one stimulus. 
+
+.. py:function:: predict
+
+    Recognize the testing signals.
+
+    :param X: List of testing EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
+
+    :return:
+
+        + ``Y_pred``: List of predicted labels for testing signals. Each element is one single trial label that is an integer number.
+
+Standard CCA and filterbank CCA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related papers: 
+
++ Standard CCA: Z. Lin et al., “Frequency recognition based on canonical correlation analysis for SSVEP-based BCIs,” IEEE Trans. Biomed. Eng., vol. 53, no. 12, pp. 2610-2614, 2006. DOI: `10.1109/TBME.2006.886577 <https://doi.org/10.1109/TBME.2006.886577>`_.
++ Filterbank CCA: X. Chen et al., “Filter bank canonical correlation analysis for implementing a high-speed SSVEP-based brain-computer interface,” J. Neural Eng., vol. 12, no. 4, p. 046008, 2015. DOI: `10.1088/1741-2560/12/4/046008 <https://doi.org/10.1088/1741-2560/12/4/046008>`_.
+
+In this toolbox, the standard CCA (sCCA) are regarded as a special case of the filterbank CCA (FBCCA) that only have one filterbank. Spatial filters are found to maximize the similarity between the EEG signals and the sine-cosine-based reference signals, which can be presented as
+
+.. math::
+
+    \mathbf{U}_i, \mathbf{V}_i = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\mathbf{Y}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{v}}}
+
+where :math:`\mathbf{X}` denotes the testing multi-channel EEG signal, :math:`\mathbf{Y}_i` denotes the sine-cosine-based reference signal of the :math:`i\text{-th}` stimulus, :math:`\mathbf{U}_i` is the spatial filter of the :math:`i\text{-th}` stimulus, and :math:`\mathbf{V}_i` is the harmonic weights of the reference signal for the :math:`i\text{-th}` stimulus.
+
+The stimulus with the highest similarity is regarded as the target:
+
+.. math::
+
+    \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \frac{\mathbf{U}_i^T\mathbf{X}\mathbf{Y}_i^T\mathbf{V}_i}{\sqrt{\mathbf{U}_i^T\mathbf{X}\mathbf{X}^T\mathbf{U}_i\mathbf{V}_i^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{V}_i}} \right\}
+
+where :math:`I` denotes the total number of stimuli.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.SCCA_canoncorr
+
+    FBCCA implemented directly following above equations.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+    :param force_output_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be stored. Otherwise, they will not be stored. Default is ``False``.
+
+    :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr
+
+    FBCCA implemented by the QR decomposition. This implementation is almost same as the `"SCCA_canoncorr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_canoncorr>`_. The only difference is that this implementation does not repeatedly compute the QR decomposition of reference signals, which can improve the computational efficiency.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+    :param force_output_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be stored. Otherwise, they will not be stored. Default is ``False``.
+
+    :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
+
+.. note::
+
+    Although the FBCCA is a training-free method, these models still need run `"fit" function <#fit>`_ to store reference signals in the model.
+
+Extended CCA
+^^^^^^^^^^^^^
+
+Related paper:
+
+    + X. Chen, Y. Wang, M. Nakanishi, X. Gao, T.-P. Jung, and S. Gao, "High-speed spelling with a noninvasive brain-computer interface," *Proc. Natl. Acad. Sci.*, vol. 112, no. 44, pp. E6058-E6067, 2015. DOI: `10.1073/pnas.1508080112 <https://doi.org/10.1073/pnas.1508080112>`_.
+
+The extended CCA (eCCA) not only applies the sine-cosine-based reference signals but also uses the averaged template signals. Three types of spatial filters are computed:
+
+.. math::
+
+    \mathbf{U}_{1,i}, \mathbf{V}_{1,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\mathbf{Y}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{v}}}
+
+.. math::
+
+    \mathbf{U}_{2,i}, \mathbf{V}_{2,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\overline{\mathbf{X}}_i\mathbf{Y}_i^T\mathbf{v}}}
+
+.. math::
+
+    \mathbf{U}_{3,i}, \mathbf{V}_{3,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\overline{\mathbf{X}}_i\mathbf{Y}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{u}\mathbf{v}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{v}}}
+
+where :math:`\overline{\mathbf{X}}_i` denotes the averaged template signal of the :math:`i\text{-th}` stimulus. 
+
+Four types of corresponding correlation coefficients can be computed:
+
+.. math::
+
+    r_{1,i} = \frac{\mathbf{U}_{1,i}^T\mathbf{X}\mathbf{Y}_i^T\mathbf{V}_{1,i}}{\sqrt{\mathbf{U}_{1,i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{1,i}\mathbf{V}_{1,i}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{V}_{1,i}}}
+
+.. math::
+
+    r_{2,i} = \frac{\mathbf{U}_{2,i}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_{2,i}}{\sqrt{\mathbf{U}_{2,i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{2,i}\mathbf{U}_{2,i}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_{2,i}}}
+
+.. math::
+
+    r_{3,i} = \frac{\mathbf{U}_{1,i}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_{1,i}}{\sqrt{\mathbf{U}_{1,i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{1,i}\mathbf{U}_{1,i}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_{1,i}}}
+
+.. math::
+
+    r_{4,i} = \frac{\mathbf{U}_{3,i}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_{3,i}}{\sqrt{\mathbf{U}_{3,i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{3,i}\mathbf{U}_{3,i}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_{3,i}}}
+
+The target stimulus is predicted by combining four correlation coefficients together:
+
+.. math::
+
+    \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \sum_{k=1}^4 \text{sign}\left\{r_{k,i}\right\}\cdot r_{k,i}^2 \right\}
+
+where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://en.wikipedia.org/wiki/Sign_function>`_.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.ECCA
+
+    The eCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+    :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following training and testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
+
+Multi-stimulus CCA
+^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: `10.1088/1741-2552/ab2373 <https://doi.org/10.1088/1741-2552/ab2373>`_.
+
+The multi-stimulus CCA (ms-CCA) considers reference signals and template signals of target stimulus and stimuli with stimulus frequencies are close to that of target stimulus, which includes the phase information and thus improve the recognition accuracy. The spatial filters are computed by
+
+.. math::
+
+    \mathbf{U}_i, \mathbf{V}_i = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{A}_i\mathbf{B}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{A}_i\mathbf{A}_i^T\mathbf{u}\mathbf{v}^T\mathbf{B}_i\mathbf{B}_i^T\mathbf{v}}}
+
+where :math:`\mathbf{A}_i` is the concatenated template signal defined as :math:`\mathbf{A}_i = \left[\overline{\mathbf{X}}_{i-m},\cdots,\overline{\mathbf{X}}_{i},\cdots,\overline{\mathbf{X}}_{i+n}\right]`, and :math:`\mathbf{B}_i` is the concatenated reference signal defined as :math:`\mathbf{A}_i = \left[\mathbf{Y}_{i-m},\cdots,\mathbf{Y}_{i},\cdots,\mathbf{Y}_{i+n}\right]`.
+
+Two types of correlation coefficients are computed:
+
+.. math::
+
+    r_{1,i} = \frac{\mathbf{U}_{i}^T\mathbf{X}\mathbf{Y}_i^T\mathbf{V}_{i}}{\sqrt{\mathbf{U}_{i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{i}\mathbf{V}_{i}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{V}_{i}}}
+
+.. math::
+
+    r_{2,i} = \frac{\mathbf{U}_{i}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_{i}}{\sqrt{\mathbf{U}_{i}^T\mathbf{X}\mathbf{X}^T\mathbf{U}_{i}\mathbf{U}_{i}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_{i}}}
+
+The target stimulus is predicted by combining two correlation coefficients:
+
+.. math::
+
+    \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \sum_{k=1}^2 \text{sign}\left\{r_{k,i}\right\}\cdot r_{k,i}^2 \right\}
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MSCCA
+
+    ms-CCA. The implementation directly follows above equations.
+
+    :param n_neighbor: Number of neighbers considered for computing the spatial filter of one stimulus. Default is ``12``.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+Task-related component analysis (TRCA) and ensemble TRCA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104-112, 2018. DOI: `10.1109/TBME.2017.2694818 <https://doi.org/10.1109/TBME.2017.2694818>`_.
+
+For each stimulus, the TRCA and the ensemble TRCA (eTRCA) maximize the inter-trial covariance to compute the spatial filter, which can be achieved by solving
+
+.. math::
+
+    \left( \sum_{j,k=1,\; j\neq k}^{N_t} \mathbf{X}_i^{(j)}\left(\mathbf{X}_i^{(k)}\right)^T \right)\mathbf{U}_i = \left( \sum_{j=1}^{N_t} \mathbf{X}_i^{(j)}\left(\mathbf{X}_i^{(j)}\right)^T \right) \mathbf{U}_i\mathbf{\Lambda}_i
+
+where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training EEG signals of :math:`i\text{-th}` stimulus.
+
+The target stimulus can be predicted by 
+
+.. math::
+
+    \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \frac{\mathbf{U}_i^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_i}{\sqrt{\mathbf{U}_i^T\mathbf{X}\mathbf{X}^T\mathbf{U}_i\mathbf{U}_i^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_i}} \right\}
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.TRCA
+
+    TRCA. The implementation directly follows above equations.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ETRCA
+
+    eTRCA. The spatial computation is same as the TRCA. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
+
+    :param n_component: This parameter will not be considered in the eTRCA. 
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+Multi-stimulus TRCA
+^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: `10.1088/1741-2552/ab2373 <https://doi.org/10.1088/1741-2552/ab2373>`_.
+
+The multi-stimulus TRCA (ms-TRCA) is similar as the `ms-CCA <#multi-stimulus-cca>`_. It also considers training EEG signals of stimuli whose stimulus frequencies are close to the target stimulus to compute spatial filters:
+
+.. math::
+
+    \sum_{d=i-m}^{i+n}\left\{ \sum_{j,k=1,\; j\neq k}^{N_t} \mathbf{X}_d^{(j)}\left(\mathbf{X}_d^{(k)}\right)^T \right\}\mathbf{U}_i = \sum_{d=i-m}^{i+n}\left\{ \sum_{j=1}^{N_t} \mathbf{X}_d^{(j)}\left(\mathbf{X}_d^{(j)}\right)^T \right\} \mathbf{U}_i\mathbf{\Lambda}_i
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.MSETRCA
+
+    ms-TRCA. In this toolbox, the ms-TRCA follows the `eTRCA <#SSVEPAnalysisToolbox.algorithms.trca.ETRCA>`_ scheme to emsemble spatial filters of all stimuli for the recognition. 
+
+    :param n_neighbor: Number of neighbers considered for computing the spatial filter of one stimulus. Default is ``2``.
+
+    :param n_component: This parameter will not be considered in this function. 
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.MSCCA_and_MSETRCA
+
+    This method ensembles correlation coefficients of the `ms-CCA <#SSVEPAnalysisToolbox.algorithms.cca.MSCCA>`_ and the `ms-TRCA <#SSVEPAnalysisToolbox.algorithms.trca.MSETRCA>`_ to recognize the target stimulus. Suppose that :math:`r_{1,i}` and :math:`r_{2,i}` are correlation coefficients obtained from the ms-CCA and the ms-TRCA respectively, then the ensembled correlation coefficient is 
+
+    .. math::
+
+        r_\text{ms-CCA + ms-TRCA} = \sum_{k=1}^2 \text{sign}\left\{r_{k,i}\right\}\cdot r_{k,i}^2 
+
+    :param n_neighbor_mscca: Number of neighbers considered for computing the spatial filter of one stimulus in the ms-CCA. Default is ``12``.
+
+    :param n_neighber_msetrca: Number of neighbers considered for computing the spatial filter of one stimulus in the ms-TRCA. Default is ``2``.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters in the ms-CCA. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+
+Task-discriminant component analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ B. Liu, X. Chen, N. Shi, Y. Wang, S. Gao, X. Gao, "Improving the performance of individually calibrated SSVEP-BCI by task-discriminant component analysis." *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 29, pp. 1998-2007, 2021. DOI: `10.1109/TNSRE.2021.3114340 <https://doi.org/10.1109/TNSRE.2021.3114340>`_.
+
+Compared with other methods, the task-discriminant component analysis (TDCA) have following three key differences:
+
+1. The dimensionality of EEG signals is elevated. For one trial EEG signal :math:`\mathbf{X}`, the augmented EEG trial :math:`\widetilde{\mathbf{X}}` is
+
+   .. math::
+      
+      \widetilde{\mathbf{X}} = \left[ \begin{array}{cc}
+                                        \mathbf{X}, & \mathbf{O}_0\\
+                                        \mathbf{X}_1, & \mathbf{O}_1\\
+                                        \vdots & \\
+                                        \mathbf{X}_L, & \mathbf{O}_L
+                                      \end{array} \right]
+   
+   where :math:`\mathbf{X}_l` denotes the EEG trial delayed by :math:`l` points, :math:`\mathbf{O}_l\in\mathbb{R}^{N_\text{ch}\times l}` denotes the zero matrix, and :math:`L` is the total number of delays. 
+
+2. After elevating the dimension, EEG trials are then further extended for each stimulus as
+
+   .. math::
+
+      \mathbf{X}_a = \left[ \widetilde{\mathbf{X}},\;\; \widetilde{\mathbf{X}}\mathbf{Q}_i\mathbf{Q}_i^T \right]
+
+   where :math:`\mathbf{Q}_i` is the orthogonal factor of the reference signal of the :math:`i\text{-th}` stimulus and can be obtained by the QR decomposition :math:`\mathbf{Q}_i\mathbf{R}_i=\mathbf{Y}_i^T`.
+
+3. The two-dimensional linear discriminant analysis is applied to compute spatial filters by solving
+
+   .. math::
+
+      \mathbf{S}_b\mathbf{U} = \mathbf{S}_w\mathbf{U}\mathbf{\Lambda}
+
+   The :math:`\mathbf{S}_b` is the covariance of between-class differences:
+
+   .. math::
+
+      \mathbf{S}_b = \frac{1}{I} \sum_{i=1}^I \left( \overline{\mathbf{X}}_a^{(i)} - \frac{1}{I}\sum_{i=1}^I\overline{\mathbf{X}}_a^{(i)} \right)\left( \overline{\mathbf{X}}_a^{(i)} - \frac{1}{I}\sum_{i=1}^I\overline{\mathbf{X}}_a^{(i)} \right)^T
+
+   where :math:`\overline{\mathbf{X}}_a^{(i)}` is the averaged :math:`\mathbf{X}_a` over all trials of the :math:`i\text{-th}` stimulus, and :math:`I` is the total number of stimuli.
+
+   The :math:`\mathbf{S}_w` is the covariance of within-class differences:
+
+   .. math::
+
+      \mathbf{S}_w = \frac{1}{N_t} \sum_{i=1}^I \sum_{j=1}^{N_t} \left( \mathbf{X}_a^{(i,j)} - \overline{\mathbf{X}}_a^{(i)} \right) \left( \mathbf{X}_a^{(i,j)} - \overline{\mathbf{X}}_a^{(i)} \right)^T
+
+   where :math:`N_t` denotes the total number of trials, and :math:`\mathbf{X}_a^{(i,j)}` denotes :math:`\mathbf{X}_a` of the :math:`j\text{-th}` trial for the :math:`i\text{-th}` stimulus.
+
+Finally, the target stimulus can be predicted by 
+
+.. math::
+
+    \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \frac{\mathbf{U}^T\mathbf{X}_a\left(\overline{\mathbf{X}}_a^{(i)}\right)^T\mathbf{U}}{\sqrt{\mathbf{U}^T\mathbf{X}_a\mathbf{X}_a^T\mathbf{U}\mathbf{U}_i^T\left(\overline{\mathbf{X}}_a^{(i)}\right)\left(\overline{\mathbf{X}}_a^{(i)}\right)^T\mathbf{U}_i}} \right\}
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.tdca.TDCA
+
+    TDCA. The implementation directly follows above equations.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+    :param n_delay: Total number of delays. Default is ``0``, which means no delay.
