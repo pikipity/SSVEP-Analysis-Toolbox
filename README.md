@@ -22,6 +22,7 @@ More detailed information can be found in [document](http://ssvep-analysis-toolb
   + Multi-stimulus CCA (**ms-CCA**): C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: [10.1088/1741-2552/ab2373](https://doi.org/10.1088/1741-2552/ab2373).
   + Task-related component analysis (**TRCA**) and Ensemble TRCA (**eTRCA**): M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104–112, 2018. DOI: [10.1109/TBME.2017.2694818](https://doi.org/10.1109/TBME.2017.2694818).
   + Multi-stimulus TRCA (**ms-TRCA**): C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: [10.1088/1741-2552/ab2373](https://doi.org/10.1088/1741-2552/ab2373).
+  + Task-discriminant component analysis (**TDCA**): B. Liu, X. Chen, N. Shi, Y. Wang, S. Gao, X. Gao, "Improving the performance of individually calibrated SSVEP-BCI by task-discriminant component analysis." *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 29, pp. 1998-2007, 2021. DOI: [10.1109/TNSRE.2021.3114340](https://doi.org/10.1109/TNSRE.2021.3114340).
   + ...
 
 ## License
