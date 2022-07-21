@@ -154,7 +154,7 @@ class TDCA(BaseModel):
     TDCA method
     """
     def __init__(self,
-                 n_component: Optional[int] = None,
+                 n_component: int = 1,
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
                  n_delay: int = 0):
