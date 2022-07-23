@@ -891,3 +891,78 @@ Finally, the target stimulus can be predicted by
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
     :param n_delay: Total number of delays. Default is ``0``, which means no delay.
+
+Performance Evalution
+------------------------
+
+This toolbox provides a ``BaseEvaluator`` class for evaluating recognition performance. Users can use this class as the father class to write your own evaluator or use the above given functions or classes to write your own evaluation process. 
+
+The ``BaseEvaluator`` class is a trial based evaluator. Evaluator contains several evaluation trials and evaluate performance trial by trial. Each trial contains several training and testing trials. In each trial, the ``BaseEvaluator`` uses the given training trials to train all models one by one and then tests their performance in testing trials. The training time, evaluation time, ture labels and predicted labels will be stored. The recognition accuracies and ITRs can be further computed. 
+
+Evaluator
+^^^^^^^^^^^^
+
+.. py:function:: SSVEPAnalysisToolbox.evaluator.baseevaluator.BaseEvaluator
+
+    Initialize the evaluator.
+
+    :param dataset_container: A list of datasets. Each element is a instance of one dataset class introduced in `"Datasets" <#datasets>`_.
+
+    :param model_container: A list of recognition models/methods. Each element is a instance of one recognition model/method class introduced in `"Recognition algorithms" <#recognition-algorithms>`_.
+
+    :param trial_container: A list of trials. The format is 
+
+        .. code-block:: python
+
+            [[train_trial_info, test_trial_info],
+             [train_trial_info, test_trial_info],
+             ...,
+             [train_trial_info, test_trial_info]]
+
+        where ``train_trial_info`` and ``test_trial_info`` are instances of the ``TrialInfo`` class. 
+
+    :param save_model: If ``True``, trained models in all trials will be stored in ``trained_model_container``. The format of ``trained_model_container`` is
+
+        .. code-block:: python
+
+            [[trained_model_method_1, trained_model_method_2, ...],
+             [trained_model_method_1, trained_model_method_2, ...],
+             ...,
+             [trained_model_method_1, trained_model_method_2, ...]]
+
+        where ``trained_model_method_1``, ``trained_model_method_2``, ... are instances of recognition model/method classes, which order is same as ``model_container``.
+
+        If ``False``, ``trained_model_container`` is an empty list. 
+
+        Default is ``False``.
+
+    :param disp_processbar: If ``True``, a progress bar will be shown in console to illustrate the evaluation process. Otherwise, the progress bar will be shown. Default is ``True``.
+
+    :param ignore_stim_phase: If ``True``, stimulus phases of generating reference signals will be set as 0 during the evalution. Otherwise, stimulus phases will use the dataset information. Default is ``False``.
+
+.. note::
+
+    Saving models by setting ``save_model`` as ``True`` may occupy large memory.  
+
+.. py:function:: run
+    :module: BaseEvaluator
+
+    Run the evaluation process. Performance will be stored in ``performance_container``. The format of ``performance_container`` is 
+
+    .. code-block:: python
+
+        [[performance_method_1, performance_method_2, ...],
+         [performance_method_1, performance_method_2, ...],
+         ...,
+         [performance_method_1, performance_method_2, ...]]
+
+    where ``performance_method_1``, ``performance_method_2``, ... are instances of the ``PerformanceContainer`` class for different recognition models/methods. The order follows ``model_container``.
+
+    :param n_jobs: Number of threadings using for recognition methods. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. The evaluator will reset ``n_jobs`` in recognition methods.
+
+    :param eval_train: *Please ignore this parameter and leave this parameter as the default value. The function related to this parameter is under development.* 
+
+Trial information
+^^^^^^^^^^^^^^^^^^^^
+
+
