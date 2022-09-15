@@ -11,6 +11,75 @@ from tqdm import tqdm
 import time
 import numpy as np
 
+def gen_trials_onedataset_individual_online(dataset_idx: int,
+                                         tw_seq: List[float],
+                                         dataset_container: list,
+                                         harmonic_num: int,
+                                         trials: List[int],
+                                         ch_used: List[int],
+                                         t_latency: Optional[float] = None,
+                                         shuffle: bool = False) -> list:
+    """
+    Generate evaluation trials for one dataset
+    Evaluations will be carried out on each subject and each signal length
+    Training datasets are the 1st block
+    Testing datasets are the all blocks
+
+    Parameters
+    ----------
+    dataset_idx : int
+        dataset index of dataset_container
+    tw_seq : List[float]
+        List of signal length
+    dataset_container : list
+        List of datasets
+    harmonic_num : int
+        Number of harmonics
+    trials: List[int]
+        List of trial index
+    ch_used : List[int]
+        List of channels
+    t_latency : Optional[float]
+        Latency time
+        If None, default latency time of dataset will be used
+    shuffle : bool
+        Whether shuffle
+
+    Returns
+    -------
+    trial_container : list
+        List of trial information
+
+    """
+    sub_num = len(dataset_container[dataset_idx].subjects)
+    trial_container = []
+    for tw in tw_seq:
+        for sub_idx in range(sub_num):
+            # for block_idx in range(dataset_container[dataset_idx].block_num):
+            # test_block, train_block = dataset_container[dataset_idx].leave_one_block_out(block_idx)
+            test_block = [0]
+            train_block = [i for i in range(dataset_container[dataset_idx].block_num)]
+            train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                    sub_idx = sub_idx,
+                                                    block_idx = train_block,
+                                                    trial_idx = trials,
+                                                    ch_idx = ch_used,
+                                                    harmonic_num = harmonic_num,
+                                                    tw = tw,
+                                                    t_latency = t_latency,
+                                                    shuffle = shuffle)
+            test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                    sub_idx = sub_idx,
+                                                    block_idx = test_block,
+                                                    trial_idx = trials,
+                                                    ch_idx = ch_used,
+                                                    harmonic_num = harmonic_num,
+                                                    tw = tw,
+                                                    t_latency = t_latency,
+                                                    shuffle = shuffle)
+            trial_container.append([train_trial, test_trial])
+    return trial_container
+
 def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
                                          tw_seq: List[float],
                                          dataset_container: list,
