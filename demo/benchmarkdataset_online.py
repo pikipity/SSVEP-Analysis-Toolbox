@@ -75,8 +75,8 @@ confusion_matrix = cal_confusionmatrix_onedataset_individual_online(evaluator = 
 # Save results
 data = {"acc_store": acc_store,
         "itr_store": itr_store,
-        "train_time": train_time,
-        "test_time": test_time,
+        # "train_time": train_time,
+        # "test_time": test_time,
         "confusion_matrix": confusion_matrix,
         "tw_seq":tw_seq,
         "method_ID": [model.ID for model in model_container]}
