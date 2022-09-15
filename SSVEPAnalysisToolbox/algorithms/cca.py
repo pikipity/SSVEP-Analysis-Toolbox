@@ -395,6 +395,137 @@ def SCCA(n_component: int = 1,
     else:
         raise ValueError('Unknown cca_type')
 
+class OACCA(BaseModel):
+    """
+    Online CCA based on canoncorr
+    """
+    def __init__(self,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        super().__init__(ID = 'OACCA',
+                         n_component = 1,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U0'] = None
+        self.model['U'] = None
+        self.model['V'] = None
+
+    def __copy__(self):
+        copy_model = OACCA(n_jobs = self.n_jobs,
+                           weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if ref_sig is None:
+            raise ValueError('OACCA requires sine-cosine-based reference signal')
+           
+        self.model['ref_sig'] = ref_sig
+
+        self.model['covar_mat'] = None
+        self.model['Cxx'] = None
+        self.model['Cxy'] = None
+
+    def predict(self,
+                X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+
+        n_component = self.n_component
+        Y = self.model['ref_sig']
+        stimulus_num = len(Y)
+        harmonic_num, _ = Y[0].shape
+        # Calculate Res
+        for x_single_trial in X:
+            filterbank_num, channel_num, signal_len = x_single_trial.shape
+            #
+            if self.model['covar_mat'] is None:
+                self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
+                self.model['Cxx'] = np.zeros((channel_num, channel_num, filterbank_num))
+                self.model['Cxy'] = np.zeros((channel_num, harmonic_num, filterbank_num))
+            if self.model['U0'] is None:
+                self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                self.model['V'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+            #
+            cca_r, cca_sfx, cca_sfy = _r_cca_canoncorr(x_single_trial,Y,n_component,True)
+            if (self.model['U'] is not None) and (self.model['V'] is not None):
+                r2 = _r_cca_canoncorr_withUV(x_single_trial,Y,self.model['U'],self.model['V'])
+            else:
+                r2 = 0
+            if self.model['U0'] is not None:
+                x_single_trial_filtered = deepcopy(x_single_trial)
+                for k in range(filterbank_num):
+                    x_single_trial_filtered[k,:,:] = self.model['U0'][k,0,:,:].T @ x_single_trial_filtered[k,:,:]
+                r3 = _r_cca_canoncorr(x_single_trial_filtered,Y,n_component,False)
+            else:
+                r3 = 0
+            oacca_res = int( np.argmax( weights_filterbank @ (np.sign(cca_r) * np.square(cca_r) + 
+                                                            np.sign(r2) * np.square(r2) +
+                                                            np.sign(r3) * np.square(r3))))
+            cca_res = int( np.argmax( weights_filterbank @ cca_r))
+            prototype_res = int( np.argmax( weights_filterbank @ (np.sign(cca_r) * np.square(cca_r) +
+                                                                np.sign(r3) * np.square(r3))))
+            # Update parameters
+            for k in range(filterbank_num):
+                # Calculate prototype
+                if cca_res == oacca_res:
+                    sf1x = cca_sfx[k,cca_res,:,:] # (filterbank_num * stimulus_num * channel_num * n_component)
+                    sf1x = sf1x/np.linalg.norm(sf1x)
+                    sf1y = cca_sfy[k,cca_res,:,:]
+                    sf1y = sf1y/np.linalg.norm(sf1y)
+
+                    self.model['covar_mat'][:,:,k] = self.model['covar_mat'][:,:,k] + sf1x @ sf1x.T
+                    eig_d1, eig_v1 = slin.eig(self.model['covar_mat'][:,:,k])
+                    sort_idx = np.argsort(eig_d1)[::-1]
+                    eig_vec=eig_v1[:,sort_idx]
+
+                    for class_i in range(stimulus_num):
+                        self.model['U0'][k,class_i,:,0] = eig_vec[:channel_num,0]
+                # Calculate multi-stimulus 
+                filteredData = x_single_trial[k,:,:]
+                sinTemplate = Y[prototype_res][:,:signal_len]
+
+                self.model['Cxx'][:,:,k] = self.model['Cxx'][:,:,k] + filteredData @ filteredData.T
+                self.model['Cxy'][:,:,k] = self.model['Cxy'][:,:,k] + filteredData @ sinTemplate.T
+
+                CCyy = np.eye(harmonic_num)
+                CCyx = self.model['Cxy'][:,:,k].T
+                CCxx = self.model['Cxx'][:,:,k]
+                CCxy = self.model['Cxy'][:,:,k]
+                A1 = np.concatenate((np.zeros(CCxx.shape), CCxy), axis = 0)
+                A2 = np.concatenate((CCyx, np.zeros(CCyy.shape)), axis = 0)
+                A = np.concatenate((A1, A2), axis = 1)
+                B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 0)
+                B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 0)
+                B = np.concatenate((B1, B2), axis = 1)
+                eig_d1, eig_v1 = slin.eig(A, B)
+                sort_idx = np.argsort(eig_d1)[::-1]
+                u1 = eig_v1[:channel_num,sort_idx]
+                v1 = eig_v1[channel_num:,sort_idx]
+                if u1[0,0] == 1:
+                    u1 = np.zeros((channel_num,1))
+                    u1[-3:] = 1
+                for class_i in range(stimulus_num):
+                        self.model['U'][k,class_i,:,0] = u1[:,0]
+                        self.model['V'][k,class_i,:,0] = v1[:,0]
+
+
+
 class SCCA_canoncorr(BaseModel):
     """
     Standard CCA based on canoncorr
