@@ -452,6 +452,7 @@ class BaseEvaluator:
             for test_model_idx, model_tmp in enumerate(model_one_trial):
                 tic = time.time()
                 pred_label = model_tmp.predict(X)
+                # print(np.array(Y)-np.array(pred_label))
                 performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
                 performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
                 performance_one_trial[test_model_idx].add_true_label_test(Y)
