@@ -32,7 +32,7 @@ trial_container = gen_trials_onedataset_individual_online(dataset_idx = 0,
                                                              trials = all_trials,
                                                              ch_used = ch_used,
                                                              t_latency = None,
-                                                             shuffle = False)
+                                                             shuffle = True)
 
 
 # Prepare models
