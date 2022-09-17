@@ -8,6 +8,7 @@ from numpy import ndarray
 from joblib import Parallel, delayed
 from functools import partial
 from copy import deepcopy
+import warnings
 
 import numpy as np
 import scipy.linalg as slin
@@ -450,18 +451,10 @@ class OACCA(BaseModel):
         stimulus_num = len(Y)
         harmonic_num, _ = Y[0].shape
         # Calculate Res
+        Y_pred = []
         for x_single_trial in X:
             filterbank_num, channel_num, signal_len = x_single_trial.shape
-            #
-            if self.model['covar_mat'] is None:
-                self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
-                self.model['Cxx'] = np.zeros((channel_num, channel_num, filterbank_num))
-                self.model['Cxy'] = np.zeros((channel_num, harmonic_num, filterbank_num))
-            if self.model['U0'] is None:
-                self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                self.model['V'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-            #
+            # Calculate res of this step
             cca_r, cca_sfx, cca_sfy = _r_cca_canoncorr(x_single_trial,Y,n_component,True)
             if (self.model['U'] is not None) and (self.model['V'] is not None):
                 r2 = _r_cca_canoncorr_withUV(x_single_trial,Y,self.model['U'],self.model['V'])
@@ -480,22 +473,35 @@ class OACCA(BaseModel):
             cca_res = int( np.argmax( weights_filterbank @ cca_r))
             prototype_res = int( np.argmax( weights_filterbank @ (np.sign(cca_r) * np.square(cca_r) +
                                                                 np.sign(r3) * np.square(r3))))
+            Y_pred.append(oacca_res)
             # Update parameters
+            if self.model['covar_mat'] is None:
+                self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
+                self.model['Cxx'] = np.zeros((channel_num, channel_num, filterbank_num))
+                self.model['Cxy'] = np.zeros((channel_num, harmonic_num, filterbank_num))
+            if self.model['U0'] is None:
+                self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                self.model['V'] = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
             for k in range(filterbank_num):
                 # Calculate prototype
                 if cca_res == oacca_res:
                     sf1x = cca_sfx[k,cca_res,:,:] # (filterbank_num * stimulus_num * channel_num * n_component)
                     sf1x = sf1x/np.linalg.norm(sf1x)
-                    sf1y = cca_sfy[k,cca_res,:,:]
-                    sf1y = sf1y/np.linalg.norm(sf1y)
+                    # sf1y = cca_sfy[k,cca_res,:,:]
+                    # sf1y = sf1y/np.linalg.norm(sf1y)
 
                     self.model['covar_mat'][:,:,k] = self.model['covar_mat'][:,:,k] + sf1x @ sf1x.T
                     eig_d1, eig_v1 = slin.eig(self.model['covar_mat'][:,:,k])
                     sort_idx = np.argsort(eig_d1)[::-1]
                     eig_vec=eig_v1[:,sort_idx]
-
+                    u0 = eig_vec[:channel_num,0]
+                    if np.iscomplex(eig_vec).any():
+                        warnings.warn("Warning: Imaginary part of U0 is ignored.")
+                        u0 = np.real(u0)
+                    
                     for class_i in range(stimulus_num):
-                        self.model['U0'][k,class_i,:,0] = eig_vec[:channel_num,0]
+                        self.model['U0'][k,class_i,:,0] = u0 # eig_vec[:channel_num,0]
                 # Calculate multi-stimulus 
                 filteredData = x_single_trial[k,:,:]
                 sinTemplate = Y[prototype_res][:,:signal_len]
@@ -507,12 +513,12 @@ class OACCA(BaseModel):
                 CCyx = self.model['Cxy'][:,:,k].T
                 CCxx = self.model['Cxx'][:,:,k]
                 CCxy = self.model['Cxy'][:,:,k]
-                A1 = np.concatenate((np.zeros(CCxx.shape), CCxy), axis = 0)
-                A2 = np.concatenate((CCyx, np.zeros(CCyy.shape)), axis = 0)
-                A = np.concatenate((A1, A2), axis = 1)
-                B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 0)
-                B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 0)
-                B = np.concatenate((B1, B2), axis = 1)
+                A1 = np.concatenate((np.zeros(CCxx.shape), CCxy), axis = 1)
+                A2 = np.concatenate((CCyx, np.zeros(CCyy.shape)), axis = 1)
+                A = np.concatenate((A1, A2), axis = 0)
+                B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 1)
+                B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 1)
+                B = np.concatenate((B1, B2), axis = 0)
                 eig_d1, eig_v1 = slin.eig(A, B)
                 sort_idx = np.argsort(eig_d1)[::-1]
                 u1 = eig_v1[:channel_num,sort_idx]
@@ -520,9 +526,16 @@ class OACCA(BaseModel):
                 if u1[0,0] == 1:
                     u1 = np.zeros((channel_num,1))
                     u1[-3:] = 1
+                u1 = u1[:,0]
+                v1 = v1[:,0]
+                if np.iscomplex(eig_v1).any():
+                        warnings.warn("Warning: Imaginary part of U and V is ignored.")
+                        u1 = np.real(u1)
+                        v1 = np.real(v1)
                 for class_i in range(stimulus_num):
-                        self.model['U'][k,class_i,:,0] = u1[:,0]
-                        self.model['V'][k,class_i,:,0] = v1[:,0]
+                        self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
+                        self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
+        return Y_pred
 
 
 
