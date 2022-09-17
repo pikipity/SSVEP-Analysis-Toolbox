@@ -13,9 +13,8 @@ sub_title = ['benchmark']
 for dataset_idx, data_file in enumerate(data_file_list):
     data = loaddata(data_file, 'mat')
     acc_store = data["acc_store"]
+    print(acc_store.shape)
     itr_store = data["itr_store"]
-    train_time = data["train_time"]
-    test_time = data["test_time"]
     tw_seq = data["tw_seq"]
     method_ID = data["method_ID"]
     method_ID = [name.strip() for name in method_ID]
