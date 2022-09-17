@@ -57,8 +57,8 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
     trial_container = []
     for tw in tw_seq:
         for sub_idx in range(sub_num):
-            test_block = [0]
-            train_block = [block_idx for block_idx in range(dataset_container[dataset_idx].block_num)]
+            train_block = [0]
+            test_block = [block_idx for block_idx in range(dataset_container[dataset_idx].block_num)]
             train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
                                                     sub_idx = sub_idx,
                                                     block_idx = train_block,
