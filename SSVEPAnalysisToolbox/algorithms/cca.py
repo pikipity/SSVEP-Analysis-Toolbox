@@ -479,13 +479,11 @@ class OACCA(BaseModel):
                 self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
                 self.model['Cxx'] = np.zeros((channel_num, channel_num, filterbank_num))
                 self.model['Cxy'] = np.zeros((channel_num, harmonic_num, filterbank_num))
-            if self.model['U0'] is None:
-                self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                self.model['V'] = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
             for k in range(filterbank_num):
                 # Calculate prototype
                 if cca_res == oacca_res:
+                    if self.model['U0'] is None:
+                        self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
                     sf1x = cca_sfx[k,cca_res,:,:] # (filterbank_num * stimulus_num * channel_num * n_component)
                     sf1x = sf1x/np.linalg.norm(sf1x)
                     # sf1y = cca_sfy[k,cca_res,:,:]
@@ -503,6 +501,10 @@ class OACCA(BaseModel):
                     for class_i in range(stimulus_num):
                         self.model['U0'][k,class_i,:,0] = u0 # eig_vec[:channel_num,0]
                 # Calculate multi-stimulus 
+                if self.model['U'] is None:
+                        self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                if self.model['V'] is None:
+                        self.model['V'] = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
                 filteredData = x_single_trial[k,:,:]
                 sinTemplate = Y[prototype_res][:,:signal_len]
 
@@ -524,6 +526,7 @@ class OACCA(BaseModel):
                 u1 = eig_v1[:channel_num,sort_idx]
                 v1 = eig_v1[channel_num:,sort_idx]
                 if u1[0,0] == 1:
+                    warnings.warn("Warning: updated U is not meaningful and thus adjusted.")
                     u1 = np.zeros((channel_num,1))
                     u1[-3:] = 1
                 u1 = u1[:,0]
