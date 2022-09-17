@@ -467,12 +467,15 @@ class OACCA(BaseModel):
                 r3 = _r_cca_canoncorr(x_single_trial_filtered,Y,n_component,False)
             else:
                 r3 = 0
-            oacca_res = int( np.argmax( weights_filterbank @ (np.sign(cca_r) * np.square(cca_r) + 
-                                                            np.sign(r2) * np.square(r2) +
-                                                            np.sign(r3) * np.square(r3))))
+            oacca_res = int( np.argmax( weights_filterbank @ (cca_r + 
+                                                                r2 +
+                                                                r3)))
             cca_res = int( np.argmax( weights_filterbank @ cca_r))
-            prototype_res = int( np.argmax( weights_filterbank @ (np.sign(cca_r) * np.square(cca_r) +
-                                                                np.sign(r3) * np.square(r3))))
+            prototype_res = int( np.argmax( weights_filterbank @ (cca_r +
+                                                                    r3)))
+            # print([oacca_res, cca_res, prototype_res])
+            # print(x_single_trial.shape)
+            # raise ValueError
             Y_pred.append(oacca_res)
             # Update parameters
             if self.model['covar_mat'] is None:
@@ -532,12 +535,12 @@ class OACCA(BaseModel):
                 u1 = u1[:,0]
                 v1 = v1[:,0]
                 if np.iscomplex(eig_v1).any():
-                        warnings.warn("Warning: Imaginary part of U and V is ignored.")
-                        u1 = np.real(u1)
-                        v1 = np.real(v1)
+                    warnings.warn("Warning: Imaginary part of U and V is ignored.")
+                    u1 = np.real(u1)
+                    v1 = np.real(v1)
                 for class_i in range(stimulus_num):
-                        self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
-                        self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
+                    self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
+                    self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
         return Y_pred
 
 
