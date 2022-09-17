@@ -29,8 +29,10 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
     ----------
     dataset_idx : int
         dataset index of dataset_container
-    tw_seq : List[float]
-        List of signal length
+    tw : List[float]
+        signal length
+    sub_idx : int
+        Subject index
     dataset_container : list
         List of datasets
     harmonic_num : int
@@ -55,29 +57,27 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
     trial_container = []
     for tw in tw_seq:
         for sub_idx in range(sub_num):
-            for block_idx in range(dataset_container[dataset_idx].block_num):
-            # test_block, train_block = dataset_container[dataset_idx].leave_one_block_out(block_idx)
-                test_block = [0]
-                train_block = [block_idx]
-                train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
-                                                        sub_idx = sub_idx,
-                                                        block_idx = train_block,
-                                                        trial_idx = trials,
-                                                        ch_idx = ch_used,
-                                                        harmonic_num = harmonic_num,
-                                                        tw = tw,
-                                                        t_latency = t_latency,
-                                                        shuffle = shuffle)
-                test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
-                                                        sub_idx = sub_idx,
-                                                        block_idx = test_block,
-                                                        trial_idx = trials,
-                                                        ch_idx = ch_used,
-                                                        harmonic_num = harmonic_num,
-                                                        tw = tw,
-                                                        t_latency = t_latency,
-                                                        shuffle = shuffle)
-                trial_container.append([train_trial, test_trial])
+            test_block = [0]
+            train_block = [block_idx for block_idx in range(dataset_container[dataset_idx].block_num)]
+            train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                    sub_idx = sub_idx,
+                                                    block_idx = train_block,
+                                                    trial_idx = trials,
+                                                    ch_idx = ch_used,
+                                                    harmonic_num = harmonic_num,
+                                                    tw = tw,
+                                                    t_latency = t_latency,
+                                                    shuffle = shuffle)
+            test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                    sub_idx = sub_idx,
+                                                    block_idx = test_block,
+                                                    trial_idx = trials,
+                                                    ch_idx = ch_used,
+                                                    harmonic_num = harmonic_num,
+                                                    tw = tw,
+                                                    t_latency = t_latency,
+                                                    shuffle = shuffle)
+            trial_container.append([train_trial, test_trial])
     return trial_container
 
 def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
@@ -381,8 +381,7 @@ class BaseEvaluator:
         
     def run(self,
             n_jobs : Optional[int] = None,
-            eval_train : bool = False,
-            save_model_after_evaluate : bool = False):
+            eval_train : bool = False):
         """
         Run evaluator
 
@@ -456,8 +455,6 @@ class BaseEvaluator:
                 performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
                 performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
                 performance_one_trial[test_model_idx].add_true_label_test(Y)
-                if save_model_after_evaluate:
-                    self.model_container[test_model_idx] = model_tmp
                 if self.disp_processbar:
                     pbar.update(pbar_update_val)
                 
