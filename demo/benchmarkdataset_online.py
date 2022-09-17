@@ -49,8 +49,12 @@ evaluator = BaseEvaluator(dataset_container = dataset_container,
                           disp_processbar = True)
 
 evaluator.run(n_jobs = 10,
-              eval_train = False,
-              save_model_after_evaluate = True)
+              eval_train = False)
+
+# Save results
+data = {"evaluator": evaluator}
+data_file = 'res/benchmarkdataset_res_online_evaluator.mat'
+savedata(data_file, data, 'np')
 
 # Calculate performance
 acc_store, itr_store = cal_performance_onedataset_individual_online(evaluator = evaluator,
@@ -60,23 +64,11 @@ acc_store, itr_store = cal_performance_onedataset_individual_online(evaluator = 
 confusion_matrix = cal_confusionmatrix_onedataset_individual_online(evaluator = evaluator,
                                                                     dataset_idx = 0,
                                                                     tw_seq = tw_seq,
-                                                                    train_or_test = 'test')                                                                       
-
-# Calculate training time and testing time
-# train_time = np.zeros((len(model_container), len(evaluator.performance_container)))
-# test_time = np.zeros((len(model_container), len(evaluator.performance_container)))
-# for trial_idx, performance_trial in enumerate(evaluator.performance_container):
-#     for method_idx, method_performance in enumerate(performance_trial):
-#         train_time[method_idx, trial_idx] = sum(method_performance.train_time)
-#         test_time[method_idx, trial_idx] = sum(method_performance.test_time_test)
-# train_time = train_time.T
-# test_time = test_time.T
+                                                                    train_or_test = 'test')        
             
 # Save results
 data = {"acc_store": acc_store,
         "itr_store": itr_store,
-        # "train_time": train_time,
-        # "test_time": test_time,
         "confusion_matrix": confusion_matrix,
         "tw_seq":tw_seq,
         "method_ID": [model.ID for model in model_container]}
