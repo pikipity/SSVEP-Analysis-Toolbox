@@ -51,11 +51,6 @@ evaluator = BaseEvaluator(dataset_container = dataset_container,
 evaluator.run(n_jobs = 10,
               eval_train = False)
 
-# Save results
-data = {"evaluator": evaluator}
-data_file = 'res/benchmarkdataset_res_online_evaluator.mat'
-savedata(data_file, data, 'np')
-
 # Calculate performance
 acc_store, itr_store = cal_performance_onedataset_individual_online(evaluator = evaluator,
                                                                     dataset_idx = 0,
