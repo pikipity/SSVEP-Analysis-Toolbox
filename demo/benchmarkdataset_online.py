@@ -69,9 +69,3 @@ data = {"acc_store": acc_store,
         "method_ID": [model.ID for model in model_container]}
 data_file = 'res/benchmarkdataset_res_online.mat'
 savedata(data_file, data, 'mat')
-
-
-
-
-
-

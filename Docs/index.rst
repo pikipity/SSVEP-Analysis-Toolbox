@@ -66,6 +66,10 @@ Datasets and Algorithms
 
       B. Liu, X. Chen, N. Shi, Y. Wang, S. Gao, X. Gao, "Improving the performance of individually calibrated SSVEP-BCI by task-discriminant component analysis." *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 29, pp. 1998-2007, 2021. DOI: `10.1109/TNSRE.2021.3114340 <https://doi.org/10.1109/TNSRE.2021.3114340>`_.
 
+  + Online adaptive CCA (**OACCA**)
+
+      C. M. Wong et al., “Online adaptation boosts SSVEP-based BCI performance,” *IEEE Trans. Biomed. Eng.*, vol. 69, no. 6, pp. 2018-2028, 2022. DOI: `10.1109/TBME.2021.3133594 <https://doi.org/10.1109/TBME.2021.3133594>`_.
+
   + ...
 
 

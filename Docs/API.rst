@@ -1144,6 +1144,44 @@ Finally, the target stimulus can be predicted by
 
     :param n_delay: Total number of delays. Default is ``0``, which means no delay.
 
+Oneline adaptive CCA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Related paper:
 
++ C. M. Wong et al., “Online adaptation boosts SSVEP-based BCI performance,” *IEEE Trans. Biomed. Eng.*, vol. 69, no. 6, pp. 2018-2028, 2022. DOI: `10.1109/TBME.2021.3133594 <https://doi.org/10.1109/TBME.2021.3133594>`_.
+
+Compared to sCCA, the spatial filters are fine-turned online. Therefore, as more trials are processed, the performance will be improved until achieving the upper bound. 
+
+The OACCA ensembles three parts:
+
+1. Spatial filters based on the sCCA. These spatial filters can be considered as the baseline reference of the recognition result.
+
+2. Prototype spatial filters. These spatial filters are fine-turned online. They are calculated by
+
+   .. math::
+
+      \mathbf{u}_0^{[t+1]}=\arg\max_{\mathbf{u}}\frac{\mathbf{u}^T\left[ \sum_{m=1}^t\widetilde{\mathbf{u}}^{[m]}\left(\widetilde{\mathbf{u}}^{[m]}\right)^T \right]\mathbf{u}}{\mathbf{u}^T\mathbf{u}}
+
+   where :math:`\widetilde{\mathbf{u}}^{[t]} = \frac{\mathbf{u}^{[t]}}{\left\|\mathbf{u}^{[t]}\right\|}` and :math:`\mathbf{u}^{[t]}` is the spatial filtered obtained from the sCCA at the :math:`t\text{-th}` trial.
+
+3. Spatial filters based on the online ms-CCA. These spatial filters are also fine-turned online. They are calculated by 
+
+   .. math::
+
+      \mathbf{u}^{[t+1]},\;\mathbf{v}^{[t+1]}=\max_{\mathbf{u},\;\mathbf{v}}\frac{\mathbf{u}^T\mathbf{C}_{XY}^{[t]}\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{C}_{XY}^{[t]}\mathbf{u} \cdot \mathbf{v}^T\mathbf{v}}}
+
+   where :math:`\mathbf{C}_{XY}^{[t]}=\sum_{m=1}^t\left(\mathbf{X}^{[t]}\right)^T\mathbf{Y}`. 
+
+The basic idea of the OACCA is shown below:
+
+.. image:: ./_static/oacca.png
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.OACCA
+
+    OACCA. The implementation directly follows above equations.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 

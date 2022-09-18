@@ -24,7 +24,6 @@ for dataset_idx, data_file in enumerate(data_file_list):
         # acc_store_online = acc_store[:,:,method_idx,:,:] # (subject_num, signal_len_num, method_num, trial_num, sub_trial_num)
         # acc_store_online = np.mean(acc_store_online, 2)
         acc_store_online = np.transpose(acc_store, (1,0,2)) 
-        # x_ticks_label = [str(i+1) for i in range(acc_store_online.shape[2])]
         x_value = [i+1 for i in range(acc_store_online.shape[2])]
         legend_label = [str(tw)+'s' for tw in tw_seq]
         # fig, _ = bar_plot_with_errorbar(acc_store_online,

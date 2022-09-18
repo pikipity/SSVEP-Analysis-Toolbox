@@ -34,6 +34,16 @@ Demo file: :file:`demo/betadataset.py`
 .. literalinclude:: ../demo/betadataset.py
     :language: python
 
+Recognition Performance of Online Adaptive Method (OACCA) in Benchmark Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This demo is also similar as the first demo. The key differences are how to evaluation trials and how to calculate performance. If you want to define your own functions of generating evaluation trials and calculating related performance, you may refer this demo.
+
+Demo file: :file:`demo/benchmarkdataset_online.py`
+
+.. literalinclude:: ../demo/benchmarkdataset_online.py
+    :language: python
+
 Plot Recognition Performance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -70,6 +80,20 @@ Generated graphs are stored in :file:`demo/res`. Parts of graphs are shown below
 + Testing time of the BETA Dataset:
 
   .. image:: ../demo/res/beta_testtime_bar.jpg
+
+Plot Recognition Performance of Online Adaptive Method (OACCA)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This demo is similar as the above demo. The key difference is that this demo shows the performance changes along trials.
+
+Demo file: :file:`demo/plot_performance_online.py`
+
+.. literalinclude:: ../demo/plot_performance_online.py
+    :language: python
+
++ Classification accuracies of the Benchmark Dataset:
+
+  .. image:: ../demo/res/benchmark_OACCA_acc_shadowline.jpg
 
 Plot Confusion Matrices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
