@@ -15,6 +15,7 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
                                          tw_seq: List[float],
                                          dataset_container: list,
                                          harmonic_num: int,
+                                         repeat_num: int,
                                          trials: List[int],
                                          ch_used: List[int],
                                          t_latency: Optional[float] = None,
@@ -37,6 +38,8 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
         List of datasets
     harmonic_num : int
         Number of harmonics
+    repeat_num : int
+        Number of randon times
     trials: List[int]
         List of trial index
     ch_used : List[int]
@@ -57,27 +60,28 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
     trial_container = []
     for tw in tw_seq:
         for sub_idx in range(sub_num):
-            train_block = [0]
-            test_block = [block_idx for block_idx in range(dataset_container[dataset_idx].block_num)]
-            train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
-                                                    sub_idx = sub_idx,
-                                                    block_idx = train_block,
-                                                    trial_idx = trials,
-                                                    ch_idx = ch_used,
-                                                    harmonic_num = harmonic_num,
-                                                    tw = tw,
-                                                    t_latency = t_latency,
-                                                    shuffle = shuffle)
-            test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
-                                                    sub_idx = sub_idx,
-                                                    block_idx = test_block,
-                                                    trial_idx = trials,
-                                                    ch_idx = ch_used,
-                                                    harmonic_num = harmonic_num,
-                                                    tw = tw,
-                                                    t_latency = t_latency,
-                                                    shuffle = shuffle)
-            trial_container.append([train_trial, test_trial])
+            for _ in range(repeat_num):
+                train_block = [0]
+                test_block = [block_idx for block_idx in range(dataset_container[dataset_idx].block_num)]
+                train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                        sub_idx = sub_idx,
+                                                        block_idx = train_block,
+                                                        trial_idx = trials,
+                                                        ch_idx = ch_used,
+                                                        harmonic_num = harmonic_num,
+                                                        tw = tw,
+                                                        t_latency = t_latency,
+                                                        shuffle = shuffle)
+                test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                        sub_idx = sub_idx,
+                                                        block_idx = test_block,
+                                                        trial_idx = trials,
+                                                        ch_idx = ch_used,
+                                                        harmonic_num = harmonic_num,
+                                                        tw = tw,
+                                                        t_latency = t_latency,
+                                                        shuffle = shuffle)
+                trial_container.append([train_trial, test_trial])
     return trial_container
 
 def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,

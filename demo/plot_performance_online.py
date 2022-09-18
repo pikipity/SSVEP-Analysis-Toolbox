@@ -22,7 +22,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
     for method_idx, method_name in enumerate(method_ID):
         # Plot Performance of bar plots
         # acc_store_online = acc_store[:,:,method_idx,:,:] # (subject_num, signal_len_num, method_num, trial_num, sub_trial_num)
-        # acc_store_online = np.mean(acc_store_online, 2)
+        acc_store_online = np.mean(acc_store_online, 2)
         acc_store_online = np.transpose(acc_store, (1,0,2)) 
         x_value = [i+1 for i in range(acc_store_online.shape[2])]
         legend_label = [str(tw)+'s' for tw in tw_seq]
@@ -38,7 +38,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
         # fig.savefig('res/{:s}_{:s}_acc_bar.jpg'.format(sub_title[dataset_idx],method_name), bbox_inches='tight', dpi=300)
 
         # itr_store_online = itr_store[:,:,method_idx,:,:] # (subject_num, signal_len_num, method_num, trial_num, sub_trial_num)
-        # itr_store_online = np.mean(itr_store_online, 2)
+        itr_store_online = np.mean(itr_store_online, 2)
         itr_store_online = np.transpose(itr_store, (1,0,2)) 
         # fig, _ = bar_plot_with_errorbar(itr_store_online,
         #                                 x_label = 'Trial',
