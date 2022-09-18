@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import OACCA
+from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, OACCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_online
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_online, cal_confusionmatrix_onedataset_individual_online
 from SSVEPAnalysisToolbox.utils.io import savedata
@@ -39,6 +39,7 @@ trial_container = gen_trials_onedataset_individual_online(dataset_idx = 0,
 # Prepare models
 weights_filterbank = suggested_weights_filterbank()
 model_container = [
+                   SCCA_qr(weights_filterbank = weights_filterbank),
                    OACCA(weights_filterbank = weights_filterbank)
                   ]
 
