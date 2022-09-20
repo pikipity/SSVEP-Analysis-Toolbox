@@ -39,6 +39,14 @@ Datasets and Algorithms
   + **BETA** dataset: 
   
       B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, "BETA: A large benchmark database toward SSVEP-BCI application," *Front. Neurosci.*, vol. 14, p. 627, 2020. DOI: `10.3389/fnins.2020.00627 <https://doi.org/10.3389/fnins.2020.00627>`_.
+
+  .. todo::
+
+    + `Nakanishi2015 <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0140703>`_
+    + `eldBETA <http://bci.med.tsinghua.edu.cn/download.html>`_
+    + `Wearable SSVEP BCI Dataset <http://bci.med.tsinghua.edu.cn/download.html>`_
+    + `160 Targets SSVEP BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/ac0bfa>`_
+    + `Dual Frequency and Phase Modulation SSVEP-BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/abaa9b/meta>`_
   
 + Algorithms
   
@@ -70,7 +78,16 @@ Datasets and Algorithms
 
       C. M. Wong et al., “Online adaptation boosts SSVEP-based BCI performance,” *IEEE Trans. Biomed. Eng.*, vol. 69, no. 6, pp. 2018-2028, 2022. DOI: `10.1109/TBME.2021.3133594 <https://doi.org/10.1109/TBME.2021.3133594>`_.
 
-  + ...
+  .. todo::
+
+    + `MsetCCA <https://www.worldscientific.com/doi/abs/10.1142/S0129065714500130>`_
+    + `MsetCCA-R <https://github.com/edwin465/SSVEP-Multi-set-CCA-With-Ref>`_
+    + `TRCA-R <https://github.com/edwin465/SSVEP-TRCA-R>`_
+    + SSCOR
+    + ttCCA
+    + itCCA
+    + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
+    + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_
 
 
 

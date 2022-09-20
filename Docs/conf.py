@@ -36,7 +36,8 @@ extensions = [
     'sphinxcontrib.ghcontributors',
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
-    'sphinxcontrib.matlab'
+    'sphinxcontrib.matlab',
+    'sphinx.ext.todo'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -73,4 +74,7 @@ source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
+
+# Display todos by setting to True
+todo_include_todos = True
 
