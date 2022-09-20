@@ -15,6 +15,7 @@ More detailed information can be found in [document](http://ssvep-analysis-toolb
 + Datasets
   + **Benchmark** dataset: Y. Wang, X. Chen, X. Gao, and S. Gao, "A benchmark dataset for SSVEP-based braincomputer interfaces," *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 25, no. 10, pp. 1746–1752, 2017. DOI: [10.1109/TNSRE.2016.2627556](https://doi.org/10.1109/TNSRE.2016.2627556).
   + **BETA** dataset: B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, "BETA: A large benchmark database toward SSVEP-BCI application," *Front. Neurosci.*, vol. 14, p. 627, 2020. DOI: [10.3389/fnins.2020.00627](https://doi.org/10.3389/fnins.2020.00627).
+  + ...
 
 + Algorithms
   + Standard canonical correlation analysis (**sCCA**) and filterbank CCA (**FBCCA**): Chen, X., Wang, Y., Gao, S., Jung, T.P. and Gao, X., "Filter bank canonical correlation analysis for implementing a high-speed SSVEP-based brain–computer interface," *J. Neural Eng.*, vol. 12, no. 4, p. 046008, 2015. DOI: [10.1088/1741-2560/12/4/046008](https://doi.org/10.1088/1741-2560/12/4/046008).
