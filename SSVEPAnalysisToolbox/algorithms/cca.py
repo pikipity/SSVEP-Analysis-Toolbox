@@ -17,7 +17,98 @@ import scipy.stats as stats
 from .basemodel import BaseModel
 from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort
 
+def _oacca_cal_u1_v1(filteredData : ndarray,
+                     sinTemplate : ndarray,
+                     old_Cxx : ndarray,
+                     old_Cxy : ndarray):
+    """
+    Calculate online adaptive multi-stimulus spatial filter in OACCA
 
+    Parameters
+    --------------
+    filteredData : ndarray
+        input signal
+    sinTemplate : ndarray
+        reference signal
+    old_Cxx : ndarray
+        Covariance matrix of input signal in previous step
+    old_Cxy : ndarray
+        Covariance matrix of input signal and reference signal in previous step
+    """
+    # Calculate multi-stimulus 
+    # filteredData = x_single_trial[k,:,:]
+    # sinTemplate = Y[prototype_res][:,:signal_len]
+
+    channel_num = filteredData.shape[0]
+    harmonic_num = sinTemplate.shape[0]
+
+    # self.model['Cxx'][:,:,k] = self.model['Cxx'][:,:,k] + filteredData @ filteredData.T
+    new_Cxx = old_Cxx + filteredData @ filteredData.T
+    # self.model['Cxy'][:,:,k] = self.model['Cxy'][:,:,k] + filteredData @ sinTemplate.T
+    new_Cxy = old_Cxy + filteredData @ sinTemplate.T
+
+    CCyy = np.eye(harmonic_num)
+    CCyx = new_Cxy.T
+    CCxx = new_Cxx
+    CCxy = new_Cxy
+    A1 = np.concatenate((np.zeros(CCxx.shape), CCxy), axis = 1)
+    A2 = np.concatenate((CCyx, np.zeros(CCyy.shape)), axis = 1)
+    A = np.concatenate((A1, A2), axis = 0)
+    B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 1)
+    B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 1)
+    B = np.concatenate((B1, B2), axis = 0)
+    eig_d1, eig_v1 = slin.eig(A, B)
+    sort_idx = np.argsort(eig_d1)[::-1]
+    u1 = eig_v1[:channel_num,sort_idx]
+    v1 = eig_v1[channel_num:,sort_idx]
+    if u1[0,0] == 1:
+        # warnings.warn("Warning: updated U is not meaningful and thus adjusted.")
+        u1 = np.zeros((channel_num,1))
+        u1[-3:] = 1
+    u1 = u1[:,0]
+    v1 = v1[:,0]
+    if np.iscomplex(eig_v1).any():
+        # warnings.warn("Warning: Imaginary part of U and V is ignored.")
+        u1 = np.real(u1)
+        v1 = np.real(v1)
+    # for class_i in range(stimulus_num):
+    #     self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
+    #     self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
+
+    return u1, v1, new_Cxx, new_Cxy
+
+def _oacca_cal_u0(sf1x : ndarray, 
+                  old_covar_mat : ndarray):
+    """
+    Calculate updated prototype filter in OACCA
+
+    Parameters
+    -------------
+    sf1x : ndarray
+        Spatial filter obtained from CCA
+    old_covar_mat : ndarray
+        Covariance matrix of spatial filter in previous step
+    """
+    channel_num = old_covar_mat.shape[0]
+
+    # sf1x = cca_sfx[k,cca_res,:,:] 
+    sf1x = sf1x/np.linalg.norm(sf1x)
+    # sf1y = cca_sfy[k,cca_res,:,:]
+    # sf1y = sf1y/np.linalg.norm(sf1y)
+
+    # self.model['covar_mat'][:,:,k] = self.model['covar_mat'][:,:,k] + sf1x @ sf1x.T
+    new_covar_mat = old_covar_mat + sf1x @ sf1x.T
+    eig_d1, eig_v1 = slin.eig(new_covar_mat)
+    sort_idx = np.argsort(eig_d1)[::-1]
+    eig_vec=eig_v1[:,sort_idx]
+    u0 = eig_vec[:channel_num,0]
+    if np.iscomplex(eig_vec).any():
+        # warnings.warn("Warning: Imaginary part of U0 is ignored.")
+        u0 = np.real(u0)
+    return u0, new_covar_mat
+    
+    # for class_i in range(stimulus_num):
+    #     self.model['U0'][k,class_i,:,0] = u0 
 
 def _r_cca_canoncorr_withUV(X: ndarray,
                             Y: List[ndarray],
@@ -455,7 +546,7 @@ class OACCA(BaseModel):
         for x_single_trial in X:
             filterbank_num, channel_num, signal_len = x_single_trial.shape
             # Calculate res of this step
-            cca_r, cca_sfx, cca_sfy = _r_cca_canoncorr(x_single_trial,Y,n_component,True)
+            cca_r, cca_sfx, cca_sfy = _r_cca_canoncorr(x_single_trial,Y,n_component,True) # cca_sfx: (filterbank_num * stimulus_num * channel_num * n_component)
             if (self.model['U'] is not None) and (self.model['V'] is not None):
                 r2 = _r_cca_canoncorr_withUV(x_single_trial,Y,self.model['U'],self.model['V'])
             else:
@@ -482,65 +573,52 @@ class OACCA(BaseModel):
                 self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
                 self.model['Cxx'] = np.zeros((channel_num, channel_num, filterbank_num))
                 self.model['Cxy'] = np.zeros((channel_num, harmonic_num, filterbank_num))
-            for k in range(filterbank_num):
-                # Calculate prototype
-                if cca_res == oacca_res:
-                    if self.model['U0'] is None:
-                        self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                    sf1x = cca_sfx[k,cca_res,:,:] # (filterbank_num * stimulus_num * channel_num * n_component)
-                    sf1x = sf1x/np.linalg.norm(sf1x)
-                    # sf1y = cca_sfy[k,cca_res,:,:]
-                    # sf1y = sf1y/np.linalg.norm(sf1y)
-
-                    self.model['covar_mat'][:,:,k] = self.model['covar_mat'][:,:,k] + sf1x @ sf1x.T
-                    eig_d1, eig_v1 = slin.eig(self.model['covar_mat'][:,:,k])
-                    sort_idx = np.argsort(eig_d1)[::-1]
-                    eig_vec=eig_v1[:,sort_idx]
-                    u0 = eig_vec[:channel_num,0]
-                    if np.iscomplex(eig_vec).any():
-                        warnings.warn("Warning: Imaginary part of U0 is ignored.")
-                        u0 = np.real(u0)
+            # Calculate prototype
+            if cca_res == oacca_res:
+                # if self.model['U0'] is None:
+                #     self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+                sf1x_list = [cca_sfx[k,cca_res,:,:] for k in range(filterbank_num)]
+                old_covar_mat_list = [self.model['covar_mat'][:,:,k] for k in range(filterbank_num)]
+                u0_list, new_covar_mat_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_oacca_cal_u0)(sf1x = sf1x, old_covar_mat = old_covar_mat) for sf1x, old_covar_mat in zip(sf1x_list, old_covar_mat_list)))
+                self.model['covar_mat'] = np.concatenate([np.expand_dims(covar_mat, axis = 2) for covar_mat in new_covar_mat_list], axis = 2)
+                u0 = np.concatenate([np.expand_dims(tmp, axis = 0) for tmp in u0_list], axis = 0)
+                u0 = np.expand_dims(u0, axis = 1)
+                u0 = np.repeat(u0, stimulus_num, axis = 1)
+                u0 = np.expand_dims(u0, axis = 3)
+                self.model['U0'] = u0
+                # for k, u0 in enumerate(u0_list):
+                #     for class_i in range(stimulus_num):
+                #         self.model['U0'][k,class_i,:,0] = u0
+                    # self.model['covar_mat'][:,:,k] = new_covar_mat_list[k]
+            # Calculate multi-stimulus 
+            # if self.model['U'] is None:
+            #     self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
+            # if self.model['V'] is None:
+            #     self.model['V'] = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
+            filteredData_list = [x_single_trial[k,:,:] for k in range(filterbank_num)]
+            old_Cxx_list = [self.model['Cxx'][:,:,k] for k in range(filterbank_num)]
+            old_Cxy_list = [self.model['Cxy'][:,:,k] for k in range(filterbank_num)]
+            u1_list, v1_list, new_Cxx_list, new_Cxy_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_oacca_cal_u1_v1, sinTemplate = Y[prototype_res][:,:signal_len]))(filteredData = filteredData, old_Cxx = old_Cxx, old_Cxy = old_Cxy) for filteredData, old_Cxx, old_Cxy in zip(filteredData_list, old_Cxx_list, old_Cxy_list)))
+            self.model['Cxx'] = np.concatenate([np.expand_dims(Cxx, axis = 2) for Cxx in new_Cxx_list], axis = 2)
+            self.model['Cxy'] = np.concatenate([np.expand_dims(Cxy, axis = 2) for Cxy in new_Cxy_list], axis = 2)
+            u1 = np.concatenate([np.expand_dims(tmp, axis = 0) for tmp in u1_list], axis = 0)
+            u1 = np.expand_dims(u1, axis = 1)
+            u1 = np.repeat(u1, stimulus_num, axis = 1)
+            u1 = np.expand_dims(u1, axis = 3)
+            self.model['U'] = u1
+            v1 = np.concatenate([np.expand_dims(tmp, axis = 0) for tmp in v1_list], axis = 0)
+            v1 = np.expand_dims(v1, axis = 1)
+            v1 = np.repeat(v1, stimulus_num, axis = 1)
+            v1 = np.expand_dims(v1, axis = 3)
+            self.model['V'] = v1
+            # for k, u1 in enumerate(u1_list):
+            #     for class_i in range(stimulus_num):
+            #         self.model['U'][k,class_i,:,0] = u1
+            #         self.model['V'][k,class_i,:,0] = v1_list[k]
+                # self.model['Cxx'][:,:,k] = new_Cxx_list[k]
+                # self.model['Cxy'][:,:,k] = new_Cxy_list[k]
                     
-                    for class_i in range(stimulus_num):
-                        self.model['U0'][k,class_i,:,0] = u0 # eig_vec[:channel_num,0]
-                # Calculate multi-stimulus 
-                if self.model['U'] is None:
-                        self.model['U'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
-                if self.model['V'] is None:
-                        self.model['V'] = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
-                filteredData = x_single_trial[k,:,:]
-                sinTemplate = Y[prototype_res][:,:signal_len]
-
-                self.model['Cxx'][:,:,k] = self.model['Cxx'][:,:,k] + filteredData @ filteredData.T
-                self.model['Cxy'][:,:,k] = self.model['Cxy'][:,:,k] + filteredData @ sinTemplate.T
-
-                CCyy = np.eye(harmonic_num)
-                CCyx = self.model['Cxy'][:,:,k].T
-                CCxx = self.model['Cxx'][:,:,k]
-                CCxy = self.model['Cxy'][:,:,k]
-                A1 = np.concatenate((np.zeros(CCxx.shape), CCxy), axis = 1)
-                A2 = np.concatenate((CCyx, np.zeros(CCyy.shape)), axis = 1)
-                A = np.concatenate((A1, A2), axis = 0)
-                B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 1)
-                B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 1)
-                B = np.concatenate((B1, B2), axis = 0)
-                eig_d1, eig_v1 = slin.eig(A, B)
-                sort_idx = np.argsort(eig_d1)[::-1]
-                u1 = eig_v1[:channel_num,sort_idx]
-                v1 = eig_v1[channel_num:,sort_idx]
-                if u1[0,0] == 1:
-                    warnings.warn("Warning: updated U is not meaningful and thus adjusted.")
-                    u1 = np.zeros((channel_num,1))
-                    u1[-3:] = 1
-                u1 = u1[:,0]
-                v1 = v1[:,0]
-                if np.iscomplex(eig_v1).any():
-                    warnings.warn("Warning: Imaginary part of U and V is ignored.")
-                    u1 = np.real(u1)
-                    v1 = np.real(v1)
-                for class_i in range(stimulus_num):
-                    self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
-                    self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
+                
         return Y_pred
 
 
