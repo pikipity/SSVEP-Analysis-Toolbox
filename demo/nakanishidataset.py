@@ -27,7 +27,7 @@ dataset_container = [
 
 # Prepare train and test trials
 tw_seq = [i/100 for i in range(50,400+50,50)]
-tw_seq = [tw-0.135 for tw in tw_seq]
+# tw_seq = [tw-dataset.default_t_latency for tw in tw_seq]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
