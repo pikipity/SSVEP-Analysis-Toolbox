@@ -60,7 +60,8 @@ def filterbank(X: ndarray,
         
         bpB, bpA = signal.cheby1(N, 0.5, Wn, btype = 'bandpass')
 
-        filterbank_X[k-1,:,:] = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
+        tmp = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
+        filterbank_X[k-1,:,:] = signal.detrend(tmp, axis = 1)
         
     return filterbank_X
 
