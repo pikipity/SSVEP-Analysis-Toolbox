@@ -32,15 +32,15 @@ def preprocess(X: ndarray,
                srate: Optional[float] = 256) -> ndarray:
     """
     Suggested preprocessing function for Nakanishi 2015
-    
-    notch filter at 50 Hz
     """
     
-    # notch filter at 50 Hz
-    f0 = 60
-    Q = 35
-    notchB, notchA = signal.iircomb(f0, Q, ftype='notch', fs=srate)
-    preprocess_X = signal.filtfilt(notchB, notchA, X, axis = 1, padtype='odd', padlen=3*(max(len(notchB),len(notchA))-1))
+    # notch filter at 60 Hz
+    # f0 = 60
+    # Q = 35
+    # notchB, notchA = signal.iircomb(f0, Q, ftype='notch', fs=srate)
+    # preprocess_X = signal.filtfilt(notchB, notchA, X, axis = 1, padtype='odd', padlen=3*(max(len(notchB),len(notchA))-1))
+
+    preprocess_X = signal.detrend(X, axis = 1)
     
     return preprocess_X
 
