@@ -7,7 +7,8 @@ from pooch import retrieve
 
 def download_single_file(source_url: str, 
                          desertation: str,
-                         known_hash: Optional[str] = None):
+                         known_hash: Optional[str] = None,
+                         progressbar: bool = True):
     """
     Download one file
 
@@ -30,5 +31,5 @@ def download_single_file(source_url: str,
     retrieve(source_url, known_hash, 
              fname = file_name,
              path = desertation_dir,
-             progressbar=True)
+             progressbar=progressbar)
     
