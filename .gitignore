@@ -6,3 +6,4 @@ demo/2020_BETA_SSVEP_database_update/*
 demo/res/*.mat
 Docs/_build/*
 .vscode/*
+demo/Nakanishi_2015/*
