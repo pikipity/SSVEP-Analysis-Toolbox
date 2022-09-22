@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
 from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot
 
 data_file_list = ['res/benchmarkdataset_res.mat',
-                  'res/betadataset_res.mat']
+                  'res/betadataset_res.mat',
+                  'res/nakanishidataset_res.mat']
 sub_title = ['benchmark',
-             'beta']
+             'beta',
+             'nakanishi']
 
 
 for dataset_idx, data_file in enumerate(data_file_list):
+    if not os.path.isfile(data_file):
+        print("'{:s}' does not exist.".format(data_file))
+        continue
     data = loaddata(data_file, 'mat')
     acc_store = data["acc_store"]
     itr_store = data["itr_store"]
