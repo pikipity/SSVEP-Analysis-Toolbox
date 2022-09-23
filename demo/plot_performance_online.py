@@ -7,11 +7,11 @@ from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowli
 
 import numpy as np
 
-data_file_list = ['res/benchmarkdataset_res_online.mat']
+data_file_list = ['res/benchmarkdataset_res_online.npy']
 sub_title = ['benchmark']
 
 for dataset_idx, data_file in enumerate(data_file_list):
-    data = loaddata(data_file, 'mat')
+    data = loaddata(data_file, 'np')
     acc_store = data["acc_store"]
     # print(acc_store.shape)
     itr_store = data["itr_store"]
