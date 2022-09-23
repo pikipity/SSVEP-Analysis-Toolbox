@@ -48,6 +48,44 @@ def mean_list(X: list) -> ndarray:
     tmp = np.concatenate(tmp, axis = 0)
     return np.mean(tmp, axis=0)
 
+def blkmat(X: ndarray):
+    """
+    Build the block diag matrix by using X
+
+    Parameters
+    -----------
+    X : ndarray
+        Matrix used for building the block diag matrix
+        (trial_num, channel_num, signal_len)
+    """
+    trial_num, channel_num, signal_len = X.shape
+    blkmatrix = np.ndarray([])
+    for trial_idx in range(trial_num):
+        A1 = np.concatenate((blkmatrix, np.zeros(blkmatrix.shape[0], signal_len)), axis = 1)
+        A2 = np.concatenate((np.zeros(channel_num, blkmatrix.shape[1]), X[trial_idx,:,:]), axis = 1)
+        blkmatrix = np.concatenate((A1, A2), axis = 0)
+    return blkmatrix
+
+def blkrep(X: ndarray,
+           N: int):
+    """
+    Build the block diag matrix by repeat X with N times
+
+    Parameters
+    -----------
+    X : ndarray
+        Matrix used for building the block diag matrix
+    N : int
+        Number of X in the diag line
+    """
+    blkmatrix = np.ndarray([])
+    for _ in range(N):
+        A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], X.shape[1]))), axis = 1)
+        A2 = np.concatenate((np.zeros(X.shape[0], blkmatrix.shape[1]), X), axis = 1)
+        blkmatrix = np.concatenate((A1, A2), axis = 0)
+    return blkmatrix
+
+
 def sort(X: list) -> Tuple[list, list, list]:
     """
     Sort given list
@@ -71,6 +109,43 @@ def sort(X: list) -> Tuple[list, list, list]:
     for loc, idx in enumerate(sort_idx):
         return_idx[idx] = loc
     return sorted_X, sort_idx, return_idx
+
+def separate_trainSig(X: List[ndarray],
+                      Y: List[int]) -> List[ndarray]:
+    """
+    Separate training signals
+
+    Parameters
+    ----------
+    X : List[ndarray]
+        Training data
+        List shape: (trial_num,)
+        EEG shape: (filterbank_num, channel_num, signal_len)
+    Y : List[int]
+        Training label
+        List shape: (trial_num,)
+
+    Returns
+    -------
+    template_sig : List[ndarray]
+        Template signal
+        List of shape: (stimulus_num,)
+        Template shape: (trial_num, filterbank_num, channel_num, signal_len)
+    """
+    # Get possible stimulus class
+    unique_Y = list(set(Y))
+    unique_Y.sort()
+    # 
+    template_sig = []
+    for i in unique_Y:
+        # i-th class trial index
+        target_idx = [k for k in range(len(Y)) if Y[k] == unique_Y[i]]
+        # Get i-th class training data
+        template_sig_single = [np.expand_dims(X[k], axis=0) for k in target_idx]
+        template_sig_single = np.concatenate(template_sig_single, axis=0)
+        # Store i-th class template
+        template_sig.append(template_sig_single)
+    return template_sig
 
 def gen_template(X: List[ndarray],
                  Y: List[int]) -> List[ndarray]:
