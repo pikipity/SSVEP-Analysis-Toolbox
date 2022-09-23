@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.nakanishidataset import NakanishiDataset
 from SSVEPAnalysisToolbox.utils.nakanishipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA
+from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
@@ -43,13 +43,14 @@ weights_filterbank = suggested_weights_filterbank()
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
                    SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                   MsetCCA(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
-                   MSCCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
-                   TRCA(weights_filterbank = weights_filterbank),
-                   ETRCA(weights_filterbank = weights_filterbank),
-                   MSETRCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
-                   MSCCA_and_MSETRCA(n_neighbor_mscca = 6, n_neighber_msetrca = 6, weights_filterbank = weights_filterbank),
-                   TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
+                #    MSCCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
+                #    TRCA(weights_filterbank = weights_filterbank),
+                #    ETRCA(weights_filterbank = weights_filterbank),
+                #    MSETRCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
+                #    MSCCA_and_MSETRCA(n_neighbor_mscca = 6, n_neighber_msetrca = 6, weights_filterbank = weights_filterbank),
+                #    TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
                   ]
 
 # Evaluate models
