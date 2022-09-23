@@ -61,9 +61,12 @@ def blkmat(X: ndarray):
     trial_num, channel_num, signal_len = X.shape
     blkmatrix = np.ndarray([])
     for trial_idx in range(trial_num):
-        A1 = np.concatenate((blkmatrix, np.zeros(blkmatrix.shape[0], signal_len)), axis = 1)
-        A2 = np.concatenate((np.zeros(channel_num, blkmatrix.shape[1]), X[trial_idx,:,:]), axis = 1)
-        blkmatrix = np.concatenate((A1, A2), axis = 0)
+        if len(blkmatrix.shape)==0:
+            blkmatrix = X[trial_idx,:,:]
+        else:
+            A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], signal_len))), axis = 1)
+            A2 = np.concatenate((np.zeros((channel_num, blkmatrix.shape[1])), X[trial_idx,:,:]), axis = 1)
+            blkmatrix = np.concatenate((A1, A2), axis = 0)
     return blkmatrix
 
 def blkrep(X: ndarray,
@@ -80,9 +83,12 @@ def blkrep(X: ndarray,
     """
     blkmatrix = np.ndarray([])
     for _ in range(N):
-        A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], X.shape[1]))), axis = 1)
-        A2 = np.concatenate((np.zeros(X.shape[0], blkmatrix.shape[1]), X), axis = 1)
-        blkmatrix = np.concatenate((A1, A2), axis = 0)
+        if len(blkmatrix.shape)==0:
+            blkmatrix = X
+        else:
+            A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], X.shape[1]))), axis = 1)
+            A2 = np.concatenate((np.zeros((X.shape[0], blkmatrix.shape[1])), X), axis = 1)
+            blkmatrix = np.concatenate((A1, A2), axis = 0)
     return blkmatrix
 
 

@@ -24,6 +24,7 @@ def _msetcca_cal_template_U(X_single_stimulus : ndarray,
     Calculate templates and trials' spatial filters in multi-set CCA
     """
     trial_num, filterbank_num, channel_num, signal_len = X_single_stimulus.shape
+    n_component = 1
     # prepare center matrix
     # I = np.eye(signal_len)
     LL = npmat.repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
@@ -39,12 +40,13 @@ def _msetcca_cal_template_U(X_single_stimulus : ndarray,
         eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
         sort_idx = np.argsort(eig_d1)[::-1]
         eig_vec = eig_v1[:,sort_idx]
-        eig_vec = eig_vec[:,:1]
+        if np.iscomplex(eig_vec).any():
+            eig_vec = np.real(eig_vec[:,:n_component])
         U_trial.append(np.expand_dims(eig_vec, axis = 0))
         # calculate template
         template = []
         for trial_idx in range(trial_num):
-            template_temp = eig_vec[((trial_idx-1)*channel_num):(trial_idx*channel_num-1),:].T @ X_single_stimulus_single_filterbank[trial_idx,:,:]
+            template_temp = eig_vec[(trial_idx*channel_num):((trial_idx+1)*channel_num),:n_component].T @ X_single_stimulus_single_filterbank[trial_idx,:,:]
             template.append(template_temp)
         template = np.concatenate(template, axis = 0)
         CCA_template.append(np.expand_dims(template, axis = 0))
@@ -588,11 +590,11 @@ class MsetCCA(BaseModel):
         template_sig_R = self.model['template_sig_R'] 
         template_sig_P = self.model['template_sig_P'] 
 
-        r = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X))
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
         # self.model['U'] = U
         # self.model['U_template'] = V
 
-        Y_pred = [int( np.argmax( weights_filterbank @ r_single)) for r_single in r]
+        Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
         return Y_pred
 
