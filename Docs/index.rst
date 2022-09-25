@@ -40,9 +40,12 @@ Datasets and Algorithms
   
       B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, "BETA: A large benchmark database toward SSVEP-BCI application," *Front. Neurosci.*, vol. 14, p. 627, 2020. DOI: `10.3389/fnins.2020.00627 <https://doi.org/10.3389/fnins.2020.00627>`_.
 
+  + **Nakanishi2015** dataset: 
+  
+      M. Nakanishi, Y. Wang, Y.-T. Wang, T.-P. Jung, "A Comparison Study of Canonical Correlation Analysis Based Methods for Detecting Steady-State Visual Evoked Potentials," *PLoS ONE*, vol. 10, p. e0140703, 2015. DOI: `10.1371/journal.pone.0140703 <https://doi.org/10.1371/journal.pone.0140703>`_.
+
   .. todo::
 
-    + `Nakanishi2015 <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0140703>`_
     + `eldBETA <http://bci.med.tsinghua.edu.cn/download.html>`_
     + `Wearable SSVEP BCI Dataset <http://bci.med.tsinghua.edu.cn/download.html>`_
     + `160 Targets SSVEP BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/ac0bfa>`_
