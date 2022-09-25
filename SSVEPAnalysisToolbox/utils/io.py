@@ -41,6 +41,7 @@ def savedata(file: str,
             sio.savemat(file, data)
         except:
             warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a numpy data file.")
+            file = os.path.splitext(file)[0]+'.npy'
             savedata(file, data, 'np')
     elif save_type.lower() == 'np':
         if os.path.isfile(file):
