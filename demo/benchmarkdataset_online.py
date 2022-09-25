@@ -69,5 +69,5 @@ data = {"acc_store": acc_store,
         "confusion_matrix": confusion_matrix,
         "tw_seq":tw_seq,
         "method_ID": [model.ID for model in model_container]}
-data_file = 'res/benchmarkdataset_res_online.mat'
-savedata(data_file, data, 'mat')
+data_file = 'res/benchmarkdataset_res_online.npy'
+savedata(data_file, data, 'np')

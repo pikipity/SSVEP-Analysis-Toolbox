@@ -234,7 +234,7 @@ class TDCA(BaseModel):
                                                                                      for P_combine_X_train_mean_single_class in P_combine_X_train_mean)
             Sw = sum_list(Sw_list)
             Sb = sum_list(Sb_list)
-            eig_d1, eig_v1 = slin.eig(Sb, Sw)
+            eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
             sort_idx = np.argsort(eig_d1)[::-1]
             eig_vec=eig_v1[:,sort_idx]
             U_tdca[filterbank_idx,0,:,:] = eig_vec[:,:n_component]

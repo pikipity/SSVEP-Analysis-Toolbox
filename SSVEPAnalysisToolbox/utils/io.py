@@ -2,11 +2,13 @@
 
 from numpy import ndarray, object
 from typing import Union, Optional, Dict, List, Tuple
+import warnings
 
 import scipy.io as sio
 import mat73
 import numpy as np
 import os
+import pickle
 
 def savedata(file: str,
              data: dict,
@@ -35,12 +37,22 @@ def savedata(file: str,
     if save_type.lower() == 'mat':
         if os.path.isfile(file):
             os.remove(file)
-        sio.savemat(file, data)
+        try:
+            sio.savemat(file, data)
+        except:
+            warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a numpy data file.")
+            file = os.path.splitext(file)[0]+'.npy'
+            savedata(file, data, 'np')
     elif save_type.lower() == 'np':
         if os.path.isfile(file):
             os.remove(file)
-        with open(file, 'wb') as f:
-            np.save(f, data, allow_pickle=True, fix_imports=True)
+        try:
+            with open(file, 'wb') as f:
+                np.save(f, data, allow_pickle=True, fix_imports=True)
+        except:
+            warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a binary data file.")
+            with open(file, 'wb') as f:
+                pickle.dump(data, f, protocol = 4)
     else:
         raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
         

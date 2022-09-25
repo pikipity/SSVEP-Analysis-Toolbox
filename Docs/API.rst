@@ -1028,6 +1028,65 @@ The target stimulus is predicted by combining two correlation coefficients:
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
+Multi-set CCA (MsetCCA)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ Y. Zhang, G. Zhou, J. Jin, X. Wang, A. Cichocki, "Frequency recognition in SSVEP-based BCI using multiset canonical correlation analysis," *Int J Neural Syst.*, vol. 24, 2014, p. 1450013. DOI: `10.1142/ S0129065714500130 <https://www.worldscientific.com/doi/abs/10.1142/S0129065714500130>`_.
+
+For each stimulus, the MsetCCA maximize the inter-trial covariance to compute the spatial filters. The spatial filters of different trials are different.
+
+.. math::
+
+    \widetilde{\mathbf{w}}_{i,1}, \cdots, \widetilde{\mathbf{w}}_{i,N_t}=\arg\max_{\mathbf{w}_1,\cdots,\mathbf{w}_{N_t}}\sum_{h_1=1}^{N_t}\sum_{h_2=1,h_1\neq h_2}^{N_t}\mathbf{w}_{h_1}^T\cal{X}_{i,h_1}\cal{X}_{i,h_2}^T\mathbf{w}_{h_2}
+
+.. math:: 
+
+    \text{subject to }\frac{1}{N_t} \sum_{h_1=1}^{N_t}\sum_{h_2=1,h_1\neq h_2}^{N_t}\mathbf{w}_{h_1}^T\cal{X}_{i,h_1}\cal{X}_{i,h_2}^T\mathbf{w}_{h_2} = 1
+
+where :math:`\widetilde{\mathbf{w}}_{i,n}` denotes the spatial filter of the :math:`i\text{-th}` stimulus and the :math:`n\text{-th}` training trial, :math:`N_t` denotes the number of training trials, and :math:`\cal{X}_{i,n}` denotes the calibration data of the :math:`i\text{-th}` stimulus and the :math:`n\text{-th}` training trial.
+
+Solving this optimization problem is equivalent to solving the following eigenvalue problem:
+
+.. math:: 
+
+    \left( \mathbf{R}_i-\mathbf{S}_i \right)\mathbf{w} = \rho\mathbf{S}_i\mathbf{w}
+
+where 
+
+.. math:: 
+
+    \mathbf{R}_i = \left[  
+                    \begin{array}{ccc}
+                        \cal{X}_{i,1}\cal{X}_{i,1}^T & \cdots & \cal{X}_{i,1}\cal{X}_{i,N_t}^T\\
+                        \vdots & \ddots & \vdots\\
+                        \cal{X}_{i,N_t}\cal{X}_{i,1}^T & \cdots & \cal{X}_{i,N_t}\cal{X}_{i,N_t}^T
+                    \end{array}
+                   \right]
+
+.. math:: 
+
+    \mathbf{S}_i = \left[  
+                    \begin{array}{ccc}
+                        \cal{X}_{i,1}\cal{X}_{i,1}^T & \cdots & 0\\
+                        \vdots & \ddots & \vdots\\
+                        0 & \cdots & \cal{X}_{i,N_t}\cal{X}_{i,N_t}^T
+                    \end{array}
+                   \right]
+
+.. math:: 
+
+    \mathbf{w} = \left[ \mathbf{w}_1, \cdots, \mathbf{w}_{N_t} \right]^T.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MsetCCA
+
+    Multi-set CCA. The implementation directly follows above equations.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
 Task-related component analysis (TRCA) and ensemble TRCA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1035,7 +1094,7 @@ Related paper:
 
 + M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104-112, 2018. DOI: `10.1109/TBME.2017.2694818 <https://doi.org/10.1109/TBME.2017.2694818>`_.
 
-For each stimulus, the TRCA and the ensemble TRCA (eTRCA) maximize the inter-trial covariance to compute the spatial filter, which can be achieved by solving
+For each stimulus, the TRCA and the ensemble TRCA (eTRCA) maximize the inter-trial covariance to compute the common spatial filter across trials, which can be achieved by solving
 
 .. math::
 

@@ -11,11 +11,48 @@ from copy import deepcopy
 import warnings
 
 import numpy as np
+import numpy.matlib as npmat
 import scipy.linalg as slin
 import scipy.stats as stats
 
 from .basemodel import BaseModel
-from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort
+from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort, separate_trainSig, blkrep, blkmat
+
+def _msetcca_cal_template_U(X_single_stimulus : ndarray,
+                            I : ndarray):
+    """
+    Calculate templates and trials' spatial filters in multi-set CCA
+    """
+    trial_num, filterbank_num, channel_num, signal_len = X_single_stimulus.shape
+    n_component = 1
+    # prepare center matrix
+    # I = np.eye(signal_len)
+    LL = npmat.repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
+    # calculate templates and spatial filters of each filterbank
+    U_trial = []
+    CCA_template = []
+    for filterbank_idx in range(filterbank_num):
+        X_single_stimulus_single_filterbank = X_single_stimulus[:,filterbank_idx,:,:]
+        template = blkmat(X_single_stimulus_single_filterbank)
+        # calculate spatial filters of trials
+        Sb = template @ LL @ template.T
+        Sw = template @ template.T
+        eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
+        sort_idx = np.argsort(eig_d1)[::-1]
+        eig_vec = eig_v1[:,sort_idx]
+        if np.iscomplex(eig_vec).any():
+            eig_vec = np.real(eig_vec[:,:n_component])
+        U_trial.append(np.expand_dims(eig_vec, axis = 0))
+        # calculate template
+        template = []
+        for trial_idx in range(trial_num):
+            template_temp = eig_vec[(trial_idx*channel_num):((trial_idx+1)*channel_num),:n_component].T @ X_single_stimulus_single_filterbank[trial_idx,:,:]
+            template.append(template_temp)
+        template = np.concatenate(template, axis = 0)
+        CCA_template.append(np.expand_dims(template, axis = 0))
+    U_trial = np.concatenate(U_trial, axis = 0)
+    CCA_template = np.concatenate(CCA_template, axis = 0)
+    return U_trial, CCA_template
 
 def _oacca_cal_u1_v1(filteredData : ndarray,
                      sinTemplate : ndarray,
@@ -486,6 +523,81 @@ def SCCA(n_component: int = 1,
                               update_UV)
     else:
         raise ValueError('Unknown cca_type')
+
+class MsetCCA(BaseModel):
+    """
+    Multi-set CCA
+    """
+
+    def __init__(self,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None,
+                 n_component: int = 1):
+        super().__init__(ID = 'MsetCCA',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U_trial'] = None
+        # self.model['U'] = None
+        # self.model['U_template'] = None
+        self.model['template'] = None
+    
+    def __copy__(self):
+        copy_model = MsetCCA(n_jobs = self.n_jobs,
+                             weights_filterbank = self.model['weights_filterbank'],
+                             n_component = self.n_component)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('Multi-set CCA requires training label')
+        if X is None:
+            raise ValueError('Multi-set CCA training data')
+
+        separated_trainSig = separate_trainSig(X, Y)
+
+        U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_msetcca_cal_template_U, I = np.eye(X[0].shape[-1])))(a) for a in separated_trainSig))
+
+        self.model['U_trial'] = U_all_stimuli
+        self.model['template'] = template_all_stimuli
+        # generate template related QR
+        template_sig_Q, template_sig_R, template_sig_P = qr_list(template_all_stimuli)
+        self.model['template_sig_Q'] = template_sig_Q # List of shape: (stimulus_num,);
+        self.model['template_sig_R'] = template_sig_R
+        self.model['template_sig_P'] = template_sig_P
+            
+    def predict(self,
+                X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+        
+        template_sig_Q = self.model['template_sig_Q'] 
+        template_sig_R = self.model['template_sig_R'] 
+        template_sig_P = self.model['template_sig_P'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        # self.model['U'] = U
+        # self.model['U_template'] = V
+
+        Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
+        
+        return Y_pred
+
 
 class OACCA(BaseModel):
     """

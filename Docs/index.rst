@@ -65,6 +65,10 @@ Datasets and Algorithms
   
       C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: `10.1088/1741-2552/ab2373 <https://doi.org/10.1088/1741-2552/ab2373>`_.
 
+  + Multi-set CCA (**MsetCCA**):
+  
+      Y. Zhang, G. Zhou, J. Jin, X. Wang, A. Cichocki, "Frequency recognition in SSVEP-based BCI using multiset canonical correlation analysis," *Int J Neural Syst.*, vol. 24, 2014, p. 1450013. DOI: `10.1142/ S0129065714500130 <https://www.worldscientific.com/doi/abs/10.1142/S0129065714500130>`_.
+
   + Task-related component analysis (**TRCA**) and Ensemble TRCA (**eTRCA**): 
 
       M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104-112, 2018. DOI: `10.1109/TBME.2017.2694818 <https://doi.org/10.1109/TBME.2017.2694818>`_.
@@ -82,8 +86,7 @@ Datasets and Algorithms
       C. M. Wong et al., “Online adaptation boosts SSVEP-based BCI performance,” *IEEE Trans. Biomed. Eng.*, vol. 69, no. 6, pp. 2018-2028, 2022. DOI: `10.1109/TBME.2021.3133594 <https://doi.org/10.1109/TBME.2021.3133594>`_.
 
   .. todo::
-
-    + `MsetCCA <https://www.worldscientific.com/doi/abs/10.1142/S0129065714500130>`_
+    
     + `MsetCCA-R <https://github.com/edwin465/SSVEP-Multi-set-CCA-With-Ref>`_
     + `TRCA-R <https://github.com/edwin465/SSVEP-TRCA-R>`_
     + SSCOR
