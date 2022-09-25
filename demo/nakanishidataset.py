@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.nakanishidataset import NakanishiDataset
 from SSVEPAnalysisToolbox.utils.nakanishipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA
+from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
@@ -26,7 +26,7 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i/100 for i in range(50,300+50,50)]
+tw_seq = [i/100 for i in range(50,200+50,50)]
 # tw_seq = [tw-dataset.default_t_latency for tw in tw_seq]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
@@ -44,6 +44,7 @@ model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
                    SCCA_canoncorr(weights_filterbank = weights_filterbank),
                    MsetCCA(weights_filterbank = weights_filterbank),
+                   MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
                 #    MSCCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
                 #    TRCA(weights_filterbank = weights_filterbank),
