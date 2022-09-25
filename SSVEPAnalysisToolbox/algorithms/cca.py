@@ -533,7 +533,7 @@ class MsetCCA(BaseModel):
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None,
                  n_component: int = 1):
-        super().__init__(ID = 'OACCA',
+        super().__init__(ID = 'MsetCCA',
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
