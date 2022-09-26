@@ -433,7 +433,7 @@ class ETRCAwithR(BaseModel):
         self.model['U'] = None # Spatial filter of EEG
 
     def __copy__(self):
-        copy_model = TRCAwithR(n_component = self.n_component,
+        copy_model = ETRCAwithR(n_component = None,
                                 n_jobs = self.n_jobs,
                                 weights_filterbank = self.model['weights_filterbank'])
         copy_model.model = deepcopy(self.model)
@@ -445,11 +445,11 @@ class ETRCAwithR(BaseModel):
             Y: Optional[List[int]] = None,
             ref_sig: Optional[List[ndarray]] = None):
         if Y is None:
-            raise ValueError('TRCA with reference signals requires training label')
+            raise ValueError('eTRCA with reference signals requires training label')
         if X is None:
-            raise ValueError('TRCA with reference signals training data')
+            raise ValueError('eTRCA with reference signals training data')
         if ref_sig is None:
-            raise ValueError('TRCA with reference signals requires sine-cosine-based reference signal')
+            raise ValueError('eTRCA with reference signals requires sine-cosine-based reference signal')
 
         template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
                                           # Template shape: (filterbank_num, channel_num, signal_len)
