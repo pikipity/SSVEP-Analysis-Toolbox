@@ -9,12 +9,43 @@ from functools import partial
 from copy import deepcopy
 
 import numpy as np
+import numpy.matlib as npmat
 import scipy.linalg as slin
 import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
-from .utils import gen_template, sort, canoncorr
+from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep
+
+def _trcaR_cal_template_U(X_single_stimulus : ndarray,
+                          I : ndarray,
+                          n_component : int):
+    """
+    Calculate templates and trials' spatial filters in TRCA-R
+    """
+    trial_num, filterbank_num, channel_num, signal_len = X_single_stimulus.shape
+    # prepare center matrix
+    # I = np.eye(signal_len)
+    LL = npmat.repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
+    # calculate spatial filters of each filterbank
+    U_trial = []
+    for filterbank_idx in range(filterbank_num):
+        X_single_stimulus_single_filterbank = X_single_stimulus[:,filterbank_idx,:,:]
+        template = []
+        for trial_idx in range(trial_num):
+            template.append(X_single_stimulus_single_filterbank[trial_idx,:,:])
+        template = np.concatenate(template, axis = 1)
+        # calculate spatial filters of trials
+        Sb = template @ LL @ template.T
+        Sw = template @ template.T
+        eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
+        sort_idx = np.argsort(eig_d1)[::-1]
+        eig_vec = eig_v1[:,sort_idx]
+        if np.iscomplex(eig_vec).any():
+            eig_vec = np.real(eig_vec[:channel_num,:n_component])
+        U_trial.append(np.expand_dims(eig_vec, axis = 0))
+    U_trial = np.concatenate(U_trial, axis = 0)
+    return U_trial
 
 def _trca_U_1(X: list) -> Tuple[ndarray, ndarray]:
     """
@@ -208,6 +239,75 @@ class TRCA(BaseModel):
             U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
+        self.model['U'] = U_trca
+
+    def predict(self,
+            X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+
+        template_sig = self.model['template_sig']
+        U = self.model['U'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+
+        Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
+        
+        return Y_pred 
+
+class TRCAwithR(BaseModel):
+    """
+    TRCA method with reference signals
+    """
+    def __init__(self,
+                 n_component: int = 1,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        super().__init__(ID = 'TRCA-R',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U'] = None # Spatial filter of EEG
+
+    def __copy__(self):
+        copy_model = TRCAwithR(n_component = self.n_component,
+                                n_jobs = self.n_jobs,
+                                weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('TRCA with reference signals requires training label')
+        if X is None:
+            raise ValueError('TRCA with reference signals training data')
+        if ref_sig is None:
+            raise ValueError('TRCA with reference signals requires sine-cosine-based reference signal')
+
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                          # Template shape: (filterbank_num, channel_num, signal_len)
+        self.model['template_sig'] = template_sig
+
+        separated_trainSig = separate_trainSig(X, Y)
+        ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
+
+        U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        U_trca = [np.expand_dims(u, axis=1) for u in U_all_stimuli]
+        U_trca = np.concatenate(U_trca, axis = 1)
         self.model['U'] = U_trca
 
     def predict(self,
