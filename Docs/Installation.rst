@@ -3,7 +3,7 @@ Installation
 
 1. Donwload or clone `this repository <https://github.com/pikipity/SSVEP-Analysis-Toolbox.git>`_.
    
-   ``git clone https://github.com/TBC-TJU/brainda.git``
+   ``git clone https://github.com/pikipity/SSVEP-Analysis-Toolbox.git``
 
 2. Install required packages. You can find all required packages in :file:`environment.yml`. If you use `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ or `Anaconda <https://www.anaconda.com/>`_, you can create a new virtual environment using :file:`environment.yml`.
    
