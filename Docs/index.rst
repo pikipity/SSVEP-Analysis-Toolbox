@@ -77,6 +77,10 @@ Datasets and Algorithms
 
       M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104-112, 2018. DOI: `10.1109/TBME.2017.2694818 <https://doi.org/10.1109/TBME.2017.2694818>`_.
 
+  + Task-related component analysis with reference signals (**TRCA-R**) and Ensemble TRCA with reference signals (**eTRCA-R**): 
+
+      C. M. Wong, B. Wang, Z. Wang, K. F. Lao, A. Rosa, and F. Wan, "Spatial filtering in SSVEP-based BCIs: Unified framework and new improvements.," *IEEE Transactions on Biomedical Engineering*, vol. 67, no. 11, pp. 3057-3072, 2020. DOI: `10.1109/TBME.2020.2975552 <https://ieeexplore.ieee.org/document/9006809/>`_.
+
   + Multi-stimulus TRCA (**ms-TRCA**): 
 
       C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: `10.1088/1741-2552/ab2373 <https://doi.org/10.1088/1741-2552/ab2373>`_.
