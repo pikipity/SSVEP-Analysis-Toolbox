@@ -90,7 +90,6 @@ Datasets and Algorithms
     + `MsetCCA-R <https://github.com/edwin465/SSVEP-Multi-set-CCA-With-Ref>`_
     + `TRCA-R <https://github.com/edwin465/SSVEP-TRCA-R>`_
     + SSCOR
-    + ttCCA
     + itCCA
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
     + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_

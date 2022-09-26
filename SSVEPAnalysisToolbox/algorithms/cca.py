@@ -598,6 +598,84 @@ class MsetCCA(BaseModel):
         
         return Y_pred
 
+class MsetCCAwithR(BaseModel):
+    """
+    Multi-set CCA with reference signals
+    """
+
+    def __init__(self,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None,
+                 n_component: int = 1):
+        super().__init__(ID = 'MsetCCA-R',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U_trial'] = None
+        # self.model['U'] = None
+        # self.model['U_template'] = None
+        self.model['template'] = None
+    
+    def __copy__(self):
+        copy_model = MsetCCAwithR(n_jobs = self.n_jobs,
+                                    weights_filterbank = self.model['weights_filterbank'],
+                                    n_component = self.n_component)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('Multi-set CCA with reference signals requires training label')
+        if X is None:
+            raise ValueError('Multi-set CCA with reference signals training data')
+        if ref_sig is None:
+            raise ValueError('Multi-set CCA with reference signals requires sine-cosine-based reference signal')
+        
+
+        separated_trainSig = separate_trainSig(X, Y)
+        ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
+
+        U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_msetcca_cal_template_U)(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q)))
+
+        self.model['U_trial'] = U_all_stimuli
+        self.model['template'] = template_all_stimuli
+        # generate template related QR
+        template_sig_Q, template_sig_R, template_sig_P = qr_list(template_all_stimuli)
+        self.model['template_sig_Q'] = template_sig_Q # List of shape: (stimulus_num,);
+        self.model['template_sig_R'] = template_sig_R
+        self.model['template_sig_P'] = template_sig_P
+            
+    def predict(self,
+                X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+        
+        template_sig_Q = self.model['template_sig_Q'] 
+        template_sig_R = self.model['template_sig_R'] 
+        template_sig_P = self.model['template_sig_P'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        # self.model['U'] = U
+        # self.model['U_template'] = V
+
+        Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
+        
+        return Y_pred
+
 
 class OACCA(BaseModel):
     """
