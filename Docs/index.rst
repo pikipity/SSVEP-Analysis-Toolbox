@@ -95,7 +95,6 @@ Datasets and Algorithms
 
   .. todo::
     
-    + `TRCA-R <https://github.com/edwin465/SSVEP-TRCA-R>`_
     + SSCOR
     + itCCA
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
