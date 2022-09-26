@@ -69,6 +69,10 @@ Datasets and Algorithms
   
       Y. Zhang, G. Zhou, J. Jin, X. Wang, A. Cichocki, "Frequency recognition in SSVEP-based BCI using multiset canonical correlation analysis," *Int J Neural Syst.*, vol. 24, 2014, p. 1450013. DOI: `10.1142/ S0129065714500130 <https://www.worldscientific.com/doi/abs/10.1142/S0129065714500130>`_.
 
+  + Multi-set CCA with reference signals (**MsetCCA-R**): 
+  
+      C. M. Wong, B. Wang, Z. Wang, K. F. Lao, A. Rosa, and F. Wan, "Spatial filtering in SSVEP-based BCIs: Unified framework and new improvements.," *IEEE Transactions on Biomedical Engineering*, vol. 67, no. 11, pp. 3057-3072, 2020. DOI: `10.1109/TBME.2020.2975552 <https://ieeexplore.ieee.org/document/9006809/>`_.
+
   + Task-related component analysis (**TRCA**) and Ensemble TRCA (**eTRCA**): 
 
       M. Nakanishi, Y. Wang, X. Chen, Y.-T. Wang, X. Gao, and T.-P. Jung, "Enhancing detection of SSVEPs for a high-speed brain speller using task-related component Analysis," *IEEE Trans. Biomed. Eng.*, vol. 65, no. 1, pp. 104-112, 2018. DOI: `10.1109/TBME.2017.2694818 <https://doi.org/10.1109/TBME.2017.2694818>`_.
@@ -87,7 +91,6 @@ Datasets and Algorithms
 
   .. todo::
     
-    + `MsetCCA-R <https://github.com/edwin465/SSVEP-Multi-set-CCA-With-Ref>`_
     + `TRCA-R <https://github.com/edwin465/SSVEP-TRCA-R>`_
     + SSCOR
     + itCCA

@@ -1087,6 +1087,53 @@ where
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
+Multi-set CCA with reference signals (MsetCCA-R)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The MsetCCA-R is an extension of the `MsetCCA <#multi-set-cca-msetcca>`_. It also tries to solve the following eigenvalue problem to find the spatial filters:
+
+.. math:: 
+
+    \left( \mathbf{R}^{\left[Q\right]}_i-\mathbf{S}^{\left[Q\right]}_i \right)\mathbf{w} = \rho\mathbf{S}_i\mathbf{w}.
+
+The key differences are the following two values:
+
+.. math:: 
+
+    \mathbf{R}^{\left[Q\right]}_i = \left[  
+                    \begin{array}{ccc}
+                        \cal{X}_{i,1}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,1}^T & \cdots & \cal{X}_{i,1}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,N_t}^T\\
+                        \vdots & \ddots & \vdots\\
+                        \cal{X}_{i,N_t}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,1}^T & \cdots & \cal{X}_{i,N_t}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,N_t}^T
+                    \end{array}
+                   \right]
+
+and
+
+.. math:: 
+
+    \mathbf{S}^{\left[Q\right]}_i = \left[  
+                    \begin{array}{ccc}
+                        \cal{X}_{i,1}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,1}^T & \cdots & 0\\
+                        \vdots & \ddots & \vdots\\
+                        0 & \cdots & \cal{X}_{i,N_t}\mathbf{Q}_i^T\mathbf{Q}_i\cal{X}_{i,N_t}^T
+                    \end{array}
+                   \right]
+
+where :math:`\mathbf{Q}_i` is the QR decomposition of the :math:`i\text{-th}` stimulus reference signal:
+
+.. math::
+
+    \mathbf{Q}_i\mathbf{R}_i = \mathbf{Y}_i
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MsetCCAwithR
+
+    Multi-set CCA with reference signals. The implementation directly follows above equations.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
 Task-related component analysis (TRCA) and ensemble TRCA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
