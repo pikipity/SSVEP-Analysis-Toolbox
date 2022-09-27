@@ -24,7 +24,7 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i/100 for i in range(20,150+5,10)]
+tw_seq = [i/100 for i in range(50,150+10,10)]
 trial_container = gen_trials_onedataset_individual_online(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -66,7 +66,7 @@ confusion_matrix = cal_confusionmatrix_onedataset_individual_online(evaluator = 
 # Save results
 data = {"acc_store": acc_store,
         "itr_store": itr_store,
-        "confusion_matrix": confusion_matrix,
+        # "confusion_matrix": confusion_matrix,
         "tw_seq":tw_seq,
         "method_ID": [model.ID for model in model_container]}
 data_file = 'res/benchmarkdataset_res_online.npy'
