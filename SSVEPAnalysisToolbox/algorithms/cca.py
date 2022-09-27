@@ -42,6 +42,8 @@ def _msetcca_cal_template_U(X_single_stimulus : ndarray,
         eig_vec = eig_v1[:,sort_idx]
         if np.iscomplex(eig_vec).any():
             eig_vec = np.real(eig_vec[:,:n_component])
+        else:
+            eig_vec = eig_vec[:,:n_component]
         U_trial.append(np.expand_dims(eig_vec, axis = 0))
         # calculate template
         template = []
