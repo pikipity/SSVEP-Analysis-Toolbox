@@ -415,6 +415,80 @@ class ETRCA(BaseModel):
         
         return Y_pred 
 
+class ETRCAwithR(BaseModel):
+    """
+    eTRCA method with reference signals
+    """
+    def __init__(self,
+                 n_component: Optional[int] = None,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        if n_component is not None:
+            warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA")
+        n_component = 1
+        super().__init__(ID = 'eTRCA-R',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U'] = None # Spatial filter of EEG
+
+    def __copy__(self):
+        copy_model = ETRCAwithR(n_component = None,
+                                n_jobs = self.n_jobs,
+                                weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('eTRCA with reference signals requires training label')
+        if X is None:
+            raise ValueError('eTRCA with reference signals training data')
+        if ref_sig is None:
+            raise ValueError('eTRCA with reference signals requires sine-cosine-based reference signal')
+
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                          # Template shape: (filterbank_num, channel_num, signal_len)
+        self.model['template_sig'] = template_sig
+
+        separated_trainSig = separate_trainSig(X, Y)
+        ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
+
+        U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        U_trca = [u for u in U_all_stimuli]
+        U_trca = np.concatenate(U_trca, axis = 2)
+        U_trca = np.expand_dims(U_trca, axis = 1)
+        U_trca = np.repeat(U_trca, repeats = len(U_all_stimuli), axis = 1)
+        self.model['U'] = U_trca
+
+    def predict(self,
+            X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+
+        template_sig = self.model['template_sig']
+        U = self.model['U'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+
+        Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
+        
+        return Y_pred 
+
 class MSETRCA(BaseModel):
     """
     ms-eTRCA method

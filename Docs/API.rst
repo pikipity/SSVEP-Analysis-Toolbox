@@ -1090,6 +1090,10 @@ where
 Multi-set CCA with reference signals (MsetCCA-R)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Related paper:
+
++ C. M. Wong, B. Wang, Z. Wang, K. F. Lao, A. Rosa, and F. Wan, "Spatial filtering in SSVEP-based BCIs: Unified framework and new improvements.," *IEEE Transactions on Biomedical Engineering*, vol. 67, no. 11, pp. 3057-3072, 2020. DOI: `10.1109/TBME.2020.2975552 <https://ieeexplore.ieee.org/document/9006809/>`_.
+
 The MsetCCA-R is an extension of the `MsetCCA <#multi-set-cca-msetcca>`_. It also tries to solve the following eigenvalue problem to find the spatial filters:
 
 .. math:: 
@@ -1134,8 +1138,8 @@ where :math:`\mathbf{Q}_i` is the QR decomposition of the :math:`i\text{-th}` st
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
-Task-related component analysis (TRCA) and ensemble TRCA
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Task-related component analysis (TRCA) and ensemble TRCA (eTRCA)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Related paper:
 
@@ -1170,6 +1174,41 @@ The target stimulus can be predicted by
     eTRCA. The spatial computation is same as the TRCA. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
 
     :param n_component: This parameter will not be considered in the eTRCA. 
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+TRCA with reference signals (TRCA-R) and eTRCA with reference signals (eTRCA-R)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ C. M. Wong, B. Wang, Z. Wang, K. F. Lao, A. Rosa, and F. Wan, "Spatial filtering in SSVEP-based BCIs: Unified framework and new improvements.," *IEEE Transactions on Biomedical Engineering*, vol. 67, no. 11, pp. 3057-3072, 2020. DOI: `10.1109/TBME.2020.2975552 <https://ieeexplore.ieee.org/document/9006809/>`_.
+
+The TRCA-R and the eTRCA-R are extensions of `the TRCA and the eTRCA <#task-related-component-analysis-trca-and-ensemble-trca-etrca>`_ respectively. They try to find the spatial filters by solving 
+
+.. math::
+
+    \left( \sum_{j,k=1,\; j\neq k}^{N_t} \mathbf{X}_i^{(j)}\mathbf{Q}_i^T\mathbf{Q}_i\left(\mathbf{X}_i^{(k)}\right)^T \right)\mathbf{U}_i = \left( \sum_{j=1}^{N_t} \mathbf{X}_i^{(j)}\left(\mathbf{X}_i^{(j)}\right)^T \right) \mathbf{U}_i\mathbf{\Lambda}_i
+
+where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training EEG signals of :math:`i\text{-th}` stimulus, and :math:`\mathbf{Q}_i` is obtained from the QR decomposition of the reference signals following `the MsetCCA-R <#multi-set-cca-with-reference-signals-msetcca-r>`_.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.TRCAwithR
+
+    TRCA-R. The implementation directly follows above equations.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ETRCAwithR
+
+    eTRCA-R. The spatial computation is same as the TRCA-R. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
+
+    :param n_component: This parameter will not be considered in the eTRCA-R. 
 
     :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
 

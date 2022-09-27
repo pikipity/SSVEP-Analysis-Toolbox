@@ -4,8 +4,8 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.betadataset import BETADataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA
+from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
+from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
@@ -42,10 +42,14 @@ weights_filterbank = suggested_weights_filterbank()
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
                    SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                   MsetCCA(weights_filterbank = weights_filterbank),
+                   MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
                    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
                    TRCA(weights_filterbank = weights_filterbank),
+                   TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
+                   ETRCAwithR(weights_filterbank = weights_filterbank),
                    MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
                    MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
                    TDCA(n_component = 9, weights_filterbank = weights_filterbank, n_delay = 4)
