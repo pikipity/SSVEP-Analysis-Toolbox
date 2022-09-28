@@ -47,6 +47,7 @@ Datasets and Algorithms
   .. todo::
 
     + `eldBETA <http://bci.med.tsinghua.edu.cn/download.html>`_
+    + `BMI dataset <https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giz002/5304369>`_
     + `Wearable SSVEP BCI Dataset <http://bci.med.tsinghua.edu.cn/download.html>`_
     + `160 Targets SSVEP BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/ac0bfa>`_
     + `Dual Frequency and Phase Modulation SSVEP-BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/abaa9b/meta>`_
