@@ -997,6 +997,91 @@ class SCCA_qr(BaseModel):
         
         return Y_pred
     
+class ITCCA(BaseModel):
+    """
+    itCCA
+    """
+    def __init__(self,
+                 n_component: int = 1,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None,
+                 force_output_UV: bool = False,
+                 update_UV: bool = True):
+        super().__init__(ID = 'itCCA',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.force_output_UV = force_output_UV
+        self.update_UV = update_UV
+
+        self.model['U'] = None
+        self.model['V'] = None
+        
+    def __copy__(self):
+        copy_model = ECCA(n_component = self.n_component,
+                            n_jobs = self.n_jobs,
+                            weights_filterbank = self.model['weights_filterbank'],
+                            force_output_UV = self.force_output_UV,
+                            update_UV = self.update_UV)
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('itCCA requires training label')
+        if X is None:
+            raise ValueError('itCCA requires training data')
+        
+        # generate template related QR
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                           # Template shape: (filterbank_num, channel_num, signal_len)
+        template_sig_Q, template_sig_R, template_sig_P = qr_list(template_sig)
+        self.model['template_sig_Q'] = template_sig_Q # List of shape: (stimulus_num,);
+        self.model['template_sig_R'] = template_sig_R
+        self.model['template_sig_P'] = template_sig_P
+
+    def predict(self,
+                X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+            
+        n_component = self.n_component
+        Y_Q = self.model['template_sig_Q']
+        Y_R = self.model['template_sig_R']
+        Y_P = self.model['template_sig_P']
+        force_output_UV = self.force_output_UV
+        update_UV = self.update_UV
+        
+        if update_UV or self.model['U'] is None or self.model['V'] is None:
+            if force_output_UV or not update_UV:
+                r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                self.model['U'] = U
+                self.model['V'] = V
+            else:
+                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
+        else:
+            U = self.model['U']
+            V = self.model['V']
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+        
+        Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
+        
+        return Y_pred
+
     
     
 class ECCA(BaseModel):
@@ -1146,6 +1231,8 @@ class ECCA(BaseModel):
                                                         np.sign(r4_single) * np.square(r4_single)))) for r1_single, r2_single, r3_single, r4_single in zip(r1, r2, r3, r4)]
         
         return Y_pred
+
+
 
 class MSCCA(BaseModel):
     """
