@@ -57,7 +57,7 @@ Datasets and Algorithms
   
       X. Chen, Y. Wang, S. Gao, T.-P. Jung, and X. Gao, , "Filter bank canonical correlation analysis for implementing a high-speed SSVEP-based brain-computer interface," *J. Neural Eng.*, vol. 12, no. 4, p. 046008, 2015. DOI: `10.1088/1741-2560/12/4/046008 <https://doi.org/10.1088/1741-2560/12/4/046008>`_.
 
-  + Extended CCA (**eCCA**): 
+  + Individual template CCA (**itCCA**) and Extended CCA (**eCCA**): 
   
       X. Chen, Y. Wang, M. Nakanishi, X. Gao, T.-P. Jung, and S. Gao, "High-speed spelling with a noninvasive brain-computer interface," *Proc. Natl. Acad. Sci.*, vol. 112, no. 44, pp. E6058-E6067, 2015. DOI: `10.1073/pnas.1508080112 <https://doi.org/10.1073/pnas.1508080112>`_.
 
@@ -96,7 +96,6 @@ Datasets and Algorithms
   .. todo::
     
     + SSCOR
-    + itCCA
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
     + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_
 

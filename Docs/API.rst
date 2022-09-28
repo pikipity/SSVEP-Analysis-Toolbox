@@ -924,14 +924,22 @@ where :math:`I` denotes the total number of stimuli.
 
     Although the FBCCA is a training-free method, these models still need run `"fit" function <#fit>`_ to store reference signals in the model.
 
-Extended CCA
-^^^^^^^^^^^^^
+Individual template CCA (itCCA) and extended CCA (eCCA)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Related paper:
 
     + X. Chen, Y. Wang, M. Nakanishi, X. Gao, T.-P. Jung, and S. Gao, "High-speed spelling with a noninvasive brain-computer interface," *Proc. Natl. Acad. Sci.*, vol. 112, no. 44, pp. E6058-E6067, 2015. DOI: `10.1073/pnas.1508080112 <https://doi.org/10.1073/pnas.1508080112>`_.
 
-The extended CCA (eCCA) not only applies the sine-cosine-based reference signals but also uses the averaged template signals. Three types of spatial filters are computed:
+The itCCA is similar as the sCCA, but it uses the averaged template signals to compute the spatial filters. The corresponding correlation coefficient is 
+
+.. math::
+
+    r = \max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}}
+
+where :math:`\overline{\mathbf{X}}_i` denotes the averaged template signal of the :math:`i\text{-th}` stimulus. 
+
+The eCCA not only applies the sine-cosine-based reference signals but also uses the averaged template signals. Three types of spatial filters are computed:
 
 .. math::
 
@@ -939,13 +947,11 @@ The extended CCA (eCCA) not only applies the sine-cosine-based reference signals
 
 .. math::
 
-    \mathbf{U}_{2,i}, \mathbf{V}_{2,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\overline{\mathbf{X}}_i\mathbf{Y}_i^T\mathbf{v}}}
+    \mathbf{U}_{2,i}, \mathbf{V}_{2,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\mathbf{X}\mathbf{X}^T\mathbf{u}\mathbf{v}^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{v}}}
 
 .. math::
 
     \mathbf{U}_{3,i}, \mathbf{V}_{3,i} = \arg\max_{\mathbf{u},\mathbf{v}}\frac{\mathbf{u}^T\overline{\mathbf{X}}_i\mathbf{Y}_i^T\mathbf{v}}{\sqrt{\mathbf{u}^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{u}\mathbf{v}^T\mathbf{Y}_i\mathbf{Y}_i^T\mathbf{v}}}
-
-where :math:`\overline{\mathbf{X}}_i` denotes the averaged template signal of the :math:`i\text{-th}` stimulus. 
 
 Four types of corresponding correlation coefficients can be computed:
 
@@ -973,9 +979,23 @@ The target stimulus is predicted by combining four correlation coefficients toge
 
 where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://en.wikipedia.org/wiki/Sign_function>`_.
 
+.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.ITCCA
+
+    ITCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+    :param force_output_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be stored. Otherwise, they will not be stored. Default is ``False``.
+
+    :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
+
 .. py:function:: SSVEPAnalysisToolbox.algorithms.cca.ECCA
 
-    The eCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
+    eCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
 
     :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
 

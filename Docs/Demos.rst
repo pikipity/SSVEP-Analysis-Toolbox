@@ -1,6 +1,22 @@
 Demo Codes
 ==========================
 
+Simple Demo
+^^^^^^^^^^^^^^^
+
+This demo shows the basic functions of this toolbox, including:
+
++ How to initialize a dataset, and hook preprocessing functions.
++ How to initialize a recognition model.
++ How to get the training data from the dataset, and train the model.
++ How to get the testing data from the dataset, and test the model.
++ How to calculate the classification accuracy and the ITR.
+
+Demo file: :file:`demo/simple_example.py`
+
+.. literalinclude:: ../demo/simple_example.py
+    :language: python
+
 Recognition Performance in Benchmark Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
