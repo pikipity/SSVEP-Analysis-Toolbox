@@ -96,7 +96,7 @@ Datasets and Algorithms
 
   .. todo::
     
-    + SSCOR
+    + `SSCOR <https://doi.org/10.1109/TNSRE.2019.2941349>`_
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
     + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_
 
