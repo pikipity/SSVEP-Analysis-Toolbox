@@ -3,7 +3,7 @@ TRCA based recognition methods
 """
 
 from typing import Union, Optional, Dict, List, Tuple, Callable
-from numpy import iscomplex, ndarray
+from numpy import ndarray
 from joblib import Parallel, delayed
 from functools import partial
 from copy import deepcopy
