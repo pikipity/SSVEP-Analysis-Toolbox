@@ -5,7 +5,7 @@ sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR, ITCCA
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR
+from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
 
@@ -18,7 +18,7 @@ dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank()
-recog_model = ITCCA(n_jobs = 10,
+recog_model = SSCOR(n_jobs = 10,
                     weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
