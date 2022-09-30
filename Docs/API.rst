@@ -852,15 +852,15 @@ All following recognition models have these functions. The inputs and outputs ar
 
 .. py:function:: fit
 
-    Train the recognition model. The trained model parameters will be stored in the class parameter `model`.
-
-    :param freqs: List of stimulus frequencies. 
+    Train the recognition model. The trained model parameters will be stored in the class parameter `model`. Different methods require different input parameters. You may follow the below parameter names to define your own fit function. 
 
     :param X: List of training EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
 
     :param Y: List of training labels. Each element is one single trial label that is an integer number.
 
     :param ref_sig: List of reference signals. Each element is the reference signal of one stimulus. 
+
+    :param freqs: List of stimulus frequencies. 
 
 .. py:function:: predict
 

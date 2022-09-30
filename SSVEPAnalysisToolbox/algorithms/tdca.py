@@ -181,10 +181,25 @@ class TDCA(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            ref_sig: Optional[List[ndarray]] = None,
+            *argv, **kwargv):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        ref_sig : Optional[List[ndarray]], optional
+            Sine-cosine-based reference signals. The default is None.
+            List of shape: (stimulus_num,)
+            Reference signal shape: (harmonic_num, signal_len)
+        """
         if Y is None:
             raise ValueError('TDCA requires training label')
         if X is None:
