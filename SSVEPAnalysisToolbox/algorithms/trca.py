@@ -10,12 +10,52 @@ from copy import deepcopy
 
 import numpy as np
 import numpy.matlib as npmat
+import numpy.linalg as nplin
 import scipy.linalg as slin
 import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
 from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep
+
+def _sscor_cal_U(X_single_stimulus : ndarray,
+                 n_component : int):
+    """
+    Calculate spatial filters in SSCOR
+    """
+    trial_num, filterbank_num, channel_num, signal_len = X_single_stimulus.shape
+
+    U_sscor = []
+    for filterbank_idx in range(filterbank_num):
+        xx = np.mean(X_single_stimulus[:,filterbank_idx,:,:], axis = 0)
+        Cxx = xx @ xx.T
+        Kxx = nplin.cholesky(Cxx).T
+        Kxx_inverse = nplin.inv(Kxx)
+
+        Gtotal = None
+        for trial_idx in range(trial_num):
+            xi = X_single_stimulus[trial_idx,filterbank_idx,:,:]
+            C0i = xx @ xi.T
+            Cii = xi @ xi.T
+            Ki = nplin.cholesky(Cii).T
+            Ki_inverse = nplin.inv(Ki)
+            g_tmp = Kxx_inverse.T @ C0i @ Ki_inverse
+            if Gtotal is None:
+                Gtotal = (g_tmp @ g_tmp.T) / 2
+            else:
+                Gtotal = Gtotal + (g_tmp @ g_tmp.T) / 2
+        eig_d1, eig_v1 = slin.eig(Gtotal)
+        sort_idx = np.argsort(eig_d1)[::-1]
+        eig_vec = eig_v1[:,sort_idx]
+        eig_vec = Kxx_inverse @ eig_vec
+        if np.iscomplex(eig_vec).any():
+            eig_vec = np.real(eig_vec)
+        eig_vec = eig_vec[:channel_num, :n_component]
+        U_sscor.append(np.expand_dims(eig_vec, axis = 0))
+    U_sscor = np.concatenate(U_sscor, axis = 0)
+
+    return np.expand_dims(U_sscor, axis = 1)
+
 
 def _trcaR_cal_template_U(X_single_stimulus : ndarray,
                           I : ndarray,
@@ -806,3 +846,141 @@ class MSCCA_and_MSETRCA(BaseModel):
         Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
                                                         np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
         return Y_pred
+
+class SSCOR(BaseModel):
+    """
+    SSCOR
+    """
+    def __init__(self,
+                 n_component: int = 1,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        super().__init__(ID = 'SSCOR',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U'] = None # Spatial filter of EEG
+    
+    def __copy__(self):
+        copy_model = SSCOR(n_component = self.n_component,
+                          n_jobs = self.n_jobs,
+                          weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('SSCOR requires training label')
+        if X is None:
+            raise ValueError('SSCOR requires training data')
+           
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                          # Template shape: (filterbank_num, channel_num, signal_len)
+        self.model['template_sig'] = template_sig
+
+        separated_trainSig = separate_trainSig(X, Y)
+
+        U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component=self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        U_allstimuli = np.concatenate(U_allstimuli, axis = 1)
+
+        self.model['U'] = U_allstimuli
+
+    def predict(self,
+            X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+
+        template_sig = self.model['template_sig']
+        U = self.model['U'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+
+        Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
+        
+        return Y_pred 
+
+class ESSCOR(BaseModel):
+    """
+    eSSCOR
+    """
+    def __init__(self,
+                 n_component: Optional[int] = None,
+                 n_jobs: Optional[int] = None,
+                 weights_filterbank: Optional[List[float]] = None):
+        if n_component is not None:
+            warnings.warn("Although 'n_component' is provided, it will not considered in eSSCOR")
+        n_component = 1
+        super().__init__(ID = 'eSSCOR',
+                         n_component = n_component,
+                         n_jobs = n_jobs,
+                         weights_filterbank = weights_filterbank)
+        self.model['U'] = None # Spatial filter of EEG
+    
+    def __copy__(self):
+        copy_model = ESSCOR(n_component = None,
+                            n_jobs = self.n_jobs,
+                            weights_filterbank = self.model['weights_filterbank'])
+        copy_model.model = deepcopy(self.model)
+        return copy_model
+
+    def fit(self,
+            freqs: Optional[List[float]] = None,
+            X: Optional[List[ndarray]] = None,
+            Y: Optional[List[int]] = None,
+            ref_sig: Optional[List[ndarray]] = None):
+        if Y is None:
+            raise ValueError('SSCOR requires training label')
+        if X is None:
+            raise ValueError('SSCOR requires training data')
+           
+        template_sig = gen_template(X, Y) # List of shape: (stimulus_num,); 
+                                          # Template shape: (filterbank_num, channel_num, signal_len)
+        self.model['template_sig'] = template_sig
+
+        separated_trainSig = separate_trainSig(X, Y)
+
+        stimulus_num = len(template_sig)
+        U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component = self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        U_allstimuli = np.concatenate(U_allstimuli, axis = 1)
+        U_allstimuli = np.transpose(U_allstimuli, [0,3,2,1])
+        U_allstimuli = np.repeat(U_allstimuli, repeats = stimulus_num, axis = 1)
+
+        self.model['U'] = U_allstimuli
+
+    def predict(self,
+            X: List[ndarray]) -> List[int]:
+        weights_filterbank = self.model['weights_filterbank']
+        if weights_filterbank is None:
+            weights_filterbank = [1 for _ in range(X[0].shape[0])]
+        if type(weights_filterbank) is list:
+            weights_filterbank = np.expand_dims(np.array(weights_filterbank),1).T
+        else:
+            if len(weights_filterbank.shape) != 2:
+                raise ValueError("'weights_filterbank' has wrong shape")
+            if weights_filterbank.shape[0] != 1:
+                weights_filterbank = weights_filterbank.T
+        if weights_filterbank.shape[0] != 1:
+            raise ValueError("'weights_filterbank' has wrong shape")
+
+        template_sig = self.model['template_sig']
+        U = self.model['U'] 
+
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+
+        Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
+        
+        return Y_pred 

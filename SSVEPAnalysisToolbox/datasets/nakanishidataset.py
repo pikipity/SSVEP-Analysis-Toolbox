@@ -56,7 +56,7 @@ class NakanishiDataset(BaseDataset):
         1.5, 1.5, 1.5
     ]
 
-    _SUBJECTS = [SubInfo(ID = 'S{:d}'.format(sub_idx)) for sub_idx in range(1,10+1,1)]
+    _SUBJECTS = [SubInfo(ID = 's{:d}'.format(sub_idx)) for sub_idx in range(1,10+1,1)]
 
     def __init__(self, 
                  path: Optional[str] = None,

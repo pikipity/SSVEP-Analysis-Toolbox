@@ -1234,6 +1234,74 @@ where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training 
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
+Sum of squared correlations (SSCOR) and Ensemble sum of squared correlations (eSSCOR)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Related paper:
+
++ G. K. Kumar, and M. R. Reddy, "Designing a sum of squared correlations framework for enhancing SSVEP-based BCIs," *IEEE Transactions on Neural Systems and Rehabilitation Engineering*, vol. 27, no. 10, pp. 2044-2050, 2019. DOI: `10.1109/TNSRE.2019.2941349 <https://doi.org/10.1109/TNSRE.2019.2941349>`_.
+
+The key idea of the SSCOR is similar as the TRCA. The SSCOR also finds the common spatial filter across trials, but it assumes the spatial filters of differet trials are different. The SSCOR computes the common spatial filter :math:`\mathbf{U}_i` and the spatial filter :math:`\mathbf{U}_i^{(j)}` of the :math:`j\text{-th}` trial for the :math:`i\text{-th}` stimulus by solving
+
+.. math:: 
+
+    \max_{\mathbf{U}_i\text{ and }\mathbf{U}_i^{(j)}}\sum_{j=1}^{N_t}\left( \mathbf{U}_i^T\overline{\mathbf{X}}_i\left(\mathbf{X}_i^{(j)}\right)^T\mathbf{U}_i^{(j)} \right)^2
+
+.. math:: 
+
+    \text{subject to} \left\{ 
+                        \begin{array}{l} 
+                            \mathbf{U}_i^T\overline{\mathbf{X}}_i\left( \overline{\mathbf{X}}_i \right)^T\mathbf{U}_i=\mathbf{I}\\
+                            \left(\mathbf{U}_i^{(j)}\right)^T\mathbf{X}_i^{(j)}\left(\mathbf{X}_i^{(j)}\right)^T\mathbf{U}_i^{(j)}=\mathbf{I}\;\;\forall j\in\left\{ 1,\cdots,N_t \right\}
+                        \end{array}
+                       \right.
+
+Based on the `Cholesky decomposition <https://en.wikipedia.org/wiki/Cholesky_decomposition>`_, we have
+
+.. math:: 
+
+    \mathbf{C}_i^{\overline{\mathbf{X}}} = \left(\mathbf{K}_i^{\overline{\mathbf{X}}}\right)^T\mathbf{K}_i^{\overline{\mathbf{X}}} \text{ where } \mathbf{C}_i^{\overline{\mathbf{X}}} = \overline{\mathbf{X}}_i\left( \overline{\mathbf{X}}_i \right)^T
+
+.. math:: 
+
+    \mathbf{C}_{i,j}^{\mathbf{X}} = \left(\mathbf{K}_{i,j}^{\mathbf{X}}\right)^T\mathbf{K}_{i,j}^{\mathbf{X}} \text{ where } \mathbf{C}_{i,j}^{\mathbf{X}} = \mathbf{X}_i^{(j)}\left( \mathbf{X}_i^{(j)} \right)^T
+
+Let's define :math:`\mathbf{U}_i = \left(\mathbf{K}_i^{\overline{\mathbf{X}}}\right)^{-1}\mathbf{V}_i`, :math:`\mathbf{U}_i^{(j)} = \left( \mathbf{K}_{i,j}^{\mathbf{X}} \right)^{-1}\mathbf{V}_i^{(j)}`, :math:`\mathbf{G}_i^{(j)}=\left(\mathbf{K}_i^{\overline{\mathbf{X}}}\right)^{-T}\mathbf{C}_{i,j}^{\overline{\mathbf{X}}}\left(\mathbf{K}_{i,j}^{\mathbf{X}}\right)^{-1}`, and :math:`\mathbf{C}_{i,j}^{\overline{\mathbf{X}}} = \overline{\mathbf{X}}_i\left( \mathbf{X}_i^{(j)} \right)^T`, we get
+
+.. math:: 
+
+    \max_{\mathbf{V}_i} \sum_{j=1}^{N_t}\mathbf{V}_i^T\mathbf{G}_i^{(j)}\left(\mathbf{G}_i^{(j)}\right)^T\mathbf{V}_i
+
+.. math:: 
+
+    \text{subject to } \mathbf{V}_i^T\mathbf{V}_i=\mathbf{I}
+
+:math:`\mathbf{V}_i` can be calculated by solving
+
+.. math:: 
+
+    \left( \sum_{j=1}^{N_t}\mathbf{G}_i^{(j)}\left(\mathbf{G}_i^{(j)}\right)^T \right)\mathbf{V}_i = \mathbf{V}_i\mathbf{\Lambda}_i
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.SSCOR
+
+    SSCOR. The implementation directly follows above equations.
+
+    :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
+.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ESSCOR
+
+    eSSCOR. The spatial computation is same as the SSCOR. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
+
+    :param n_component: This parameter will not be considered in the eTRCA. 
+
+    :param n_jobs: Number of threadings. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. 
+
+    :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
+
 Multi-stimulus TRCA
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1348,7 +1416,7 @@ Finally, the target stimulus can be predicted by
 
     :param n_delay: Total number of delays. Default is ``0``, which means no delay.
 
-Oneline adaptive CCA
+Online adaptive CCA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Related paper:
