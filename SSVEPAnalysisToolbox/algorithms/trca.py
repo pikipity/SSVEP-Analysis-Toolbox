@@ -253,10 +253,20 @@ class TRCA(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        """
         if Y is None:
             raise ValueError('TRCA requires training label')
         if X is None:
@@ -329,10 +339,25 @@ class TRCAwithR(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            ref_sig: Optional[List[ndarray]] = None,
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        ref_sig : Optional[List[ndarray]], optional
+            Sine-cosine-based reference signals. The default is None.
+            List of shape: (stimulus_num,)
+            Reference signal shape: (harmonic_num, signal_len)
+        """
         if Y is None:
             raise ValueError('TRCA with reference signals requires training label')
         if X is None:
@@ -401,10 +426,20 @@ class ETRCA(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        """
         if Y is None:
             raise ValueError('eTRCA requires training label')
         if X is None:
@@ -482,10 +517,25 @@ class ETRCAwithR(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            ref_sig: Optional[List[ndarray]] = None,
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        ref_sig : Optional[List[ndarray]], optional
+            Sine-cosine-based reference signals. The default is None.
+            List of shape: (stimulus_num,)
+            Reference signal shape: (harmonic_num, signal_len)
+        """
         if Y is None:
             raise ValueError('eTRCA with reference signals requires training label')
         if X is None:
@@ -559,10 +609,24 @@ class MSETRCA(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            freqs: Optional[List[float]] = None,
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        freqs : Optional[List[float]], optional
+            List of stimulus frequencies. The default is None.
+            List shape: (trial_num,)
+        """
         if freqs is None:
             raise ValueError('ms-eTRCA requires the list of stimulus frequencies')
         if Y is None:
@@ -685,7 +749,26 @@ class MSCCA_and_MSETRCA(BaseModel):
             freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            ref_sig: Optional[List[ndarray]] = None,
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        ref_sig : Optional[List[ndarray]], optional
+            Sine-cosine-based reference signals. The default is None.
+            List of shape: (stimulus_num,)
+            Reference signal shape: (harmonic_num, signal_len)
+        freqs : Optional[List[float]], optional
+            List of stimulus frequencies. The default is None.
+            List shape: (trial_num,)
+        """
         if freqs is None:
             raise ValueError('ms-CCA+ms-eTRCA requires the list of stimulus frequencies')
         if ref_sig is None:
@@ -869,10 +952,20 @@ class SSCOR(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        """
         if Y is None:
             raise ValueError('SSCOR requires training label')
         if X is None:
@@ -938,10 +1031,20 @@ class ESSCOR(BaseModel):
         return copy_model
 
     def fit(self,
-            freqs: Optional[List[float]] = None,
             X: Optional[List[ndarray]] = None,
             Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+            *argv, **kwargs):
+        """
+        Parameters
+        -------------
+        X : Optional[List[ndarray]], optional
+            List of training EEG data. The default is None.
+            List shape: (trial_num,)
+            EEG shape: (filterbank_num, channel_num, signal_len)
+        Y : Optional[List[int]], optional
+            List of labels (stimulus indices). The default is None.
+            List shape: (trial_num,)
+        """
         if Y is None:
             raise ValueError('SSCOR requires training label')
         if X is None:

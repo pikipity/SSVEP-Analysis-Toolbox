@@ -43,30 +43,11 @@ class BaseModel(metaclass=abc.ABCMeta):
         self.model['weights_filterbank'] = weights_filterbank
         
     @abc.abstractclassmethod
-    def fit(self,
-            freqs: Optional[List[float]] = None,
-            X: Optional[List[ndarray]] = None,
-            Y: Optional[List[int]] = None,
-            ref_sig: Optional[List[ndarray]] = None):
+    def fit(self, *argv, **kwargs):
         """
         Training function
 
-        Parameters
-        ----------
-        freqs : Optional[List[float]], optional
-            List of stimulus frequencies. The default is None.
-            List shape: (trial_num,)
-        X : Optional[List[ndarray]], optional
-            List of training EEG data. The default is None.
-            List shape: (trial_num,)
-            EEG shape: (filterbank_num, channel_num, signal_len)
-        Y : Optional[List[int]], optional
-            List of labels (stimulus indices). The default is None.
-            List shape: (trial_num,)
-        ref_sig : Optional[List[ndarray]], optional
-            Sine-cosine-based reference signals. The default is None.
-            List of shape: (stimulus_num,)
-            Reference signal shape: (harmonic_num, signal_len)
+        Different methods may require different parameters.
 
         Spatial filters and other parameters will be stored in self.model
         """
