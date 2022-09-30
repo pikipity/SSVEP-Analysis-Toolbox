@@ -40,36 +40,6 @@ Demo file: :file:`demo/benchmarkdataset.py`
 .. literalinclude:: ../demo/benchmarkdataset.py
     :language: python
 
-Recognition Performance in BETA Dataset
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This demo is almost same as the above demo. The only difference is that this demo uses the BETA Dataset. Results are stored in :file:`res/betadataset_res.mat`.
-
-Demo file: :file:`demo/betadataset.py`
-
-.. literalinclude:: ../demo/betadataset.py
-    :language: python
-
-Recognition Performance in Nakanishi2015 Dataset
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This demo is almost same as the above demo. The only difference is that this demo uses the Nakanishi2015 Dataset. Results are stored in :file:`res/nakanishidataset_res.mat`.
-
-Demo file: :file:`demo/nakanishidataset.py`
-
-.. literalinclude:: ../demo/nakanishidataset.py
-    :language: python
-
-Recognition Performance of Online Adaptive Method (OACCA) in Benchmark Dataset
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This demo is also similar as the first demo. The key differences are how to evaluation trials and how to calculate performance. If you want to define your own functions of generating evaluation trials and calculating related performance, you may refer this demo.
-
-Demo file: :file:`demo/benchmarkdataset_online.py`
-
-.. literalinclude:: ../demo/benchmarkdataset_online.py
-    :language: python
-
 Plot Recognition Performance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -85,51 +55,11 @@ Demo file: :file:`demo/plot_performance.py`
 .. literalinclude:: ../demo/plot_performance.py
     :language: python
 
-Generated graphs are stored in :file:`demo/res`. Parts of graphs are shown below.
+Generated graphs are stored in :file:`demo/res`. One example of results is shown below.
 
 + Classification accuracies of the Benchmark Dataset:
 
   .. image:: ../demo/res/benchmark_acc_bar.jpg
-
-  .. image:: ../demo/res/benchmark_acc_shadowline.jpg
-
-+ Classification accuracies of the BETA Dataset:
-
-  .. image:: ../demo/res/beta_acc_bar.jpg
-
-  .. image:: ../demo/res/beta_acc_shadowline.jpg
-
-+ Classification accuracies of the Nakanishi2015 Dataset:
-
-  .. image:: ../demo/res/nakanishi_acc_bar.jpg
-
-  .. image:: ../demo/res/nakanishi_acc_shadowline.jpg
-
-+ Testing time of the Benchmark Dataset:
-
-  .. image:: ../demo/res/benchmark_testtime_bar.jpg
-
-+ Testing time of the BETA Dataset:
-
-  .. image:: ../demo/res/beta_testtime_bar.jpg
-
-+ Testing time of the Nakanishi2015 Dataset:
-
-  .. image:: ../demo/res/nakanishi_testtime_bar.jpg
-
-Plot Recognition Performance of Online Adaptive Method (OACCA)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This demo is similar as the above demo. The key difference is that this demo shows the performance changes along trials.
-
-Demo file: :file:`demo/plot_performance_online.py`
-
-.. literalinclude:: ../demo/plot_performance_online.py
-    :language: python
-
-+ Classification accuracies of the Benchmark Dataset:
-
-  .. image:: ../demo/res/benchmark_OACCA_acc_shadowline.jpg
 
 Plot Confusion Matrices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -144,20 +74,8 @@ Demo file: :file:`demo/plot_confusion_matrix.py`
 .. literalinclude:: ../demo/plot_confusion_matrix.py
     :language: python
 
-Generated graphs are stored in :file:`demo/res/benchmarkdataset_confusionmatrix` and :file:`demo/res/beta_confusionmatrix`. Parts of graphs are shown below.
+Generated graphs are stored in :file:`demo/res/benchmarkdataset_confusionmatrix` and :file:`demo/res/beta_confusionmatrix`. One example of results is shown below.
 
 + eCCA (0.5s) in Benchmark Dataset
 
   .. image:: ../demo/res/benchmarkdataset_confusionmatrix/eCCA_T0.5.jpg
-
-+ eCCA (0.5s) in BETA Dataset
-
-  .. image:: ../demo/res/beta_confusionmatrix/eCCA_T0.5.jpg
-
-+ eTRCA (0.5s) in Benchmark Dataset
-
-  .. image:: ../demo/res/benchmarkdataset_confusionmatrix/eTRCA_T0.5.jpg
-
-+ eTRCA (0.5s) in BETA Dataset
-
-  .. image:: ../demo/res/beta_confusionmatrix/eTRCA_T0.5.jpg

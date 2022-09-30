@@ -82,6 +82,10 @@ Datasets and Algorithms
 
       C. M. Wong, B. Wang, Z. Wang, K. F. Lao, A. Rosa, and F. Wan, "Spatial filtering in SSVEP-based BCIs: Unified framework and new improvements.," *IEEE Transactions on Biomedical Engineering*, vol. 67, no. 11, pp. 3057-3072, 2020. DOI: `10.1109/TBME.2020.2975552 <https://ieeexplore.ieee.org/document/9006809/>`_.
 
+  + Sum of squared correlations (**SSCOR**) and Ensemble sum of squared correlations (**eSSCOR**): 
+
+      G. K. Kumar, and M. R. Reddy, "Designing a sum of squared correlations framework for enhancing SSVEP-based BCIs," *IEEE Transactions on Neural Systems and Rehabilitation Engineering*, vol. 27, no. 10, pp. 2044-2050, 2019. DOI: `10.1109/TNSRE.2019.2941349 <https://doi.org/10.1109/TNSRE.2019.2941349>`_.
+
   + Multi-stimulus TRCA (**ms-TRCA**): 
 
       C. M. Wong, F. Wan, B. Wang, Z. Wang, W. Nan, K. F. Lao, P. U. Mak, M. I. Vai, and A. Rosa, "Learning across multi-stimulus enhances target recognition methods in SSVEP-based BCIs," *J. Neural Eng.*, vol. 17, no. 1, p. 016026, 2020. DOI: `10.1088/1741-2552/ab2373 <https://doi.org/10.1088/1741-2552/ab2373>`_.
@@ -96,7 +100,6 @@ Datasets and Algorithms
 
   .. todo::
     
-    + `SSCOR <https://doi.org/10.1109/TNSRE.2019.2941349>`_
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
     + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_
 
