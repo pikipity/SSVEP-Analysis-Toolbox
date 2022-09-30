@@ -172,11 +172,7 @@ All datasets have these parameters. Parameters in different datasets have differ
 Functions of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For all datasets, the toolbox will the unified APIs to hook the proprocessing and filterbank functions and output signals. When using the toolbox to get data, the signals in one single trial will be preprocessed following the below figure.
-
-.. image:: _static/dataset-processing.png
-
-The unified APIs are listed here:
+For all datasets, the toolbox will the unified APIs to hook the proprocessing and filterbank functions and output signals. The unified APIs are listed here:
 
 .. py:function:: download_all
 
@@ -259,6 +255,10 @@ The unified APIs are listed here:
         2. Apply the hooked preprocessing function.
         3. Apply the bandpass filters of filterbanks.
         4. Remove the latency time. 
+
+        The extraction process follows the below figure.
+
+    .. image:: _static/dataset-processing.png
 
 .. py:function:: get_data_all_stim
 
