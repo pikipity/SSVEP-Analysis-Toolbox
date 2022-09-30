@@ -931,7 +931,7 @@ class ESSCOR(BaseModel):
         self.model['U'] = None # Spatial filter of EEG
     
     def __copy__(self):
-        copy_model = ESSCOR(n_component = self.n_component,
+        copy_model = ESSCOR(n_component = None,
                             n_jobs = self.n_jobs,
                             weights_filterbank = self.model['weights_filterbank'])
         copy_model.model = deepcopy(self.model)
