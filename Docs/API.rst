@@ -172,7 +172,11 @@ All datasets have these parameters. Parameters in different datasets have differ
 Functions of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All datasets have these functions.
+For all datasets, the toolbox will the unified APIs to hook the proprocessing and filterbank functions and output signals. When using the toolbox to get data, the signals in one single trial will be preprocessed following the below figure.
+
+.. image:: _static/dataset-processing.png
+
+The unified APIs are listed here:
 
 .. py:function:: download_all
 

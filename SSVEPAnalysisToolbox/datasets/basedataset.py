@@ -346,7 +346,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
             
         if sig_len < 0 or t_latency < 0:
             raise ValueError('Time cannot be negative')
-        if sig_len + t_latency > self.trial_len:
+        if sig_len + t_latency + self.t_prestim > self.trial_len:
             # raise ValueError('Total time length cannot be larger than single trial time')
             warnings.warn('Total time length ({:n}) is larger than single trial time ({:n})'.format(sig_len + t_latency, self.trial_len))
             
