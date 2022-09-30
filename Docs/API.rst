@@ -296,6 +296,8 @@ All datasets have these functions.
 
         + ``ref_sig``: List of reference signals. Each stimulus have one set of reference signals.
 
+.. _define-own-dataset:
+
 How to define your own dataset class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -832,6 +834,8 @@ Plot Functions
 
 Recognition algorithms
 -------------------------
+
+.. _common-functions-in-methods:
 
 Common functions for all models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

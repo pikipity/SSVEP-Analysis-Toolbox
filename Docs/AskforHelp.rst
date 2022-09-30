@@ -14,7 +14,3 @@ When you create your issue, please state:
 + How to repeat bugs or problems.
 + If possible, please provide your related code and data.
 
-Contributors
--------------
-
-..  ghcontributors:: pikipity/SSVEP-Analysis-Toolbox
