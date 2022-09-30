@@ -5,7 +5,7 @@ sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR, ITCCA
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR
+from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
 
@@ -18,8 +18,8 @@ dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank()
-recog_model = SSCOR(n_jobs = 10,
-                    weights_filterbank = weights_filterbank)
+recog_model = ESSCOR(n_jobs = 10,
+                     weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
@@ -59,6 +59,7 @@ itr = cal_itr(tw = tw, t_break = dataset.t_break, t_latency = dataset.default_t_
               N = len(freqs), acc = acc)
 print("""
 Simulation Information:
+    Method Name: {:s}
     Dataset: {:s}
     Signal length: {:n} s
     Channel: {:s}
@@ -72,7 +73,8 @@ Simulation Information:
 Performance:
     Acc: {:n} %
     ITR: {:n} bits/min
-""".format(dataset.ID,
+""".format(recog_model.ID,
+           dataset.ID,
            tw,
            str(ch_used),
            sub_idx,
