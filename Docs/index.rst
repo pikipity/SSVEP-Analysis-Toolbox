@@ -18,6 +18,8 @@ Contents
    API
    Demos
    AskforHelp
+   JoinUs
+   Contributors
    License
 
 Features
