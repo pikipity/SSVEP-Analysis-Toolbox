@@ -5,7 +5,7 @@ sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.betadataset import BETADataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR
+from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
@@ -46,6 +46,7 @@ model_container = [
                    MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
                    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
+                   SSCOR(weights_filterbank = weights_filterbank),
                    TRCA(weights_filterbank = weights_filterbank),
                    TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
