@@ -32,4 +32,7 @@ def download_single_file(source_url: str,
              fname = file_name,
              path = desertation_dir,
              progressbar=progressbar)
+
+    if not os.path.exists(desertation):
+        raise ValueError("The following file has been downloaded but cannot find it: {:s}".format(desertation))
     
