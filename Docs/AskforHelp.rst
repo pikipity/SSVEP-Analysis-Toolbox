@@ -3,9 +3,6 @@
 Ask Help
 =====================================================================
 
-Report Issue
--------------
-
 If you find any bugs or any problems, you can directly create an issue in the `github page <https://github.com/pikipity/SSVEP-Analysis-Toolbox/issues>`_, or contact contributors.
 
 When you create your issue, please state:
