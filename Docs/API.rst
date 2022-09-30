@@ -172,7 +172,11 @@ All datasets have these parameters. Parameters in different datasets have differ
 Functions of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All datasets have these functions.
+For all datasets, the toolbox will the unified APIs to hook the proprocessing and filterbank functions and output signals. When using the toolbox to get data, the signals in one single trial will be preprocessed following the below figure.
+
+.. image:: _static/dataset-processing.png
+
+The unified APIs are listed here:
 
 .. py:function:: download_all
 
@@ -852,7 +856,7 @@ All following recognition models have these functions. The inputs and outputs ar
 
 .. py:function:: fit
 
-    Train the recognition model. The trained model parameters will be stored in the class parameter `model`. Different methods require different input parameters. You may follow the below parameter names to define your own fit function. 
+    Train the recognition model. The trained model parameters will be stored in the class parameter ``model``. Different methods require different input parameters. You may follow the below parameter names to define your own fit function. 
 
     :param X: List of training EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
 
