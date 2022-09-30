@@ -50,9 +50,10 @@ def savedata(file: str,
             with open(file, 'wb') as f:
                 np.save(f, data, allow_pickle=True, fix_imports=True)
         except:
-            warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a binary data file.")
+            warnings.warn("Cannot save data as 'np' file!! So the data is saved as a binary data file.")
+            file = os.path.splitext(file)[0]+'.pkl'
             with open(file, 'wb') as f:
-                pickle.dump(data, f, protocol = 4)
+                pickle.dump(data, f, protocol = 4) # Load file: pickle.load(file)
     else:
         raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
         
@@ -78,10 +79,14 @@ def loaddata(file: str,
     """
     if save_type.lower() == 'mat':
         data = loadmat(file)
+        if not os.path.splitext(file)[1].lower() == '.mat':
+            warnings.warn("The following file seems not MATLAB file (.mat): {:s}".format(file))
     elif save_type.lower() == 'np':
         with open(file, 'rb') as f:
             data = np.load(f, allow_pickle=True)
             data = data.item()
+        if not os.path.splitext(file)[1].lower() == '.npy':
+            warnings.warn("The following file seems not numpy file (.npy): {:s}".format(file))
     else:
         raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
         
