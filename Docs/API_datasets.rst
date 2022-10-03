@@ -115,6 +115,40 @@ Built-in dataset initialization
     
         Default path is a folder :file:`Nakanishi2015 Dataset` in the working path. 
 
+.. py:function:: SSVEPAnalysisToolbox.datasets.eldbetadataset.ELDBETADataset
+
+    For the BCI users, there was an associated epoched record that is stored in ".mat" structure array from MATLAB. 
+    
+    The structure array in each record was composed of the EEG data ("EEG") and its associated supplementary information ("Suppl_info") as its fields. In the "EEG" field of the record, two types of EEG data, i.e., EEG epochs and raw EEG were provided for researchers to facilitate diverse research purposes. 
+    
+    The EEG epochs were the EEG data with the data processing and stored as 4-dimensional matrices (channel x time point x condition x block). The names and locations of the channel dimension were given in the supplementary information. 
+    
+    For the dimension of time point, the epochs had a length of 6 s, which included 0.5 s before the stimulus onset, 5 s during the stimulation (SSVEPs) and 0.5 s after the stimulus offset. 
+    
+    Different from the epoched data, the raw EEG provided continuous EEG that were converted by EEGLAB. The raw EEG were stored as cell arrays, each of which contained a block of EEG data. The "Suppl_info" field of the record provided a basic information about personal statistics and experimental protocol. The personal statistics included the aged, gender, BCIQ and SNR with respect to each subject. The experimental protocol included channel location ("Channel), stimulus frequency ("Frequency"), stimulus initial phase ("Phase") and sampling rate ("Srate"). The channel location was represented by a 64x4 cell arrays. The first column and the fourth column denoted the channel index and channel name, respectively. The second column and the third column denoted the channel location in polar coordinates, i.e., degree and radius, respectively. The stimulus initial phase was given in radius. The sampling rate of the epoch data was denoted by "Srate". 
+
+    Total: around 20.0 GB
+
+    Paper: B. Liu, Y. Wang, X. Gao, and X. Chen, "eldBETA: A Large eldercare-oriented benchmark database of SSVEP-BCI for the aging population," Scientific Data, vol. 9, no. 1, pp.1-12, 2022. DOI: `10.1038/s41597-022-01372-9 <https://www.nature.com/articles/s41597-022-01372-9>`_. 
+
+    URL: `http://bci.med.tsinghua.edu.cn/ <http://bci.med.tsinghua.edu.cn/>`_.
+
+    :param path: Path of storing EEG data. 
+    
+        The missing subjects' data files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+    
+        Default path is a folder :file:`BETA Dataset` in the working path. 
+
+    :param path_support_file: Path of supported files, i.e., :file:`note.pdf`, and :file:`description.pdf`. 
+    
+        The missing supported files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+        
+        Default path is same as data path ``path``.
+
 Parameters of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
