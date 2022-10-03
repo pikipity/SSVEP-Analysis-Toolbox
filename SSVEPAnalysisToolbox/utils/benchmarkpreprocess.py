@@ -56,10 +56,30 @@ def filterbank(X: ndarray,
     for k in range(1, num_subbands+1, 1):
         Wp = [(8*k)/(srate/2), 90/(srate/2)]
         Ws = [(8*k-2)/(srate/2), 100/(srate/2)]
-        N, Wn = signal.cheb1ord(Wp, Ws, 3, 40)
-        
-        bpB, bpA = signal.cheby1(N, 0.5, Wn, btype = 'bandpass')
 
-        filterbank_X[k-1,:,:] = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
+        gstop = 40
+        while gstop>=20:
+            try:
+                N, Wn = signal.cheb1ord(Wp, Ws, 3, gstop)
+                bpB, bpA = signal.cheby1(N, 0.5, Wn, btype = 'bandpass')
+                filterbank_X[k-1,:,:] = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
+                break
+            except:
+                gstop -= 1
+        if gstop<20:
+            raise ValueError("""
+Filterbank cannot be processed. You may try longer signal lengths.
+Filterbank order: {:n}
+gstop: {:n}
+bpB: {:s}
+bpA: {:s}
+Required signal length: {:n}
+Signal length: {:n}""".format(k,
+                                gstop,
+                                str(bpB),
+                                str(bpA),
+                                3*(max(len(bpB),len(bpA))-1),
+                                X.shape[1]))
+        
         
     return filterbank_X

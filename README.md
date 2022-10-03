@@ -16,7 +16,7 @@ More detailed information can be found in [document](http://ssvep-analysis-toolb
   + **Benchmark** dataset: Y. Wang, X. Chen, X. Gao, and S. Gao, "A benchmark dataset for SSVEP-based braincomputer interfaces," *IEEE Trans. Neural Syst. Rehabil. Eng.*, vol. 25, no. 10, pp. 1746–1752, 2017. DOI: [10.1109/TNSRE.2016.2627556](https://doi.org/10.1109/TNSRE.2016.2627556).
   + **BETA** dataset: B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, "BETA: A large benchmark database toward SSVEP-BCI application," *Front. Neurosci.*, vol. 14, p. 627, 2020. DOI: [10.3389/fnins.2020.00627](https://doi.org/10.3389/fnins.2020.00627).
   + **Nakanishi2015** dataset: M. Nakanishi, Y. Wang, Y.-T. Wang, T.-P. Jung, "A Comparison Study of Canonical Correlation Analysis Based Methods for Detecting Steady-State Visual Evoked Potentials," *PLoS ONE*, vol. 10, p. e0140703, 2015. DOI: [10.1371/journal.pone.0140703](https://doi.org/10.1371/journal.pone.0140703).
-  + ...
+  + **eldBETA** dataset: B. Liu, Y. Wang, X. Gao, and X. Chen, "eldBETA: A Large eldercare-oriented benchmark database of SSVEP-BCI for the aging population," *Scientific Data*, vol. 9, no. 1, pp.1-12, 2022. DOI: [10.1038/s41597-022-01372-9](https://www.nature.com/articles/s41597-022-01372-9).
 
 + Algorithms
   + Standard canonical correlation analysis (**sCCA**) and filterbank CCA (**FBCCA**): Chen, X., Wang, Y., Gao, S., Jung, T.P. and Gao, X., "Filter bank canonical correlation analysis for implementing a high-speed SSVEP-based brain–computer interface," *J. Neural Eng.*, vol. 12, no. 4, p. 046008, 2015. DOI: [10.1088/1741-2560/12/4/046008](https://doi.org/10.1088/1741-2560/12/4/046008).

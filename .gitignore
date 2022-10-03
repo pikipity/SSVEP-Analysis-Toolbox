@@ -8,3 +8,5 @@ demo/res/*.npy
 Docs/_build/*
 .vscode/*
 demo/Nakanishi_2015/*
+demo/test_*
+demo/eldBETA_database/*
