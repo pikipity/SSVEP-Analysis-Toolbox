@@ -94,7 +94,7 @@ Built-in dataset initialization
     -----------------------   -------
     Num. of trials            15
     -----------------------   -------
-    Sampling rate             56 Hz
+    Sampling rate             256 Hz
     =======================   =======
 
     + The order of the stimulus frequencies in the EEG data: [9.25, 11.25, 13.25, 9.75, 11.75, 13.75, 10.25, 12.25, 14.25, 10.75, 12.75, 14.75] Hz (e.g., eeg(1,:,:,:) and eeg(5,:,:,:) are the EEG data while a subject was gazing at the visual stimuli flickering at 9.25 Hz and 11.75Hz, respectively.)
