@@ -87,3 +87,4 @@ for dataset_idx, data_file in enumerate(data_file_list):
             os.makedirs(desertation_dir)
         fig.savefig(save_path, 
                     bbox_inches='tight', dpi=300)
+        plt.close(fig)
