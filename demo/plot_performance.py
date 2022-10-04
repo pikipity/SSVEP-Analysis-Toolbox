@@ -8,10 +8,12 @@ from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowli
 
 data_file_list = ['res/benchmarkdataset_res.mat',
                   'res/betadataset_res.mat',
-                  'res/nakanishidataset_res.mat']
+                  'res/nakanishidataset_res.mat',
+                  'res/eldbetadataset_res.mat']
 sub_title = ['benchmark',
              'beta',
-             'nakanishi']
+             'nakanishi',
+             'eldbeta']
 
 
 for dataset_idx, data_file in enumerate(data_file_list):
