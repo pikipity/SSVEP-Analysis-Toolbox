@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.stats as st
 
+def close_fig(fig):
+    """
+    Close figure
+    """
+    plt.close(fig)
+
 def shadowline_plot(X: Union[list, ndarray],
                     Y: ndarray,
                     fmt: str = '-',

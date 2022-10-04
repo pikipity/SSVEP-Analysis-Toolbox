@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
-from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot
+from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, close_fig
 
 data_file_list = ['res/benchmarkdataset_res.mat',
                   'res/betadataset_res.mat',
@@ -37,6 +37,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                     grid = True,
                                     figsize=[6.4*2, 4.8])
     fig.savefig('res/{:s}_traintime_bar.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
     
 
     fig, _ = bar_plot_with_errorbar(test_time,
@@ -46,6 +47,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                     grid = True,
                                     figsize=[6.4*2, 4.8])
     fig.savefig('res/{:s}_testtime_bar.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
 
 
     # Plot Performance of bar plots
@@ -59,6 +61,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                     ylim = [0, 1],
                                     figsize=[6.4*3, 4.8])
     fig.savefig('res/{:s}_acc_bar.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
 
     fig, _ = bar_plot_with_errorbar(itr_store,
                                     x_label = 'Signal Length (s)',
@@ -69,6 +72,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                     grid = True,
                                     figsize=[6.4*3, 4.8])
     fig.savefig('res/{:s}_itr_bar.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
 
     # Plot Performance of shadow lines
     fig, _ = shadowline_plot(tw_seq,
@@ -82,6 +86,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                             ylim = [0, 1],
                             figsize=[6.4*3, 4.8])
     fig.savefig('res/{:s}_acc_shadowline.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
 
     fig, _ = shadowline_plot(tw_seq,
                             itr_store,
@@ -93,3 +98,4 @@ for dataset_idx, data_file in enumerate(data_file_list):
                             grid = True,
                             figsize=[6.4*3, 4.8])
     fig.savefig('res/{:s}_itr_shadowline.jpg'.format(sub_title[dataset_idx]), bbox_inches='tight', dpi=300)
+    close_fig(fig)
