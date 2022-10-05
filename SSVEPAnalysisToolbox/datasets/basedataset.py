@@ -193,7 +193,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
         if block_idx < 0:
             raise ValueError('Block index cannot be negative')
         if block_idx > self.block_num-1:
-            raise ValueError('Block index should be smaller than {:d}'.format(self.block_num))
+            raise ValueError('Block index should be smaller than {:d}'.format(self.block_num-1))
             
         test_block = [block_idx]
         train_block = [i for i in range(self.block_num)]
