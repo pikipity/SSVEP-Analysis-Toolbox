@@ -240,6 +240,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
             List of corresponding label (stimulus idx)
             Note - The index of the 1st stimulus is 0
         """
+        if type(sub_idx) is not int:
+            raise ValueError("'get_data' only can extract single subject's data. Subject index must be an integer!! The given subject index is {:s}".format(str(sub_idx)))
         if t_latency is None:
             t_latency = self.default_t_latency
         if type(blocks) is not list:
