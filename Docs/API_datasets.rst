@@ -527,6 +527,10 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
             L = floor(sig_len * dataself.srate)
             ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
             return ref_sig
+    
+    .. tip::
+
+        ``gen_ref_sin`` is in :ref:`computation-fun`.
 
 .. py:function:: get_ref_sig
 
