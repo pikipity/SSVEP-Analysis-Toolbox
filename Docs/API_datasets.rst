@@ -214,6 +214,8 @@ All datasets have these parameters. Parameters in different datasets have differ
 
 :block_num: Number of blocks
 
+:trial_num: Number of trials in each block
+
 :trial_len: Signal length (in second) of single trial. If different trials have different siganl length, the shorted signal length is stored. 
 
 :stim_info: A dictionary storing stimulus information, which contains following keys:
