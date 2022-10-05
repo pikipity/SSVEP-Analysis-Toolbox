@@ -208,7 +208,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  channels: List[int],
                  sig_len: float,
                  t_latency: Optional[float] = None,
-                 shuffle: Optional[bool] = False) -> Tuple[List[ndarray], List[int]]:
+                 shuffle: bool = False) -> Tuple[List[ndarray], List[int]]:
         """
         Construct data, corresponding labels, and sine-cosine-based reference signals 
         from one subject (specific stimuli)
@@ -240,29 +240,32 @@ class BaseDataset(metaclass=abc.ABCMeta):
             List of corresponding label (stimulus idx)
             Note - The index of the 1st stimulus is 0
         """
-        if type(sub_idx) is not int:
-            raise ValueError("'get_data' only can extract single subject's data. Subject index must be an integer!! The given subject index is {:s}".format(str(sub_idx)))
+        if type(sub_idx) is not list:
+            sub_idx = [sub_idx]
         if t_latency is None:
             t_latency = self.default_t_latency
         if type(blocks) is not list:
             blocks = [blocks]
         if type(trials) is not list:
             trials = [trials]
-            
-        sub_data = self.get_sub_data(sub_idx)
         
         X = []
-        for block_idx in blocks:
-            X.extend(self.get_data_trial(sub_data, block_idx, trials, channels, sig_len, t_latency))
         Y = []
-        for block_idx in blocks:
-            Y.extend(self.get_label_trial(sub_idx,block_idx,trials))
+
+        for sub_idx_value in sub_idx:
+            if type(sub_idx_value) is not int:
+                raise ValueError("Subject indices must be integers")
+            sub_data = self.get_sub_data(sub_idx_value)
+            for block_idx in blocks:
+                X.extend(self.get_data_trial(sub_data, block_idx, trials, channels, sig_len, t_latency))
+                Y.extend(self.get_label_trial(sub_idx_value,block_idx,trials))
         
-        trial_seq = [i for i in range(len(X))]
         if shuffle:
+            trial_seq = [i for i in range(len(X))]
             random.shuffle(trial_seq)
-        
-        return [X[i] for i in trial_seq], [Y[i] for i in trial_seq]
+            return [X[i] for i in trial_seq], [Y[i] for i in trial_seq]
+        else:
+            return X, Y
     
     def get_data_all_trials(self,
                             sub_idx: int,
