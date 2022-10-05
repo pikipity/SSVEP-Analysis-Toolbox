@@ -22,7 +22,7 @@ class openBMIDataset(BaseDataset):
 
     Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 Hz and were presented in four positions (down, right, left, and up, respectively) on a monitor. The designed paradigm followed the conventional types of SSVEP-based BCI systems that require four-direction movements [40]. Participants were asked to fixate the center of a black screen and then to gaze in the direction where the target stimulus was highlighted in a different color (see Figure 2-C). Each SSVEP stimulus was presented for 4 s with an ISI of 6 s. Each target frequency was presented 25 times. Therefore, the corrected EEG data had 100 trials (4 classes × 25 trials) in the offline training phase and another 100 trials in the online test phase. Visual feedback was presented in the test phase; the estimated target frequency was highlighted for one second with a red border at the end of each trial.
 
-    Total: around 
+    Total: around 55.6 GB
 
     Paper:
     M.-H. Lee, O.-Y. Kwon, Y.-J. Kim, H.-K. Kim, Y.-E. Lee, J. Williamson, S. Fazli, and S.-W. Lee, “EEG dataset and OpenBMI toolbox for three BCI paradigms: An investigation into BCI illiteracy,” GigaScience, vol. 8, no. 5, p. giz002, 2019. DOI: 10.1093/gigascience/giz002.
@@ -154,8 +154,6 @@ class openBMIDataset(BaseDataset):
         y_dec = cond_data['y_dec'] 
 
         return [y_dec[trial_idx]-1 for trial_idx in trials]
-
-        # return y_dec[stim_idx]-1
         
     
     def get_label_single_trial(self,
