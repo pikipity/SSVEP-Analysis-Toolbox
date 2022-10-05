@@ -20,6 +20,30 @@ Built-in dataset initialization
     After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
     Each trial lasted a total of 6 s.
 
+    =============================   =======
+    Num. of Subjects                35
+    -----------------------------   -------
+    Num. of Targets                 40
+    -----------------------------   -------
+    Num. of Channels                64
+    -----------------------------   -------
+    Num. of Blocks                  6
+    -----------------------------   -------
+    Num. of trials in each blcok    40
+    -----------------------------   -------
+    Pre-stimulus Time               0.5 s
+    -----------------------------   -------
+    Break Time                      0.5 s
+    -----------------------------   -------
+    Whole Trial Length              6 s
+    -----------------------------   -------
+    Default Latency Time            0.14 s
+    -----------------------------   -------
+    Sampling rate                   250 Hz
+    =============================   =======
+
+    .. image:: ./_static/benchmarkdataset.png
+
     Total: around 3.45 GB.
 
     Paper: Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for SSVEP-based braincomputer interfaces,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 25, no. 10, pp. 17461752, 2017. DOI: `10.1109/TNSRE.2016.2627556 <https://doi.org/10.1109/TNSRE.2016.2627556>`_. 
@@ -54,9 +78,33 @@ Built-in dataset initialization
 
     Additional details about the channel and condition information can be found in the following supplementary information.
 
+    =============================   =======
+    Num. of Subjects                70
+    -----------------------------   -------
+    Num. of Targets                 40
+    -----------------------------   -------
+    Num. of Channels                64
+    -----------------------------   -------
+    Num. of Blocks                  4
+    -----------------------------   -------
+    Num. of trials in each blcok    40
+    -----------------------------   -------
+    Pre-stimulus Time               0.5 s
+    -----------------------------   -------
+    Break Time                      0.5 s
+    -----------------------------   -------
+    Whole Trial Length              2 s
+    -----------------------------   -------
+    Default Latency Time            0.13 s
+    -----------------------------   -------
+    Sampling rate                   250 Hz
+    =============================   =======
+
+    .. image:: ./_static/beta.png
+
     Total: around 4.91 GB.
     
-    Paper: B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, “BETA: A large benchmark database toward SSVEP-BCI application,” Front. Neurosci., vol. 14, p. 627, 2020. DOI: `10.1109/TNSRE.2016.2627556 <https://doi.org/10.1109/TNSRE.2016.2627556>`_.
+    Paper: B. Liu, X. Huang, Y. Wang, X. Chen, and X. Gao, “BETA: A large benchmark database toward SSVEP-BCI application,” Front. Neurosci., vol. 14, p. 627, 2020. DOI: `10.3389/fnins.2020.00627 <https://doi.org/10.3389/fnins.2020.00627>`_.
 
     URL: `http://bci.med.tsinghua.edu.cn/ <http://bci.med.tsinghua.edu.cn/>`_.
 
@@ -85,21 +133,33 @@ Built-in dataset initialization
 
     size(eeg) = [Num. of targets, Num. of channels, Num. of sampling points, Num. of trials]
 
-    =======================   =======
-    Num. of Targets           12
-    -----------------------   -------
-    Num. of Channels          8
-    -----------------------   -------
-    Num. of sampling points   1114
-    -----------------------   -------
-    Num. of trials            15
-    -----------------------   -------
-    Sampling rate             256 Hz
-    =======================   =======
-
     + The order of the stimulus frequencies in the EEG data: [9.25, 11.25, 13.25, 9.75, 11.75, 13.75, 10.25, 12.25, 14.25, 10.75, 12.75, 14.75] Hz (e.g., eeg(1,:,:,:) and eeg(5,:,:,:) are the EEG data while a subject was gazing at the visual stimuli flickering at 9.25 Hz and 11.75Hz, respectively.)
     
     + The onset of visual stimulation is at 39th sample point.
+
+    =============================   ====================
+    Num. of Subjects                10
+    -----------------------------   --------------------
+    Num. of Targets                 12
+    -----------------------------   --------------------
+    Num. of Channels                8
+    -----------------------------   --------------------
+    Num. of Blocks                  15
+    -----------------------------   --------------------
+    Num. of trials in each blcok    12
+    -----------------------------   --------------------
+    Pre-stimulus Time               0.1523 (39/256) s
+    -----------------------------   --------------------
+    Break Time                      1 s
+    -----------------------------   --------------------
+    Whole Trial Length              4.3516 (1114/256) s
+    -----------------------------   --------------------
+    Default Latency Time            0.135 s
+    -----------------------------   --------------------
+    Sampling rate                   256 Hz
+    =============================   ====================
+
+    .. image:: ./_static/Nakanishi2015.png
 
     Total: around 148 MB.
     
@@ -117,6 +177,8 @@ Built-in dataset initialization
 
 .. py:function:: SSVEPAnalysisToolbox.datasets.eldbetadataset.ELDBETADataset
 
+    Initialize the eldBETA dataset.
+    
     For the BCI users, there was an associated epoched record that is stored in ".mat" structure array from MATLAB. 
     
     The structure array in each record was composed of the EEG data ("EEG") and its associated supplementary information ("Suppl_info") as its fields. In the "EEG" field of the record, two types of EEG data, i.e., EEG epochs and raw EEG were provided for researchers to facilitate diverse research purposes. 
@@ -126,6 +188,30 @@ Built-in dataset initialization
     For the dimension of time point, the epochs had a length of 6 s, which included 0.5 s before the stimulus onset, 5 s during the stimulation (SSVEPs) and 0.5 s after the stimulus offset. 
     
     Different from the epoched data, the raw EEG provided continuous EEG that were converted by EEGLAB. The raw EEG were stored as cell arrays, each of which contained a block of EEG data. The "Suppl_info" field of the record provided a basic information about personal statistics and experimental protocol. The personal statistics included the aged, gender, BCIQ and SNR with respect to each subject. The experimental protocol included channel location ("Channel), stimulus frequency ("Frequency"), stimulus initial phase ("Phase") and sampling rate ("Srate"). The channel location was represented by a 64x4 cell arrays. The first column and the fourth column denoted the channel index and channel name, respectively. The second column and the third column denoted the channel location in polar coordinates, i.e., degree and radius, respectively. The stimulus initial phase was given in radius. The sampling rate of the epoch data was denoted by "Srate". 
+
+    =============================   ====================
+    Num. of Subjects                100
+    -----------------------------   --------------------
+    Num. of Targets                 9
+    -----------------------------   --------------------
+    Num. of Channels                64
+    -----------------------------   --------------------
+    Num. of Blocks                  7
+    -----------------------------   --------------------
+    Num. of trials in each blcok    9
+    -----------------------------   --------------------
+    Pre-stimulus Time               0.5 s
+    -----------------------------   --------------------
+    Break Time                      0.5 s
+    -----------------------------   --------------------
+    Whole Trial Length              6 s
+    -----------------------------   --------------------
+    Default Latency Time            0.14 s
+    -----------------------------   --------------------
+    Sampling rate                   250 Hz
+    =============================   ====================
+
+    .. image:: ./_static/eldBETA.png
 
     Total: around 20.0 GB
 
@@ -158,6 +244,30 @@ Built-in dataset initialization
     EEG signals were recorded with a sampling rate of 1000 Hz and collected with 62 Ag/AgCl electrodes.
 
     Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 Hz and were presented in four positions (down, right, left, and up, respectively) on a monitor. The designed paradigm followed the conventional types of SSVEP-based BCI systems that require four-direction movements [40]. Participants were asked to fixate the center of a black screen and then to gaze in the direction where the target stimulus was highlighted in a different color (see Figure 2-C). Each SSVEP stimulus was presented for 4 s with an ISI of 6 s. Each target frequency was presented 25 times. Therefore, the corrected EEG data had 100 trials (4 classes × 25 trials) in the offline training phase and another 100 trials in the online test phase. Visual feedback was presented in the test phase; the estimated target frequency was highlighted for one second with a red border at the end of each trial.
+
+    =============================   ===============================================
+    Num. of Subjects                54
+    -----------------------------   -----------------------------------------------
+    Num. of Targets                 4
+    -----------------------------   -----------------------------------------------
+    Num. of Channels                62
+    -----------------------------   -----------------------------------------------
+    Num. of Blocks                  4 (2 sessions * (online part + offline part))
+    -----------------------------   -----------------------------------------------
+    Num. of trials in each blcok    100
+    -----------------------------   -----------------------------------------------
+    Pre-stimulus Time               0 s
+    -----------------------------   -----------------------------------------------
+    Break Time                      0 s
+    -----------------------------   -----------------------------------------------
+    Whole Trial Length              4 s
+    -----------------------------   -----------------------------------------------
+    Default Latency Time            0 s
+    -----------------------------   -----------------------------------------------
+    Sampling rate                   1000 Hz
+    =============================   ===============================================
+
+    .. image:: ./_static/openbmi.png
 
     Total: around 55.6 GB
 
