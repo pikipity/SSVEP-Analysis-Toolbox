@@ -50,6 +50,8 @@ IO functions
 
         + ``data``: Loaded dictionary data.
 
+.. _computation-fun:
+
 Computation functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
