@@ -18,6 +18,7 @@ More detailed information can be found in [document](http://ssvep-analysis-toolb
   + **Nakanishi2015** dataset: M. Nakanishi, Y. Wang, Y.-T. Wang, T.-P. Jung, "A Comparison Study of Canonical Correlation Analysis Based Methods for Detecting Steady-State Visual Evoked Potentials," *PLoS ONE*, vol. 10, p. e0140703, 2015. DOI: [10.1371/journal.pone.0140703](https://doi.org/10.1371/journal.pone.0140703).
   + **eldBETA** dataset: B. Liu, Y. Wang, X. Gao, and X. Chen, "eldBETA: A Large eldercare-oriented benchmark database of SSVEP-BCI for the aging population," *Scientific Data*, vol. 9, no. 1, pp.1-12, 2022. DOI: [10.1038/s41597-022-01372-9](https://www.nature.com/articles/s41597-022-01372-9).
   + **openBMI** dataset: M.-H. Lee, O.-Y. Kwon, Y.-J. Kim, H.-K. Kim, Y.-E. Lee, J. Williamson, S. Fazli, and S.-W. Lee, "EEG dataset and OpenBMI toolbox for three BCI paradigms: An investigation into BCI illiteracy," GigaScience, vol. 8, no. 5, p. giz002, 2019. DOI: [10.1093/gigascience/giz002](https://doi.org/10.1093/gigascience/giz002).
+  + ...
 
 + Algorithms
   + Standard canonical correlation analysis (**sCCA**) and filterbank CCA (**FBCCA**): Chen, X., Wang, Y., Gao, S., Jung, T.P. and Gao, X., "Filter bank canonical correlation analysis for implementing a high-speed SSVEP-based brain–computer interface," *J. Neural Eng.*, vol. 12, no. 4, p. 046008, 2015. DOI: [10.1088/1741-2560/12/4/046008](https://doi.org/10.1088/1741-2560/12/4/046008).
