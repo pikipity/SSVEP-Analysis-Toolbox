@@ -112,7 +112,7 @@ class openBMIDataset(BaseDataset):
 
         sig_len = int(np.floor(self.trial_len * self.srate))
 
-        data = np.zeros(self.block_num, 100, len(self.channels), sig_len) # block_num * stimulus_num * ch_num * whole_trial_samples
+        data = np.zeros((self.block_num, 100, len(self.channels), sig_len)) # block_num * stimulus_num * ch_num * whole_trial_samples
                                                                           # block sequence: sess0-test, sess0-train, sess1-test, sess1-train
         for sess_idx in range(2):
             file_path = os.path.join(sub_info.path, 'sess{:n}-{:s}.mat'.format(sess_idx+1, sub_ID))
