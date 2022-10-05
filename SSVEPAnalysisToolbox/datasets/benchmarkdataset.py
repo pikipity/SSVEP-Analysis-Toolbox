@@ -65,6 +65,7 @@ class BenchmarkDataset(BaseDataset):
                          channels = self._CHANNELS, 
                          srate = 250, 
                          block_num = 6, 
+                         trial_num = len(self._FREQS),
                          trial_len = 6, 
                          stim_info = {'stim_num': len(self._FREQS),
                                       'freqs': self._FREQS,
@@ -120,6 +121,6 @@ class BenchmarkDataset(BaseDataset):
     def get_label_single_trial(self,
                                sub_idx: int,
                                block_idx: int,
-                               stim_idx: int) -> int:
-        return stim_idx
+                               trial_idx: int) -> int:
+        return trial_idx
         

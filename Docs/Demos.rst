@@ -6,7 +6,7 @@ Simple Demo
 
 This demo shows the basic functions of this toolbox, including:
 
-+ How to initialize a dataset, and hook preprocessing functions.
++ How to initialize a dataset, and how to hook required functions.
 + How to initialize a recognition model.
 + How to get the training data from the dataset, and train the model.
 + How to get the testing data from the dataset, and test the model.
@@ -32,7 +32,7 @@ This demo shows the following points:
 
   + This demo uses ``gen_trials_onedataset_individual_diffsiglen`` to generate evaluation trials used for ``BaseEvaluator``. These trials are used to evaluate indivudal performance on various signal lengths. If your target is not to evaluate these performance, you can follow this function to prepare your own evaluation trials.
   + This demo uses ``cal_performance_onedataset_individual_diffsiglen`` and ``cal_confusionmatrix_onedataset_individual_diffsiglen`` to calculate recognition performance (accuracies and ITRs) and confusion matrices. These two functions are also used to calculate individual performance on various signal lengths. For your own evaluation trials, you can follow these two functions to evaluate your own performance.
-  + You can adjust the threading number by changing ``n_jobs`` in ``evaluator.run``. Higher number requires the computer with higher performance. The current demo may occupy mora than 10 hours. You may reduce the number of models or the number of signal lengths to condense the running time.
+  + You can adjust the threading number by changing ``n_jobs`` in ``evaluator.run``. Higher number requires the computer with higher performance. The current demo may occupy mora than 24 hours. You may reduce the number of models or the number of signal lengths to condense the running time.
   + ITRs are related to computational time. Different implementations may lead to different computational time. You may check the recorded testing time to get know the time used for ITR computation. We are also try to optimize implementations to reduce the computational time. For example, the sCCA implemented based on the QR decomposition is faster than the sCCA implemented based on the conventional canonical correlation with the same performance as shown in `"Plot Recognition Performance" demo <#plot-recognition-performance>`_. 
 
 Demo file: :file:`demo/benchmarkdataset.py`

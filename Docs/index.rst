@@ -50,9 +50,12 @@ Datasets and Algorithms
   
       B. Liu, Y. Wang, X. Gao, and X. Chen, "eldBETA: A Large eldercare-oriented benchmark database of SSVEP-BCI for the aging population," *Scientific Data*, vol. 9, no. 1, pp.1-12, 2022. DOI: `10.1038/s41597-022-01372-9 <https://www.nature.com/articles/s41597-022-01372-9>`_. 
 
+  + **openBMI** dataset: 
+  
+      M.-H. Lee, O.-Y. Kwon, Y.-J. Kim, H.-K. Kim, Y.-E. Lee, J. Williamson, S. Fazli, and S.-W. Lee, "EEG dataset and OpenBMI toolbox for three BCI paradigms: An investigation into BCI illiteracy," GigaScience, vol. 8, no. 5, p. giz002, 2019. DOI: `10.1093/gigascience/giz002 <https://doi.org/10.1093/gigascience/giz002>`_.
+
   .. todo::
     
-    + `BMI dataset <https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giz002/5304369>`_
     + `Wearable SSVEP BCI Dataset <http://bci.med.tsinghua.edu.cn/download.html>`_
     + `160 Targets SSVEP BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/ac0bfa>`_
     + `Dual Frequency and Phase Modulation SSVEP-BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/abaa9b/meta>`_

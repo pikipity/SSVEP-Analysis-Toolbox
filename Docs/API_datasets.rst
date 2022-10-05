@@ -105,7 +105,7 @@ Built-in dataset initialization
     
     Paper: M. Nakanishi, Y. Wang, Y.-T. Wang, T.-P. Jung, "A Comparison Study of Canonical Correlation Analysis Based Methods for Detecting Steady-State Visual Evoked Potentials," *PLoS ONE*, vol. 10, p. e0140703, 2015. DOI: `10.1371/journal.pone.0140703 <https://doi.org/10.1371/journal.pone.0140703>`_.
 
-    URL: `ftp://sccn.ucsd.edu/pub/cca_ssvep.zip <ftp://sccn.ucsd.edu/pub/cca_ssvep.zip>`_.
+    URL: ``ftp://sccn.ucsd.edu/pub/cca_ssvep.zip <ftp://sccn.ucsd.edu/pub/cca_ssvep.zip``.
 
     :param path: Path of storing EEG data. 
     
@@ -132,6 +132,42 @@ Built-in dataset initialization
     Paper: B. Liu, Y. Wang, X. Gao, and X. Chen, "eldBETA: A Large eldercare-oriented benchmark database of SSVEP-BCI for the aging population," Scientific Data, vol. 9, no. 1, pp.1-12, 2022. DOI: `10.1038/s41597-022-01372-9 <https://www.nature.com/articles/s41597-022-01372-9>`_. 
 
     URL: `http://bci.med.tsinghua.edu.cn/ <http://bci.med.tsinghua.edu.cn/>`_.
+
+    :param path: Path of storing EEG data. 
+    
+        The missing subjects' data files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+    
+        Default path is a folder :file:`BETA Dataset` in the working path. 
+
+    :param path_support_file: Path of supported files, i.e., :file:`note.pdf`, and :file:`description.pdf`. 
+    
+        The missing supported files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+        
+        Default path is same as data path ``path``.
+
+.. py:function:: SSVEPAnalysisToolbox.datasets.openbmidataset.openBMIDataset
+
+    Initialize the openBMI dataset.
+
+    Fifty-four healthy subjects (ages 24-35, 25 females) participated in the experiment. Thirty-eight subjects were naive BCI users. The others had previous experience with BCI experiments. None of the participants had a history of neurological, psychiatric, or any other pertinent disease that otherwise might have affected the experimental results.
+
+    EEG signals were recorded with a sampling rate of 1000 Hz and collected with 62 Ag/AgCl electrodes.
+
+    Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 Hz and were presented in four positions (down, right, left, and up, respectively) on a monitor. The designed paradigm followed the conventional types of SSVEP-based BCI systems that require four-direction movements [40]. Participants were asked to fixate the center of a black screen and then to gaze in the direction where the target stimulus was highlighted in a different color (see Figure 2-C). Each SSVEP stimulus was presented for 4 s with an ISI of 6 s. Each target frequency was presented 25 times. Therefore, the corrected EEG data had 100 trials (4 classes × 25 trials) in the offline training phase and another 100 trials in the online test phase. Visual feedback was presented in the test phase; the estimated target frequency was highlighted for one second with a red border at the end of each trial.
+
+    Total: around 55.6 GB
+
+    Paper:
+    M.-H. Lee, O.-Y. Kwon, Y.-J. Kim, H.-K. Kim, Y.-E. Lee, J. Williamson, S. Fazli, and S.-W. Lee, "EEG dataset and OpenBMI toolbox for three BCI paradigms: An investigation into BCI illiteracy," GigaScience, vol. 8, no. 5, p. giz002, 2019. DOI: `10.1093/gigascience/giz002 <https://doi.org/10.1093/gigascience/giz002>`_.
+
+    Data:
+    M. Lee, O. Kwon, Y. Kim, H. Kim, Y. Lee, J. Williamson, S. Fazli, S. Lee, "Supporting data for 'EEG Dataset and OpenBMI Toolbox for Three BCI Paradigms: An Investigation into BCI Illiteracy'," GigaScience Database, 2019. DOI: `10.5524/100542 <http://dx.doi.org/10.5524/100542>`_.
+
+    URL: ``ftp://ftp.cngb.org/pub/gigadb/pub/10.5524/100001_101000/100542/``.
 
     :param path: Path of storing EEG data. 
     
@@ -223,9 +259,20 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 
     .. note::
 
-        The given ``preprocess_fun`` should be a callable function name (only name). This callable function should only have one input parameter ``X``. ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
+        The given ``preprocess_fun`` should be a callable function name (only name). This callable function should only have two input parameter ``dataself`` and ``X``. 
+        
+        + ``dataself`` is the data istance. If you need to use parameters in the data module, you can directly use them from ``dataself``. 
+        + ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
         
         If your preprocess function needs other input parameters, you may use `lambda function <https://www.w3schools.com/python/python_lambda.asp>`_. Check demos to get more hints.
+
+        You may refer the following default preprocess function to define your own function.
+
+    .. code-block:: python
+        :linenos:
+
+        def default_preprocess(dataself, X: ndarray) -> ndarray:
+            return X
 
 .. py:function:: reset_filterbank
 
@@ -239,11 +286,30 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 
     .. note::
 
-        The given ``filterbank_fun`` should be a callable function name (only name). This callable function should only have one input parameter ``X``. ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
+        The given ``filterbank_fun`` should be a callable function name (only name). This callable function should only have two input parameter ``dataself`` and ``X``. 
+        
+        + ``dataself`` is the data istance. If you need to use parameters in the data module, you can directly use them from ``dataself``.
+        + ``X`` is a 2D EEG signal (channels :raw-html:`&#215;` samples). The pre-stimulus time has been removed from the EEG signal. The latency time is maintained in the EEG signal. The detailed data extraction procedures please refer to `"get_data" function <#get_data>`_.
 
         The output of the given ``filterbank_fun`` should be a 3D EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples). The bandpass filtered EEG signals of filterbanks should be stored in the first dimension. 
 
         If your filterbank function needs other input parameters, you may use `lambda function <https://www.w3schools.com/python/python_lambda.asp>`_. Check demos to get more hints.
+
+        You may refer the following default preprocess function to define your own function.
+
+    .. code-block:: python
+        :linenos:
+
+        def default_filterbank(dataself, X: ndarray) -> ndarray:
+            """
+            default filterbank (1 filterbank contains original signal)
+            """
+            if len(X.shape) == 2:
+                return expand_dims(X,0)
+            elif len(X.shape) == 3:
+                return X
+            else:
+                raise ValueError("The shapes of EEG signals are not correct")
 
 .. py:function:: leave_one_block_out
 
@@ -289,7 +355,7 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 
     .. image:: _static/dataset-processing.png
 
-.. py:function:: get_data_all_stim
+.. py:function:: get_data_all_trials
 
     Extract EEG signals of all trials in given blocks and corresponding labels from the dataset. This function is similar as ``get_data`` but it does not need ``trials`` and will extract all trials of given blocks.
 
@@ -305,9 +371,9 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
         + ``X``: List of single trial EEG signals.
         + ``Y``: List of labels.
 
-.. py:function:: get_ref_sig
+.. py:function:: reset_ref_sig_fun
 
-    Generate sine-cosine-based reference signals. The reference signals of :math:`i\text{-th}` stimulus can be presented as
+    Set the reference signal generation function as the default sine-cosine reference generation function. The default sine-cosine reference generation function uses the sampling frequency of the original signal (recoded in the dataset) to generate the reference signals. The reference signals of :math:`i\text{-th}` stimulus can be presented as
 
     .. math::
 
@@ -320,6 +386,39 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
                         \end{array} \right]
 
     where :math:`f_i` and :math:`\theta_i` denote the stimulus frequency and phase of the :math:`i\text{-th}` stimulus, and :math:`N_h` denotes the total number of harmonic components.
+
+.. py:function:: regist_ref_sig_fun
+
+    Hook the user-defined reference generation function. 
+
+    :param ref_sig_fun: User-defined reference generation function.
+
+    .. note::
+
+        The given ``preprocess_fun`` should be a callable function name (only name). This callable function should only have four input parameter:
+        
+        + ``dataself`` is the data istance. If you need to use parameters in the data module, you can directly use them from ``dataself``. 
+        + ``sig_len`` is the signal length (in second).
+        + ``N`` is the total number of harmonic components.
+        + ``phases`` is the phases of stimuli.
+
+        The frequencies of stimuli can be obtained from ``dataself``.
+        
+        If your reference generation function needs other input parameters, you may use `lambda function <https://www.w3schools.com/python/python_lambda.asp>`_. Check demos to get more hints.
+
+        Normally, you do not need to define your own reference signal generation function. But, when you change the sampling rate (upsampling or downsampling in the preprocess), you must define your own reference signal generation function using the new sampling rate. You may refer the following default reference signal generation function to define your own function.
+
+    .. code-block:: python
+        :linenos:
+
+        def default_ref_sig_fun(dataself, sig_len: float, N: int, phases: List[float]):
+            L = floor(sig_len * dataself.srate)
+            ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+            return ref_sig
+
+.. py:function:: get_ref_sig
+
+    Generate sine-cosine-based reference signals by using the registed reference generation function.
 
     :param sig_len: Signal length (in second). It should be same as the signal length of extracted EEG signals.
     :param N: Total number of harmonic components.
@@ -382,3 +481,5 @@ You can use the abstract class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` 
         :return:
 
             + ``label``: Label of the specific trial. The label should be one integer number.
+
+3. According to your requirements, you may re-define existed functions listed in `Functions of datasets <#functions-of-datasets>`_.

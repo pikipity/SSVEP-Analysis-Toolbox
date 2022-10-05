@@ -15,10 +15,10 @@ import numpy as np
 
 # Prepare dataset
 dataset = BenchmarkDataset(path = '2016_Tsinghua_SSVEP_database')
-dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))
-dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
+dataset.regist_preprocess(preprocess)
+dataset.regist_filterbank(filterbank)
 ch_used = suggested_ch()
-all_trials = [i for i in range(dataset.stim_info['stim_num'])]
+all_trials = [i for i in range(dataset.trial_num)]
 harmonic_num = 5
 dataset_container = [
                         dataset

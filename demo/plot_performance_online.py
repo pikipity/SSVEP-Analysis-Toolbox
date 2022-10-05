@@ -3,7 +3,7 @@
 import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
-from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot
+from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, close_fig
 
 import numpy as np
 
@@ -50,6 +50,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
         #                                 ylim = [0, 1],
         #                                 figsize=[6.4*3, 4.8])
         # fig.savefig('res/{:s}_{:s}_acc_bar.jpg'.format(sub_title[dataset_idx],method_name), bbox_inches='tight', dpi=300)
+        # close_fig(fig)
 
         subject_num, signal_len_num, method_num, trial_num = itr_store.shape
         trial_each_repeat_num = int(np.floor(trial_num/repeat_num))
@@ -70,6 +71,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
         #                                 grid = True,
         #                                 figsize=[6.4*3, 4.8])
         # fig.savefig('res/{:s}_{:s}_itr_bar.jpg'.format(sub_title[dataset_idx],method_name), bbox_inches='tight', dpi=300)
+        # close_fig(fig)
 
         # Plot Performance of shadow lines
         fig, _ = shadowline_plot(x_value,
@@ -83,6 +85,7 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                 ylim = [0, 1],
                                 figsize=[6.4*3, 4.8])
         fig.savefig('res/{:s}_{:s}_acc_shadowline.jpg'.format(sub_title[dataset_idx],method_name), bbox_inches='tight', dpi=300)
+        close_fig(fig)
 
         fig, _ = shadowline_plot(x_value,
                                 itr_store_online,
@@ -94,3 +97,4 @@ for dataset_idx, data_file in enumerate(data_file_list):
                                 grid = True,
                                 figsize=[6.4*3, 4.8])
         fig.savefig('res/{:s}_{:s}_itr_shadowline.jpg'.format(sub_title[dataset_idx],method_name), bbox_inches='tight', dpi=300)
+        close_fig(fig)

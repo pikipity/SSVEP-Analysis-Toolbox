@@ -2,8 +2,8 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
-from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
+from SSVEPAnalysisToolbox.datasets.openbmidataset import openBMIDataset
+from SSVEPAnalysisToolbox.utils.openbmipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR, ITCCA
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
@@ -12,20 +12,21 @@ from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
 import time
 
 # Prepare dataset
-dataset = BenchmarkDataset(path = '2016_Tsinghua_SSVEP_database')
-dataset.regist_preprocess(lambda X: preprocess(X, dataset.srate))
-dataset.regist_filterbank(lambda X: filterbank(X, dataset.srate))
+dataset = openBMIDataset(path = 'openBMI')
+downsample_srate = 100
+dataset.regist_preprocess(lambda dataself, X: preprocess(dataself, X, downsample_srate))
+dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, downsample_srate))
+dataset.regist_ref_sig_fun(lambda dataself, sig_len, N, phases: ref_sig_fun(dataself, sig_len, N, phases, downsample_srate))
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank()
-recog_model = ESSCOR(n_jobs = 10,
-                     weights_filterbank = weights_filterbank)
+recog_model = SCCA_qr(n_jobs = 10, weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
-all_trials = [i for i in range(dataset.stim_info['stim_num'])]
-harmonic_num = 5
-tw = 2
+all_trials = [i for i in range(dataset.trial_num)]
+harmonic_num = 2
+tw = 4
 sub_idx = 0
 test_block_idx = 0
 test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test_block_idx)
@@ -34,20 +35,20 @@ test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test
 ref_sig = dataset.get_ref_sig(tw, harmonic_num)
 freqs = dataset.stim_info['freqs']
 X_train, Y_train = dataset.get_data(sub_idx = sub_idx,
-                                                blocks = train_block_list,
-                                                trials = all_trials,
-                                                channels = ch_used,
-                                                sig_len = tw)
+                                    blocks = train_block_list,
+                                    trials = all_trials,
+                                    channels = ch_used,
+                                    sig_len = tw)
 tic = time.time()
 recog_model.fit(X=X_train, Y=Y_train, ref_sig=ref_sig, freqs=freqs) 
 toc_train = time.time()-tic
 
 # Get testing data and test the recognition model
 X_test, Y_test = dataset.get_data(sub_idx = sub_idx,
-                                                blocks = test_block_list,
-                                                trials = all_trials,
-                                                channels = ch_used,
-                                                sig_len = tw)
+                                    blocks = test_block_list,
+                                    trials = all_trials,
+                                    channels = ch_used,
+                                    sig_len = tw)
 tic = time.time()
 pred_label = recog_model.predict(X_test)
 toc_test = time.time()-tic
@@ -61,18 +62,18 @@ print("""
 Simulation Information:
     Method Name: {:s}
     Dataset: {:s}
-    Signal length: {:n} s
+    Signal length: {:.3f} s
     Channel: {:s}
     Subject index: {:n}
     Testing block: {:s}
     Training block: {:s}
-    Training time: {:n} s
-    Total Testing time: {:n} s
-    Testing time of single trial: {:n} s
+    Training time: {:.5f} s
+    Total Testing time: {:.5f} s
+    Testing time of single trial: {:.5f} s
 
 Performance:
-    Acc: {:n} %
-    ITR: {:n} bits/min
+    Acc: {:.3f} %
+    ITR: {:.3f} bits/min
 """.format(recog_model.ID,
            dataset.ID,
            tw,
