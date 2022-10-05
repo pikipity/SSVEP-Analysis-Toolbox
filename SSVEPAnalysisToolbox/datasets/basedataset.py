@@ -26,6 +26,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
                  channels: List[str],
                  srate: int,
                  block_num: int,
+                 trial_num: int,
                  trial_len: float,
                  stim_info: Dict[str, Union[int, List[float]]],
                  t_prestim: float,
@@ -59,6 +60,9 @@ class BaseDataset(metaclass=abc.ABCMeta):
             
         block_num: int
             Number of blocks
+
+        trial_num: int
+            Number of trials in each block
             
         trial_len: float
             Signal length of single trial (in second)
@@ -105,6 +109,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
         self.channels = [ch.upper() for ch in channels]
         self.srate = srate
         self.block_num = block_num
+        self.trial_num = trial_num
         self.stim_info = stim_info
         self.trial_len = trial_len
         self.support_files = support_files
@@ -126,16 +131,23 @@ class BaseDataset(metaclass=abc.ABCMeta):
         # regist default preprocess and filterbank functions
         self.reset_preprocess()
         self.reset_filterbank()
+        self.reset_ref_sig_fun()
 
+    def reset_ref_sig_fun(self):
+        def default_ref_sig_fun(dataself, sig_len: float, N: int, phases: List[float]):
+            L = floor(sig_len * dataself.srate)
+            ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+            return ref_sig
+        self.regist_ref_sig_fun(default_ref_sig_fun)
     def reset_preprocess(self):
-        def default_preprocess(X: ndarray) -> ndarray:
+        def default_preprocess(dataself, X: ndarray) -> ndarray:
             """
             default preprocess (do nothing)
             """
             return X
         self.regist_preprocess(default_preprocess)
     def reset_filterbank(self):
-        def default_filterbank(X: ndarray) -> ndarray:
+        def default_filterbank(dataself, X: ndarray) -> ndarray:
             """
             default filterbank (1 filterbank contains original signal)
             """
@@ -237,8 +249,12 @@ class BaseDataset(metaclass=abc.ABCMeta):
             
         sub_data = self.get_sub_data(sub_idx)
         
-        X = [self.get_data_single_trial(sub_data, block_idx, stim_idx, channels, sig_len, t_latency) for block_idx in blocks for stim_idx in trials]
-        Y = [self.get_label_single_trial(sub_idx,block_idx, stim_idx) for block_idx in blocks for stim_idx in trials]
+        X = []
+        for block_idx in blocks:
+            X.extend(self.get_data_trial(sub_data, block_idx, trials, channels, sig_len, t_latency))
+        Y = []
+        for block_idx in blocks:
+            Y.extend(self.get_label_trial(sub_idx,block_idx,trials))
         
         trial_seq = [i for i in range(len(X))]
         if shuffle:
@@ -246,16 +262,16 @@ class BaseDataset(metaclass=abc.ABCMeta):
         
         return [X[i] for i in trial_seq], [Y[i] for i in trial_seq]
     
-    def get_data_all_stim(self,
-                          sub_idx: int,
-                          blocks: List[int],
-                          channels: List[int],
-                          sig_len: float,
-                          t_latency: Optional[float] = None,
-                          shuffle: Optional[bool] = False) -> Tuple[List[ndarray], List[int]]:
+    def get_data_all_trials(self,
+                            sub_idx: int,
+                            blocks: List[int],
+                            channels: List[int],
+                            sig_len: float,
+                            t_latency: Optional[float] = None,
+                            shuffle: Optional[bool] = False) -> Tuple[List[ndarray], List[int]]:
         """
         Construct data, corresponding labels, and sine-cosine-based reference signals 
-        from one subject (all stimuli)
+        from one subject (all trials)
 
         Parameters
         ----------
@@ -283,7 +299,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
         """
         if type(blocks) is not list:
             blocks = [blocks]
-        trials = [i for i in range(self.stim_info['stim_num'])]
+        trials = [i for i in range(self.trial_num)]
             
         X, Y = self.get_data(sub_idx, blocks, trials, channels, sig_len, t_latency)
         
@@ -296,7 +312,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
     def get_data_single_trial(self,
                              sub_data: ndarray,
                              block_idx: int,
-                             stim_idx: int,
+                             trial_idx: int,
                              channels: List[int],
                              sig_len: float,
                              t_latency: float) -> ndarray:
@@ -307,11 +323,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
         ----------
         sub_data : ndarray
             Subject data
-            block_num * stimulus_num * ch_num * whole_trial_samples
+            block_num * trial_num * ch_num * whole_trial_samples
         block_idx : int
             Block index
-        stim_idx : int
-            Stimulus index
+        trial_idx : int
+            Trial index
         channels: List[int]
             List of channels
         sig_len : float
@@ -330,10 +346,10 @@ class BaseDataset(metaclass=abc.ABCMeta):
         if block_idx > self.block_num-1:
             raise ValueError('Block index should be smaller than {:d}'.format(self.block_num))
             
-        if stim_idx < 0:
+        if trial_idx < 0:
             raise ValueError('Stimulus index cannot be negative')
-        if stim_idx > self.stim_info['stim_num']-1:
-            raise ValueError('Stimulus index should be smaller than {:d}'.format(self.stim_info['stim_num']))
+        if trial_idx > self.trial_num-1:
+            raise ValueError('Stimulus index should be smaller than {:d}'.format(self.trial_num))
         
         if type(channels) is not list:
             channels = [channels]
@@ -357,10 +373,10 @@ class BaseDataset(metaclass=abc.ABCMeta):
         
         start_t_idx = t_prestim
         end_t_idx = t_pre + sig_len
-        eeg_total = sub_data[block_idx,stim_idx,channels,start_t_idx:end_t_idx]
+        eeg_total = sub_data[block_idx,trial_idx,channels,start_t_idx:end_t_idx]
         # end_t_idx = eeg_total.shape[-1]
-        eeg_total = self.preprocess_fun(eeg_total)
-        eeg_total = self.filterbank_fun(eeg_total)
+        eeg_total = self.preprocess_fun(self, eeg_total)
+        eeg_total = self.filterbank_fun(self, eeg_total)
 
         if len(eeg_total.shape) == 1:
             eeg_total = expand_dims(eeg_total, axis = 0)
@@ -397,26 +413,27 @@ class BaseDataset(metaclass=abc.ABCMeta):
         ref_sig : List[ndarray]
             List of reference signals
         """
-        L = floor(sig_len * self.srate)
         if ignore_stim_phase:
             phases = [0 for _ in range(len(self.stim_info['freqs']))]
         else:
             phases = self.stim_info['phases']
-        ref_sig = [gen_ref_sin(freq, self.srate, L, N, phase) for freq, phase in zip(self.stim_info['freqs'], phases)]
+        ref_sig = self.ref_sig_fun(self, sig_len, N, phases)
         return ref_sig
     
     def regist_preprocess(self,
-                          preprocess_fun: Callable[[ndarray],ndarray]):
+                          preprocess_fun):
         """
         Regist preprocess function
 
         Parameters
         ----------
-        preprocess_fun : Callable[[ndarray],ndarray]
+        preprocess_fun
             preprocess function
             
             Parameters
             ----------
+            dataself
+                data instance
             X : ndarray
                 EEG signal (including latency time and desired signal window, but pre-stimulus time has been removed)
                 ch_num * signal_length
@@ -426,19 +443,49 @@ class BaseDataset(metaclass=abc.ABCMeta):
             preprocess_X: ndarray
         """
         self.preprocess_fun = preprocess_fun
+
+    def regist_ref_sig_fun(self,
+                           ref_sig_fun):
+        """
+        Regist reference signal generation function
+
+        Parameters
+        ------------
+        ref_sig_fun
+            reference signal generation function
+
+            Parameters
+            -----------
+            dataself
+                data instance
+            sig_len : float
+                signal length (in second)
+            N : int
+                Number of harmonics
+            phases : List[float]
+                Phases of references
+
+            Returns
+            -------
+            ref_sig : List[ndarray]
+                List of reference signals
+        """
+        self.ref_sig_fun = ref_sig_fun
     
     def regist_filterbank(self,
-                          filterbank_fun: Callable[[ndarray],ndarray]):
+                          filterbank_fun):
         """
         Regist filterbank function
 
         Parameters
         ----------
-        filterbank_fun : Callable[[ndarray],ndarray]
+        filterbank_fun
             filterbank function
             
             Parameters
             ----------
+            dataself
+                data instance
             X : ndarray
                 EEG signal after preprocess (including latency time and desired signal window, but pre-stimulus time has been removed)
                 ch_num * signal_length
@@ -449,18 +496,37 @@ class BaseDataset(metaclass=abc.ABCMeta):
                 filterbanks
         """
         self.filterbank_fun = filterbank_fun
+
+    def get_data_trial(self,
+                       sub_data : ndarray, 
+                       block_idx : int, 
+                       trials : List[int], 
+                       channels : List[int], 
+                       sig_len : float, 
+                       t_latency : float):
+        return [self.get_data_single_trial(sub_data, block_idx, trial_idx, channels, sig_len, t_latency) for trial_idx in trials]
+
+    def get_label_trial(self,
+                        sub_idx : int,
+                        block_idx : int,
+                        trials : List[int]):
+        """
+        Get labels of given trials
+        """
+        return [self.get_label_single_trial(sub_idx, block_idx, trial_idx) for trial_idx in trials]
         
             
     def __repr__(self):
         return self.__str__()
     
     def __str__(self):
-        desc = """Dataset: {:s}:\n   Subjects: {:d}\n   Srate: {:d}\n   Channels: {:d}\n   Blocks: {:d}\n   Stimuli: {:d}\n   Signal length: {:.3f}\n""".format(
+        desc = """Dataset: {:s}:\n   Subjects: {:d}\n   Srate: {:d}\n   Channels: {:d}\n   Blocks: {:d}\n  Trials: {:d}\n   Stimuli: {:d}\n   Signal length: {:.3f}\n""".format(
             self.ID,
             len(self.subjects),
             self.srate,
             len(self.channels),
             self.block_num,
+            self.trial_num,
             self.stim_info['stim_num'],
             self.trial_len
             )
@@ -517,7 +583,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
     def get_label_single_trial(self,
                                sub_idx: int,
                                block_idx: int,
-                               stim_idx: int) -> int:
+                               trial_idx: int) -> int:
         """
         Get the label of single trial
 
@@ -527,7 +593,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
             Subject index
         block_idx : int
             Block index
-        stim_idx : int
+        trial_idx : int
             Trial index
 
         Returns

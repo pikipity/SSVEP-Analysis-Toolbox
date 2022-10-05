@@ -62,6 +62,7 @@ class openBMIDataset(BaseDataset):
                          channels = self._CHANNELS, 
                          srate = 1000, 
                          block_num = 4, # 2 condition * 2 sessions
+                         trial_num = 100,
                          trial_len = 4, 
                          stim_info = {'stim_num': len(self._FREQS),
                                       'freqs': self._FREQS,
@@ -128,12 +129,13 @@ class openBMIDataset(BaseDataset):
         
         return data
 
-
-
-    def get_label_single_trial(self,
-                               sub_idx: int,
-                               block_idx: int,
-                               stim_idx: int) -> int:
+    def get_label_trial(self,
+                        sub_idx : int,
+                        block_idx : int,
+                        trials : List[int]):
+        """
+        Redefine get_label_trial
+        """
         if block_idx<2:
             sess_idx = 0
         else:
@@ -151,7 +153,33 @@ class openBMIDataset(BaseDataset):
         cond_data = mat_data[struct_info[cond_idx]]
         y_dec = cond_data['y_dec'] 
 
-        return y_dec[stim_idx]-1
+        return [y_dec[trial_idx]-1 for trial_idx in trials]
+
+        # return y_dec[stim_idx]-1
+        
+    
+    def get_label_single_trial(self,
+                               sub_idx: int,
+                               block_idx: int,
+                               trial_idx: int) -> int:
+        if block_idx<2:
+            sess_idx = 0
+        else:
+            sess_idx = 1
+        
+        sub_info = self.subjects[sub_idx]
+        sub_ID = sub_info.ID
+
+        struct_info = ['EEG_SSVEP_test', 'EEG_SSVEP_train']
+
+        file_path = os.path.join(sub_info.path, 'sess{:n}-{:s}.mat'.format(sess_idx+1, sub_ID))
+        mat_data = loadmat(file_path)
+
+        cond_idx = block_idx%2
+        cond_data = mat_data[struct_info[cond_idx]]
+        y_dec = cond_data['y_dec'] 
+
+        return y_dec[trial_idx]-1
                         
 
 

@@ -28,14 +28,15 @@ def suggested_ch() -> List[int]:
     """
     return [i-1 for i in [48, 54, 55, 56, 57, 58, 61, 62, 63]]
 
-def preprocess(X: ndarray,
-               srate: Optional[float] = 250) -> ndarray:
+def preprocess(dataself,
+               X: ndarray) -> ndarray:
     """
     Suggested preprocessing function for benchmark dataset
     
     notch filter at 50 Hz
     """
-    
+    srate = dataself.srate
+
     # notch filter at 50 Hz
     f0 = 50
     Q = 35
@@ -44,12 +45,13 @@ def preprocess(X: ndarray,
     
     return preprocess_X
     
-def filterbank(X: ndarray,
-               srate: Optional[float] = 250,
+def filterbank(dataself,
+               X: ndarray,
                num_subbands: Optional[int] = 5) -> ndarray:
     """
     Suggested filterbank function for benchmark dataset
     """
+    srate = dataself.srate
     
     filterbank_X = np.zeros((num_subbands, X.shape[0], X.shape[1]))
     
