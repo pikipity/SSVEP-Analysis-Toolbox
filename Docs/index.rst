@@ -54,9 +54,12 @@ Datasets and Algorithms
   
       M.-H. Lee, O.-Y. Kwon, Y.-J. Kim, H.-K. Kim, Y.-E. Lee, J. Williamson, S. Fazli, and S.-W. Lee, "EEG dataset and OpenBMI toolbox for three BCI paradigms: An investigation into BCI illiteracy," GigaScience, vol. 8, no. 5, p. giz002, 2019. DOI: `10.1093/gigascience/giz002 <https://doi.org/10.1093/gigascience/giz002>`_.
 
+  + **Wearable** dataset: 
+  
+      F. Zhu, L. Jiang, G. Dong, X. Gao, and Y. Wang, “An Open Dataset for Wearable SSVEP-Based Brain-Computer Interfaces,” Sensors, vol. 21, no. 4, p. 1256, 2021. DOI: `10.3390/s21041256 <https://www.mdpi.com/1424-8220/21/4/1256>`_.
+
   .. todo::
     
-    + `Wearable SSVEP BCI Dataset <http://bci.med.tsinghua.edu.cn/download.html>`_
     + `160 Targets SSVEP BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/ac0bfa>`_
     + `Dual Frequency and Phase Modulation SSVEP-BCI Dataset <https://iopscience.iop.org/article/10.1088/1741-2552/abaa9b/meta>`_
   

@@ -37,7 +37,7 @@ class WearableDataset_wet(BaseDataset):
 
     The “stimulation_information.pdf” file lists the stimulation parameters of the 12 characters, including frequency and phase information of each character.
 
-    Total: around 928 MB
+    Total: around 929 MB
 
     Reference:
     F. Zhu, L. Jiang, G. Dong, X. Gao, and Y. Wang, “An Open Dataset for Wearable SSVEP-Based Brain-Computer Interfaces,” Sensors, vol. 21, no. 4, p. 1256, 2021. DOI: 10.3390/s21041256

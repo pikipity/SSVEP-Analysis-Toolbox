@@ -295,6 +295,128 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
+.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_wet
+
+    Initialize the wearable dataset (wet electrodes).
+
+    This study relied on the BCI Brain-Controlled Robot Contest at the 2020 World Robot Contest to recruit participants.
+
+    One hundred and two healthy subjects (64 males and 38 females, with an average age of 30.03 ± 0.79 years ranging from 8 to 52 years) with normal or corrected-to-normal eyesight participated in the experiment. total, 53 subjects wore the dry-electrode headband first and 49 subjects wore the wet-electrode headband first. 
+
+    This research designed an online BCI system with a 12-target speller as a virtual keypad of a phone.
+
+    An 8-channel NeuSenW (Neuracle, Ltd. Changzhou, China) wireless EEG acquisition system was used to record the SSVEPs in this study.
+
+    Each block included 12 trials, and each trial corresponded to each target.
+
+    EEG data were recorded using Neuracle EEG Recorder NeuSen W (Neuracle, Ltd.), a wireless EEG acquisition system with a sampling rate of 1000 Hz. Eight electrodes (POz, PO3, PO4, PO5, PO6, Oz, O1 and O2, sorted by channel index in the dataset) were placed at the parietal and occipital regions on the basis of the international 10 to 20 system to record SSVEPs and two electrodes were placed at the forehead as the reference and ground, respectively.
+
+    In accordance with the stimulus onsets recorded in the event channel of the continuous EEG data, data epochs could be extracted. The length of each data epoch was 2.84 s, including 0.5 s before the stimulus onset, 0.14 s for visual response delay, 2 s for stimulus, and 0.2 s after stimulus. With the purpose of reducing the storage and computation costs, all data were down sampled to 250 Hz.
+
+    The electrode impedances recorded before each block were provided in the data matrix of ‘Impedance.mat’ with dimensions of [8, 10, 2, 102]. The channel index are corresponding to POz, PO3, PO4, PO5, PO6, Oz, O1, O2. The numbers in the four dimensions represent the number of channels, blocks, headband types (1: wet, 2: dry) and subjects respectively. The impedance information can be used to study the relationship be tween impedance and BCI performance.
+
+    The “Subjects_information.mat” file lists the information of all 102 subjects together with aquestionnaire on the comfort level and preference of the two headbands after the experiment. For each participant, there are 10 columns of parameters (factors). The first 4 colu mns are the subjects’ personal information including “subject index”, “gender”, “age”, and “dominant hand”. The 6 columns(5th 10th) are listed as results in questionnaires, which are “Comfort of dry electrode headband”, “Wearing time of dry electrode when pain occurs”, “Comfort of wet electrode headband”, “Wearing time of wet electrode when pain occurs”, “Only consider comfort, headband preference” and “comprehensively consider comfort and convenience (need assistance from others, conductive paste, shampoo, etc.), headband preference". The last column shows the order of wearing the two headbands.
+
+    The “stimulation_information.pdf” file lists the stimulation parameters of the 12 characters, including frequency and phase information of each character.
+
+    =============================   ===============================================
+    Num. of Subjects                102
+    -----------------------------   -----------------------------------------------
+    Num. of Targets                 12
+    -----------------------------   -----------------------------------------------
+    Num. of Channels                8
+    -----------------------------   -----------------------------------------------
+    Num. of Blocks                  10
+    -----------------------------   -----------------------------------------------
+    Num. of trials in each blcok    12
+    -----------------------------   -----------------------------------------------
+    Pre-stimulus Time               0.5 s
+    -----------------------------   -----------------------------------------------
+    Break Time                      0.2 s
+    -----------------------------   -----------------------------------------------
+    Whole Trial Length              2.84 s
+    -----------------------------   -----------------------------------------------
+    Default Latency Time            0.14 s
+    -----------------------------   -----------------------------------------------
+    Sampling rate                   250 Hz
+    =============================   ===============================================
+
+    .. image:: ./_static/wearable.png
+
+    Total: around 929 MB
+
+    Paper:
+    F. Zhu, L. Jiang, G. Dong, X. Gao, and Y. Wang, “An Open Dataset for Wearable SSVEP-Based Brain-Computer Interfaces,” Sensors, vol. 21, no. 4, p. 1256, 2021. DOI: `10.3390/s21041256 <https://www.mdpi.com/1424-8220/21/4/1256>`_.
+
+    URL: `http://bci.med.tsinghua.edu.cn/ <http://bci.med.tsinghua.edu.cn/>`_..
+
+    :param path: Path of storing EEG data. 
+    
+        The missing subjects' data files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+    
+        Default path is a folder :file:`BETA Dataset` in the working path. 
+
+    :param path_support_file: Path of supported files, i.e., :file:`note.pdf`, and :file:`description.pdf`. 
+    
+        The missing supported files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+        
+        Default path is same as data path ``path``.
+
+.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_wet
+
+    Initialize the wearable dataset (dry electrodes).
+
+    =============================   ===============================================
+    Num. of Subjects                102
+    -----------------------------   -----------------------------------------------
+    Num. of Targets                 12
+    -----------------------------   -----------------------------------------------
+    Num. of Channels                8
+    -----------------------------   -----------------------------------------------
+    Num. of Blocks                  10
+    -----------------------------   -----------------------------------------------
+    Num. of trials in each blcok    12
+    -----------------------------   -----------------------------------------------
+    Pre-stimulus Time               0.5 s
+    -----------------------------   -----------------------------------------------
+    Break Time                      0.2 s
+    -----------------------------   -----------------------------------------------
+    Whole Trial Length              2.84 s
+    -----------------------------   -----------------------------------------------
+    Default Latency Time            0.14 s
+    -----------------------------   -----------------------------------------------
+    Sampling rate                   250 Hz
+    =============================   ===============================================
+
+    .. image:: ./_static/wearable.png
+
+    Total: around 929 MB
+
+    Paper:
+    F. Zhu, L. Jiang, G. Dong, X. Gao, and Y. Wang, “An Open Dataset for Wearable SSVEP-Based Brain-Computer Interfaces,” Sensors, vol. 21, no. 4, p. 1256, 2021. DOI: `10.3390/s21041256 <https://www.mdpi.com/1424-8220/21/4/1256>`_.
+
+    URL: `http://bci.med.tsinghua.edu.cn/ <http://bci.med.tsinghua.edu.cn/>`_..
+
+    :param path: Path of storing EEG data. 
+    
+        The missing subjects' data files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+    
+        Default path is a folder :file:`BETA Dataset` in the working path. 
+
+    :param path_support_file: Path of supported files, i.e., :file:`note.pdf`, and :file:`description.pdf`. 
+    
+        The missing supported files will be downloaded when the dataset is initialized. 
+        
+        If the provided path is not existed, the provided path will be created. 
+        
+        Default path is same as data path ``path``.
+
 Parameters of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
