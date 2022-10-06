@@ -172,8 +172,7 @@ def create_pbar(loop_list_num: List[int],
         total_num = total_num * loop_num
     pbar = tqdm(total = total_num,
                 desc = desc,
-                bar_format = '{desc}{percentage:3.3f}%|{bar}| {n_fmt}/{total_fmt} [Time: {elapsed}<{remaining}]',
-                dynamic_ncols = True)
+                bar_format = '{desc}{percentage:3.3f}%|{bar}| {n_fmt}/{total_fmt} [Time: {elapsed}<{remaining}]')
     return pbar
 
 class PerformanceContainer:
