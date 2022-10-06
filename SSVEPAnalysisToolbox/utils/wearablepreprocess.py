@@ -44,10 +44,13 @@ def preprocess(dataself,
     srate = dataself.srate
 
     # notch filter at 50 Hz
-    f0 = 50
-    Q = 35
-    notchB, notchA = signal.iircomb(f0, Q, ftype='notch', fs=srate)
-    preprocess_X = signal.filtfilt(notchB, notchA, X, axis = 1, padtype='odd', padlen=3*(max(len(notchB),len(notchA))-1))
+    # f0 = 50
+    # Q = 35
+    # notchB, notchA = signal.iircomb(f0, Q, ftype='notch', fs=srate)
+    # preprocess_X = signal.filtfilt(notchB, notchA, X, axis = 1, padtype='odd', padlen=3*(max(len(notchB),len(notchA))-1))
+
+    b1, a1 = signal.cheby1(4,1,[47.0/(srate/2), 53.0/(srate/2)], 'stop')
+    preprocess_X = signal.filtfilt(b1, a1, X, axis = 1, padtype='odd', padlen=3*(max(len(b1),len(a1))-1))
     
     return preprocess_X
     
@@ -62,32 +65,39 @@ def filterbank(dataself,
     filterbank_X = np.zeros((num_subbands, X.shape[0], X.shape[1]))
     
     for k in range(1, num_subbands+1, 1):
-        Wp = [(9.25*k)/(srate/2), 90/(srate/2)]
-        Ws = [(9.25*k-2)/(srate/2), 100/(srate/2)]
+        b2, a2 = signal.cheby1(4,1,[(9.0*k)/(srate/2), 90.0/(srate/2)],'bandpass')
+        tmp =  signal.filtfilt(b2, a2, X, axis = 1, padtype='odd', padlen=3*(max(len(b2),len(a2))-1))
+        tmp = signal.detrend(X, axis = 1)
+        tmp = tmp - np.mean(tmp, axis = 1, keepdims = True)
+        tmp = tmp / np.std(tmp, axis = 1, keepdims = True)
+        filterbank_X[k-1,:,:] = tmp.copy()
+        
+#         Wp = [(9.25*k)/(srate/2), 90/(srate/2)]
+#         Ws = [(9.25*k-2)/(srate/2), 100/(srate/2)]
 
-        gstop = 40
-        while gstop>=20:
-            try:
-                N, Wn = signal.cheb1ord(Wp, Ws, 3, gstop)
-                bpB, bpA = signal.cheby1(N, 0.5, Wn, btype = 'bandpass')
-                filterbank_X[k-1,:,:] = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
-                break
-            except:
-                gstop -= 1
-        if gstop<20:
-            raise ValueError("""
-Filterbank cannot be processed. You may try longer signal lengths.
-Filterbank order: {:n}
-gstop: {:n}
-bpB: {:s}
-bpA: {:s}
-Required signal length: {:n}
-Signal length: {:n}""".format(k,
-                                gstop,
-                                str(bpB),
-                                str(bpA),
-                                3*(max(len(bpB),len(bpA))-1),
-                                X.shape[1]))
+#         gstop = 40
+#         while gstop>=20:
+#             try:
+#                 N, Wn = signal.cheb1ord(Wp, Ws, 3, gstop)
+#                 bpB, bpA = signal.cheby1(N, 0.5, Wn, btype = 'bandpass')
+#                 filterbank_X[k-1,:,:] = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
+#                 break
+#             except:
+#                 gstop -= 1
+#         if gstop<20:
+#             raise ValueError("""
+# Filterbank cannot be processed. You may try longer signal lengths.
+# Filterbank order: {:n}
+# gstop: {:n}
+# bpB: {:s}
+# bpA: {:s}
+# Required signal length: {:n}
+# Signal length: {:n}""".format(k,
+#                                 gstop,
+#                                 str(bpB),
+#                                 str(bpA),
+#                                 3*(max(len(bpB),len(bpA))-1),
+#                                 X.shape[1]))
         
         
     return filterbank_X
