@@ -10,12 +10,16 @@ data_file_list = ['res/benchmarkdataset_res.mat',
                   'res/betadataset_res.mat',
                   'res/nakanishidataset_res.mat',
                   'res/eldbetadataset_res.mat',
-                  'res/openbmidataset_res.mat']
+                  'res/openbmidataset_res.mat',
+                  'res/wearable_wet_res.mat',
+                  'res/wearable_dry_res.mat']
 sub_title = ['benchmark',
              'beta',
              'nakanishi',
              'eldbeta',
-             'openbmi']
+             'openbmi',
+             'wearable_wet',
+             'wearable_dry']
 
 
 for dataset_idx, data_file in enumerate(data_file_list):
