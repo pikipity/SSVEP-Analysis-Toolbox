@@ -366,7 +366,7 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_wet
+.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_dry
 
     Initialize the wearable dataset (dry electrodes).
 
