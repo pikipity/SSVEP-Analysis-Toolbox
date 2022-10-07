@@ -20,19 +20,19 @@ if data_type.lower() == 'wet':
 else:
     dataset = WearableDataset_dry(path = 'Wearable')
 dataset.regist_preprocess(preprocess)
-dataset.regist_filterbank(filterbank)
+dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, num_subbands))
 
 # Prepare recognition model
-weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')
-recog_model = SCCA_qr(n_jobs = 10, weights_filterbank = weights_filterbank)
+weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')
+recog_model = ETRCA(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
 harmonic_num = 5
 tw = 2
-sub_idx = 3
-test_block_idx = 0
+sub_idx = 98
+test_block_idx = 8
 test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test_block_idx)
 
 # Get training data and train the recognition model

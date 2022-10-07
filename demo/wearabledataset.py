@@ -3,7 +3,7 @@
 import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets.wearabledataset import WearableDataset_wet, WearableDataset_dry
-from SSVEPAnalysisToolbox.utils.wearablepreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
+from SSVEPAnalysisToolbox.utils.wearablepreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, subj_idx_highperformance
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
@@ -14,11 +14,12 @@ from SSVEPAnalysisToolbox.utils.io import savedata
 import numpy as np
 
 num_subbands = 5
-data_type_list = ['wet','dry']
+data_type_list = ['dry','wet']
+select_subj = subj_idx_highperformance()
 
 for data_type in data_type_list:
     print("Data type: {:s}".format(data_type))
-    
+
     # Prepare dataset
     if data_type.lower() == 'wet':
         dataset = WearableDataset_wet(path = 'Wearable')
@@ -43,7 +44,8 @@ for data_type in data_type_list:
                                                                 trials = all_trials,
                                                                 ch_used = ch_used,
                                                                 t_latency = None,
-                                                                shuffle = False)
+                                                                shuffle = False,
+                                                                subjects = select_subj)
 
 
     # Prepare models
@@ -52,7 +54,7 @@ for data_type in data_type_list:
                     #    SCCA_canoncorr(weights_filterbank = weights_filterbank),
                     #    MsetCCA(weights_filterbank = weights_filterbank),
                     #    MsetCCAwithR(weights_filterbank = weights_filterbank),
-                    #    ECCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
+                    ECCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
                     #    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
                     #    SSCOR(weights_filterbank = weights_filterbank),
                     #    ESSCOR(weights_filterbank = weights_filterbank),
@@ -79,11 +81,13 @@ for data_type in data_type_list:
     acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,
                                                                             dataset_idx = 0,
                                                                             tw_seq = tw_seq,
-                                                                            train_or_test = 'test')
+                                                                            train_or_test = 'test',
+                                                                            subj_seq = select_subj)
     confusion_matrix = cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator = evaluator,
                                                                             dataset_idx = 0,
                                                                             tw_seq = tw_seq,
-                                                                            train_or_test = 'test')                                                                       
+                                                                            train_or_test = 'test',
+                                                                            subj_seq = select_subj)                                                                       
 
     # Calculate training time and testing time
     train_time = np.zeros((len(model_container), len(evaluator.performance_container)))

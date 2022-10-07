@@ -176,7 +176,8 @@ def cal_performance_onedataset_individual_online(evaluator: object,
 def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
                                                         dataset_idx: int,
                                                         tw_seq: List[float],
-                                                        train_or_test: str) -> Tuple[ndarray, ndarray]:
+                                                        train_or_test: str,
+                                                        subj_seq: Optional[List[int]] = None) -> Tuple[ndarray, ndarray]:
     """
     Calculate confusion matrix for one dataset
     Evaluations will be carried out on each subject and each signal length
@@ -192,6 +193,9 @@ def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
         List of signal length
     train_or_test : str
         Calculate performance of training or testing performance
+    subj_seq : Optional[List[int]]
+        List of subject indices
+        If None, all subjects will be included
 
     Returns
     -------
@@ -207,12 +211,15 @@ def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
         raise ValueError("Unknown train_or_test type. It must be 'train' or 'test'")
     dataset_container = evaluator.dataset_container
     model_container = evaluator.model_container
-    sub_num = len(dataset_container[dataset_idx].subjects)
+    # sub_num = len(dataset_container[dataset_idx].subjects)
     N = dataset_container[dataset_idx].stim_info['stim_num']
+    if subj_seq is None:
+        subj_seq = list(range(len(dataset_container[dataset_idx].subjects)))
+    sub_num = len(subj_seq)
 
     confusion_matrix = np.zeros((len(model_container),sub_num, len(tw_seq), N, N))
 
-    for sub_idx in range(sub_num):
+    for sub_i, sub_idx in enumerate(subj_seq):
         for tw_idx, tw in enumerate(tw_seq):
             trial_info = {'dataset_idx':[dataset_idx],
                           'sub_idx':[sub_idx],
@@ -228,13 +235,14 @@ def cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator: object,
                         true_label_list = evaluator.performance_container[i][method_idx].true_label_test
                         pred_label_list = evaluator.performance_container[i][method_idx].pred_label_test
                     for true_label, pred_label in zip(true_label_list, pred_label_list):
-                        confusion_matrix[method_idx, sub_idx, tw_idx, true_label, pred_label] = confusion_matrix[method_idx, sub_idx, tw_idx, true_label, pred_label] + 1
+                        confusion_matrix[method_idx, sub_i, tw_idx, true_label, pred_label] = confusion_matrix[method_idx, sub_i, tw_idx, true_label, pred_label] + 1
     return confusion_matrix
 
 def cal_performance_onedataset_individual_diffsiglen(evaluator: object,
                                                      dataset_idx: int,
                                                      tw_seq: List[float],
-                                                     train_or_test: str) -> Tuple[ndarray, ndarray]:
+                                                     train_or_test: str,
+                                                     subj_seq: Optional[List[int]] = None) -> Tuple[ndarray, ndarray]:
     """
     Calculate acc and ITR for one dataset
     Evaluations will be carried out on each subject and each signal length
@@ -250,6 +258,9 @@ def cal_performance_onedataset_individual_diffsiglen(evaluator: object,
         List of signal length
     train_or_test : str
         Calculate performance of training or testing performance
+    subj_seq : Optional[List[int]]
+        List of subject indices
+        If None, all subjects will be included
 
     Returns
     -------
@@ -268,12 +279,15 @@ def cal_performance_onedataset_individual_diffsiglen(evaluator: object,
         raise ValueError("Unknown train_or_test type. It must be 'train' or 'test'")
     dataset_container = evaluator.dataset_container
     model_container = evaluator.model_container
-    sub_num = len(dataset_container[dataset_idx].subjects)
+    # sub_num = len(dataset_container[dataset_idx].subjects)
     t_break = dataset_container[dataset_idx].t_break
+    if subj_seq is None:
+        subj_seq = list(range(len(dataset_container[dataset_idx].subjects)))
+    sub_num = len(subj_seq)
     
     acc_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
     itr_store = np.zeros((len(model_container),sub_num, len(tw_seq)))
-    for sub_idx in range(sub_num):
+    for sub_i, sub_idx in enumerate(subj_seq):
         for tw_idx, tw in enumerate(tw_seq):
             trial_info = {'dataset_idx':[dataset_idx],
                           'sub_idx':[sub_idx],
@@ -291,8 +305,8 @@ def cal_performance_onedataset_individual_diffsiglen(evaluator: object,
                     if t_latency is None:
                         t_latency = dataset_container[dataset_idx].default_t_latency
                     tmp_itr.append(cal_itr_trials(train_or_test, performance_container, tw, t_break, t_latency))
-                acc_store[method_idx,sub_idx,tw_idx] = mean(tmp_acc)
-                itr_store[method_idx,sub_idx,tw_idx] = mean(tmp_itr)
+                acc_store[method_idx,sub_i,tw_idx] = mean(tmp_acc)
+                itr_store[method_idx,sub_i,tw_idx] = mean(tmp_itr)
     return acc_store, itr_store
 
 def cal_itr_trials_onebyone(train_or_test: str,

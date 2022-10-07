@@ -90,6 +90,7 @@ def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
                                          harmonic_num: int,
                                          trials: List[int],
                                          ch_used: List[int],
+                                         subjects: Optional[List[int]] = None,
                                          t_latency: Optional[float] = None,
                                          shuffle: bool = False) -> list:
     """
@@ -111,6 +112,9 @@ def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
         List of trial index
     ch_used : List[int]
         List of channels
+    subjects : Optional[List[int]]
+        List of subject indices
+        If None, all subjects will be included
     t_latency : Optional[float]
         Latency time
         If None, default latency time of dataset will be used
@@ -123,10 +127,12 @@ def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
         List of trial information
 
     """
-    sub_num = len(dataset_container[dataset_idx].subjects)
+    if subjects is None:
+        sub_num = len(dataset_container[dataset_idx].subjects)
+        subjects = list(range(sub_num))
     trial_container = []
     for tw in tw_seq:
-        for sub_idx in range(sub_num):
+        for sub_idx in subjects:
             for block_idx in range(dataset_container[dataset_idx].block_num):
                 test_block, train_block = dataset_container[dataset_idx].leave_one_block_out(block_idx)
                 train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
@@ -172,7 +178,8 @@ def create_pbar(loop_list_num: List[int],
         total_num = total_num * loop_num
     pbar = tqdm(total = total_num,
                 desc = desc,
-                bar_format = '{desc}{percentage:3.3f}%|{bar}| {n_fmt}/{total_fmt} [Time: {elapsed}<{remaining}]')
+                bar_format = '{desc}{percentage:3.3f}%|{bar}| {n_fmt}/{total_fmt} [Time: {elapsed}<{remaining}]',
+                dynamic_ncols = True)
     return pbar
 
 class PerformanceContainer:

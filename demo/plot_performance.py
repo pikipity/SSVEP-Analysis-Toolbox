@@ -5,21 +5,24 @@ import os
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
 from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, close_fig
+from SSVEPAnalysisToolbox.utils.wearablepreprocess import subj_idx_highperformance
+
+import numpy as np
 
 data_file_list = ['res/benchmarkdataset_res.mat',
                   'res/betadataset_res.mat',
                   'res/nakanishidataset_res.mat',
                   'res/eldbetadataset_res.mat',
                   'res/openbmidataset_res.mat',
-                  'res/wearable_wet_res.mat',
-                  'res/wearable_dry_res.mat']
+                  'res/wearable_dry_res.mat',
+                  'res/wearable_wet_res.mat']
 sub_title = ['benchmark',
              'beta',
              'nakanishi',
              'eldbeta',
              'openbmi',
-             'wearable_wet',
-             'wearable_dry']
+             'wearable_dry',
+             'wearable_wet']
 
 
 for dataset_idx, data_file in enumerate(data_file_list):
@@ -29,6 +32,16 @@ for dataset_idx, data_file in enumerate(data_file_list):
     data = loaddata(data_file, 'mat')
     acc_store = data["acc_store"]
     itr_store = data["itr_store"]
+    if dataset_idx == 5 or dataset_idx == 6:
+        # select_subj = subj_idx_highperformance()
+        # acc_store = acc_store[:,select_subj,:]
+        print(acc_store[0,:,:])
+        print(np.mean(acc_store[0,:,:],0))
+        print('--------------------')
+        print(acc_store[-1,:,:])
+        print(np.mean(acc_store[-1,:,:],0))
+        print('--------------------')
+        # itr_store = itr_store[:,select_subj,:]
     train_time = data["train_time"]
     test_time = data["test_time"]
     tw_seq = data["tw_seq"]

@@ -64,9 +64,10 @@ class WearableDataset_wet(BaseDataset):
 
     def __init__(self, 
                  path: Optional[str] = None,
-                 path_support_file: Optional[str] = None):
+                 path_support_file: Optional[str] = None,
+                 ID = 'Wearable (wet)'):
         super().__init__(subjects = self._SUBJECTS, 
-                         ID = 'Wearable (wet)', 
+                         ID = ID, 
                          url = 'http://bci.med.tsinghua.edu.cn/upload/zhufangkun/', 
                          paths = path, 
                          channels = self._CHANNELS, 
@@ -173,7 +174,7 @@ class WearableDataset_wet(BaseDataset):
         file_path = os.path.join(sub_info.path, file_name)
 
         mat_data = loadmat(file_path)
-        data = mat_data['data'][:,:,0,:,:] # Only wet
+        data = mat_data['data'][:,:,1,:,:] # Only wet
         data = transpose(data, (2,3,0,1))
 
         return data
@@ -188,6 +189,12 @@ class WearableDataset_dry(WearableDataset_wet):
     """
     Wearable SSVEP Dataset (wet)
     """
+    def __init__(self, 
+                 path: Optional[str] = None,
+                 path_support_file: Optional[str] = None):
+        super().__init__(path = path,
+                        path_support_file = path_support_file,
+                        ID = 'Wearable (dry)')
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:
         if sub_idx < 0:
@@ -206,7 +213,7 @@ class WearableDataset_dry(WearableDataset_wet):
         file_path = os.path.join(sub_info.path, file_name)
 
         mat_data = loadmat(file_path)
-        data = mat_data['data'][:,:,1,:,:] # Only dry
+        data = mat_data['data'][:,:,0,:,:] # Only dry
         data = transpose(data, (2,3,0,1))
 
         return data
