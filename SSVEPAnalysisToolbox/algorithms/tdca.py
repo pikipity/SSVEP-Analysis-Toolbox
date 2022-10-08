@@ -14,7 +14,7 @@ import scipy.linalg as slin
 import warnings
 
 from .basemodel import BaseModel
-from .utils import qr_list, mean_list, sum_list
+from .utils import qr_list, mean_list, sum_list, eigvec
 
 def _covariance_tdca(X: ndarray, 
                      X_mean: ndarray, 
@@ -250,9 +250,7 @@ class TDCA(BaseModel):
                                                                                      for P_combine_X_train_mean_single_class in P_combine_X_train_mean)
             Sw = sum_list(Sw_list)
             Sb = sum_list(Sb_list)
-            eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
-            sort_idx = np.argsort(eig_d1)[::-1]
-            eig_vec=eig_v1[:,sort_idx]
+            eig_vec = eigvec(Sb, Sw)
             U_tdca[filterbank_idx,0,:,:] = eig_vec[:,:n_component]
         U_tdca = np.repeat(U_tdca, repeats = stimulus_num, axis = 1)
         self.model['U'] = U_tdca

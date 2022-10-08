@@ -16,7 +16,7 @@ import scipy.linalg as slin
 # import scipy.stats as stats
 
 from .basemodel import BaseModel
-from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort, separate_trainSig, blkrep, blkmat
+from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort, separate_trainSig, blkrep, blkmat, eigvec
 
 def _msetcca_cal_template_U(X_single_stimulus : ndarray,
                             I : ndarray):
@@ -37,13 +37,7 @@ def _msetcca_cal_template_U(X_single_stimulus : ndarray,
         # calculate spatial filters of trials
         Sb = template @ LL @ template.T
         Sw = template @ template.T
-        eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
-        sort_idx = np.argsort(eig_d1)[::-1]
-        eig_vec = eig_v1[:,sort_idx]
-        if np.iscomplex(eig_vec).any():
-            eig_vec = np.real(eig_vec[:,:n_component])
-        else:
-            eig_vec = eig_vec[:,:n_component]
+        eig_vec = eigvec(Sb, Sw)[:,:n_component]
         U_trial.append(np.expand_dims(eig_vec, axis = 0))
         # calculate template
         template = []
@@ -96,23 +90,15 @@ def _oacca_cal_u1_v1(filteredData : ndarray,
     B1 = np.concatenate((CCxx, np.zeros(CCxy.shape)), axis = 1)
     B2 = np.concatenate((np.zeros(CCyx.shape), CCyy), axis = 1)
     B = np.concatenate((B1, B2), axis = 0)
-    eig_d1, eig_v1 = slin.eig(A, B)
-    sort_idx = np.argsort(eig_d1)[::-1]
-    u1 = eig_v1[:channel_num,sort_idx]
-    v1 = eig_v1[channel_num:,sort_idx]
+    eig_vec = eigvec(A, B)
+    u1 = eig_vec[:channel_num,:]
+    v1 = eig_vec[channel_num:,:]
     if u1[0,0] == 1:
         # warnings.warn("Warning: updated U is not meaningful and thus adjusted.")
         u1 = np.zeros((channel_num,1))
         u1[-3:] = 1
     u1 = u1[:,0]
     v1 = v1[:,0]
-    if np.iscomplex(eig_v1).any():
-        # warnings.warn("Warning: Imaginary part of U and V is ignored.")
-        u1 = np.real(u1)
-        v1 = np.real(v1)
-    # for class_i in range(stimulus_num):
-    #     self.model['U'][k,class_i,:,0] = u1 # u1[:,0]
-    #     self.model['V'][k,class_i,:,0] = v1 # v1[:,0]
 
     return u1, v1, new_Cxx, new_Cxy
 
@@ -137,13 +123,8 @@ def _oacca_cal_u0(sf1x : ndarray,
 
     # self.model['covar_mat'][:,:,k] = self.model['covar_mat'][:,:,k] + sf1x @ sf1x.T
     new_covar_mat = old_covar_mat + sf1x @ sf1x.T
-    eig_d1, eig_v1 = slin.eig(new_covar_mat)
-    sort_idx = np.argsort(eig_d1)[::-1]
-    eig_vec=eig_v1[:,sort_idx]
+    eig_vec = eigvec(new_covar_mat)
     u0 = eig_vec[:channel_num,0]
-    if np.iscomplex(eig_vec).any():
-        # warnings.warn("Warning: Imaginary part of U0 is ignored.")
-        u0 = np.real(u0)
     return u0, new_covar_mat
     
     # for class_i in range(stimulus_num):

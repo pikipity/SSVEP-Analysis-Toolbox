@@ -16,7 +16,7 @@ import scipy.linalg as slin
 import warnings
 
 from .basemodel import BaseModel
-from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep
+from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec
 
 def _sscor_cal_U(X_single_stimulus : ndarray,
                  n_component : int):
@@ -44,12 +44,8 @@ def _sscor_cal_U(X_single_stimulus : ndarray,
                 Gtotal = (g_tmp @ g_tmp.T) / 2
             else:
                 Gtotal = Gtotal + (g_tmp @ g_tmp.T) / 2
-        eig_d1, eig_v1 = slin.eig(Gtotal)
-        sort_idx = np.argsort(eig_d1)[::-1]
-        eig_vec = eig_v1[:,sort_idx]
+        eig_vec = eigvec(Gtotal)
         eig_vec = Kxx_inverse @ eig_vec
-        if np.iscomplex(eig_vec).any():
-            eig_vec = np.real(eig_vec)
         eig_vec = eig_vec[:channel_num, :n_component]
         U_sscor.append(np.expand_dims(eig_vec, axis = 0))
     U_sscor = np.concatenate(U_sscor, axis = 0)
@@ -78,13 +74,7 @@ def _trcaR_cal_template_U(X_single_stimulus : ndarray,
         # calculate spatial filters of trials
         Sb = template @ LL @ template.T
         Sw = template @ template.T
-        eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
-        sort_idx = np.argsort(eig_d1)[::-1]
-        eig_vec = eig_v1[:,sort_idx]
-        if np.iscomplex(eig_vec).any():
-            eig_vec = np.real(eig_vec[:channel_num,:n_component])
-        else:
-            eig_vec = eig_vec[:channel_num,:n_component]
+        eig_vec = eigvec(Sb, Sw)[:channel_num,:n_component]
         U_trial.append(np.expand_dims(eig_vec, axis = 0))
     U_trial = np.concatenate(U_trial, axis = 0)
     return U_trial
@@ -132,9 +122,7 @@ def _trca_U_2(trca_X1: ndarray,
     S=trca_X1 @ trca_X1.T - trca_X2.T @ trca_X2
     trca_X2_remove = trca_X2 - np.mean(trca_X2, 0)
     Q=trca_X2_remove.T @ trca_X2_remove
-    eig_d1, eig_v1 = slin.eig(S, Q)
-    sort_idx = np.argsort(eig_d1)[::-1]
-    eig_vec=eig_v1[:,sort_idx]
+    eig_vec = eigvec(S, Q)
     return eig_vec
 
 def _trca_U(X: list) -> ndarray:
@@ -154,18 +142,7 @@ def _trca_U(X: list) -> ndarray:
         Spatial filter
         shape: (channel_num * n_component)
     """
-    # trca_X1 = np.zeros(X[0].shape)
-    # trca_X2 = []
-    # for X0 in X:
-    #     trca_X1 = trca_X1 + X0
-    #     trca_X2.append(X0.T)
-    # trca_X2 = np.concatenate(trca_X2, axis = 0)
     trca_X1, trca_X2 = _trca_U_1(X)
-    # S=trca_X1 @ trca_X1.T - trca_X2.T @ trca_X2
-    # Q=trca_X2.T @ trca_X2
-    # eig_d1, eig_v1 = slin.eig(S, Q)
-    # sort_idx = np.argsort(eig_d1)[::-1]
-    # eig_vec=eig_v1[:,sort_idx]
     eig_vec = _trca_U_2(trca_X1, trca_X2)
 
     return eig_vec
@@ -469,7 +446,7 @@ class ETRCA(BaseModel):
             #     U_element = _trca_U(X = X_single_class)
             #     U.append(U_element)
             for stim_idx, u in enumerate(U):
-                U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]/np.std(u[:channel_num,0], ddof=1)
+                U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca, repeats = stimulus_num, axis = 1)
 
         self.model['U'] = U_trca

@@ -1,10 +1,44 @@
 # -*- coding: utf-8 -*-
 
 from typing import Union, Optional, Dict, List, Tuple, Callable
-from numpy import ndarray
+from numpy import iscomplex, ndarray
 
 import scipy.linalg as slin
 import numpy as np
+
+def eigvec(X : ndarray,
+           Y : Optional[ndarray] = None):
+    """
+    Calculate eigenvectors
+
+    Parameters
+    -----------------
+    X : ndarray
+        A complex or real matrix whose eigenvalues and eigenvectors will be computed.
+    Y : ndarray
+        If Y is given, eig(Y\X), or say  eig(X, Y), will be computed
+
+    Returns
+    ---------------
+    eig_vec : ndarray
+        Eigenvectors. The order follows the corresponding eigenvalues (from high to low values)
+    """
+    if Y is None:
+        eig_d1, eig_v1 = slin.eig(X) #eig(X)
+    else:
+        eig_d1, eig_v1 = slin.eig(X, Y) #eig(Y\X)
+
+    sort_idx = np.argsort(eig_d1)[::-1]
+    eig_vec = eig_v1[:,sort_idx]
+
+    if np.iscomplex(eig_vec).any():
+        eig_vec = np.real(eig_vec)
+
+    if Y is not None:
+        norm_v = np.sqrt(np.diag(eig_vec.T @ Y @ eig_vec))
+        eig_v1 = eig_vec/norm_v
+
+    return eig_vec
 
 def sum_list(X: list) -> ndarray:
     """
