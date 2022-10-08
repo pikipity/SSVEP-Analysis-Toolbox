@@ -10,7 +10,7 @@ from copy import deepcopy
 
 import numpy as np
 import scipy.linalg as slin
-import scipy.stats as stats
+# import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
@@ -87,7 +87,8 @@ def _r_tdca_canoncorr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
 

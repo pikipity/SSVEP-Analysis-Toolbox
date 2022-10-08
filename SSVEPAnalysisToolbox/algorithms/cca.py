@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 import numpy.matlib as npmat
 import scipy.linalg as slin
-import scipy.stats as stats
+# import scipy.stats as stats
 
 from .basemodel import BaseModel
 from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort, separate_trainSig, blkrep, blkmat
@@ -206,7 +206,8 @@ def _r_cca_canoncorr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
 
@@ -277,7 +278,8 @@ def _r_cca_qr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
     
@@ -348,7 +350,8 @@ def _r_cca_canoncorr(X: ndarray,
                 a = np.reshape(a, (-1))
                 b = np.reshape(b, (-1))
                 
-                r = stats.pearsonr(a, b)[0]
+                # r = stats.pearsonr(a, b)[0]
+                r = np.corrcoef(a, b)[0,1]
                 U[k,i,:,:] = A_r[:channel_num, :n_component]
                 V[k,i,:,:] = B_r[:harmonic_num, :n_component]
                 
@@ -464,7 +467,8 @@ def _r_cca_qr(X: ndarray,
                 b = np.reshape(b, (-1))
                 
                 # r2 = stats.pearsonr(a, b)[0]
-                r = stats.pearsonr(a, b)[0]
+                # r = stats.pearsonr(a, b)[0]
+                r = np.corrcoef(a, b)[0,1]
                 U[k,i,:,:] = A_r[:channel_num, :n_component]
                 V[k,i,:,:] = B_r[:harmonic_num, :n_component]
                 

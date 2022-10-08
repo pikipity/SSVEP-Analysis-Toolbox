@@ -12,7 +12,7 @@ import numpy as np
 import numpy.matlib as npmat
 import numpy.linalg as nplin
 import scipy.linalg as slin
-import scipy.stats as stats
+# import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
@@ -130,7 +130,8 @@ def _trca_U_2(trca_X1: ndarray,
         shape: (channel_num * n_component)
     """
     S=trca_X1 @ trca_X1.T - trca_X2.T @ trca_X2
-    Q=trca_X2.T @ trca_X2
+    trca_X2_remove = trca_X2 - np.mean(trca_X2, 0)
+    Q=trca_X2_remove.T @ trca_X2_remove
     eig_d1, eig_v1 = slin.eig(S, Q)
     sort_idx = np.argsort(eig_d1)[::-1]
     eig_vec=eig_v1[:,sort_idx]
@@ -226,7 +227,8 @@ def _r_cca_canoncorr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
 
@@ -461,7 +463,11 @@ class ETRCA(BaseModel):
         possible_class.sort(reverse = False)
         for filterbank_idx in range(filterbank_num):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
-            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            # U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            U = []
+            for X_single_class in X_train:
+                U_element = _trca_U(X = X_single_class)
+                U.append(U_element)
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca, repeats = stimulus_num, axis = 1)
@@ -486,7 +492,11 @@ class ETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        # r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        r=[]
+        for a in X:
+            r_tmp = _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+            r.append(r_tmp)
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
