@@ -78,7 +78,7 @@ Trial Information
 
     The instances of this class are the basic elements of ``trial_container`` in ``BaseEvaluator``. 
 
-    It contains following parameters:
+    It contains following attributes:
 
     + ``dataset_idx``: A list of dataset indeices.
     + ``sub_idx``: A list of all datasets' subject index list. The format is
@@ -141,9 +141,9 @@ Performance Container
 
     The instances of this class are the element of ``performance_container`` in ``BaseEvaluator``. 
 
-    It contains following parameters:
+    It contains following attributes:
 
-    + ``true_label_train``: After training, to evaluate the training performance, the list of true labels of training trials is stored in this parameter. The format is 
+    + ``true_label_train``: After training, to evaluate the training performance, the list of true labels of training trials is stored in this attribute. The format is 
 
       .. code-block:: python
 
@@ -154,9 +154,9 @@ Performance Container
 
       where ``true_label_1``, ``true_label_2``, ... are true labels of different evaluation trials.
     
-    + ``pred_label_train``: After training, to evaluate the training performance, the list of predicted labels of training trials is stored in this parameter. The format is same as ``true_label_train``.
-    + ``true_label_test``: The list of true labels of testing trials is stored in this parameter. The format is same as ``true_label_train``.
-    + ``pred_label_test``: The list of predicted labels of testing trials is stored in this parameter. The format is same as ``true_label_train``.
+    + ``pred_label_train``: After training, to evaluate the training performance, the list of predicted labels of training trials is stored in this attribute. The format is same as ``true_label_train``.
+    + ``true_label_test``: The list of true labels of testing trials is stored in this attribute. The format is same as ``true_label_train``.
+    + ``pred_label_test``: The list of predicted labels of testing trials is stored in this attribute. The format is same as ``true_label_train``.
     + ``train_time``: A list of storing time of training the model. Each element in the list is one training time of one evaluation trial.
     + ``test_time_train``: A list of storing time of using the training trials to testing the model. Each element in the list is one testing time of one evaluation trial.
     + ``test_time_test``: A list of storing time of using the testing trials to test the model. Each element in the list is one testing time of one evaluation trial. 

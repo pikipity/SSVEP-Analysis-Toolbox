@@ -463,13 +463,13 @@ class ETRCA(BaseModel):
         possible_class.sort(reverse = False)
         for filterbank_idx in range(filterbank_num):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
-            # U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
-            U = []
-            for X_single_class in X_train:
-                U_element = _trca_U(X = X_single_class)
-                U.append(U_element)
+            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            # U = []
+            # for X_single_class in X_train:
+            #     U_element = _trca_U(X = X_single_class)
+            #     U.append(U_element)
             for stim_idx, u in enumerate(U):
-                U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
+                U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]/np.std(u[:channel_num,0], ddof=1)
         U_trca = np.repeat(U_trca, repeats = stimulus_num, axis = 1)
 
         self.model['U'] = U_trca
@@ -492,11 +492,11 @@ class ETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        # r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
-        r=[]
-        for a in X:
-            r_tmp = _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
-            r.append(r_tmp)
+        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        # r=[]
+        # for a in X:
+        #     r_tmp = _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+        #     r.append(r_tmp)
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         

@@ -417,12 +417,12 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
-Parameters of datasets
+Attributes of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All datasets have these parameters. Parameters in different datasets have different values.
+All datasets have these attributes. Attributes in different datasets have different values.
 
-:subjects: A list of subject information. Each element is a ``SubInfo`` instance, which contains following parameters:
+:subjects: A list of subject information. Each element is a ``SubInfo`` instance, which contains following attributes:
 
     :ID: Unique identifier of subject.
 
@@ -673,14 +673,14 @@ How to define your own dataset class
 
 You can use the abstract class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` as the father class to define your own dataset class. In your own dataset class, the following functions should be defined:
 
-1. ``__init__``: Except ``path`` and ``path_support_file``, other parameters mentioned in `Section "Parameters of datasets" <#parameters-of-datasets>`_ normally have been defined in the dataset. Therefore, the initialization function should be re-defined. You may ask for ``__init__`` of the father class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` to store these parameters in class.
+1. ``__init__``: Except ``path`` and ``path_support_file``, other attributes mentioned in `Section "Attributes of datasets" <#attributes-of-datasets>`_ normally have been defined in the dataset. Therefore, the initialization function should be re-defined. You may ask for ``__init__`` of the father class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` to store these attributes in class.
 2.  Following abstract functions in ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` are empty and should be defined in your own dataset class:
 
     .. py:function:: download_single_subject
 
         Donwload one subject's data file. 
 
-        :param subject: One ``SubInfo`` instance stored in ``subjects`` mentioned in `Section "Parameters of datasets" <#parameters-of-datasets>`_.
+        :param subject: One ``SubInfo`` instance stored in ``subjects`` mentioned in `Section "Attributes of datasets" <#attributes-of-datasets>`_.
 
     .. py:function:: download_file
 
