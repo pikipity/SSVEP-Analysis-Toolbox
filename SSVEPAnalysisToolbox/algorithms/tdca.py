@@ -10,11 +10,11 @@ from copy import deepcopy
 
 import numpy as np
 import scipy.linalg as slin
-import scipy.stats as stats
+# import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
-from .utils import qr_list, mean_list, sum_list
+from .utils import qr_list, mean_list, sum_list, eigvec
 
 def _covariance_tdca(X: ndarray, 
                      X_mean: ndarray, 
@@ -87,7 +87,8 @@ def _r_tdca_canoncorr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
 
@@ -249,9 +250,7 @@ class TDCA(BaseModel):
                                                                                      for P_combine_X_train_mean_single_class in P_combine_X_train_mean)
             Sw = sum_list(Sw_list)
             Sb = sum_list(Sb_list)
-            eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
-            sort_idx = np.argsort(eig_d1)[::-1]
-            eig_vec=eig_v1[:,sort_idx]
+            eig_vec = eigvec(Sb, Sw)
             U_tdca[filterbank_idx,0,:,:] = eig_vec[:,:n_component]
         U_tdca = np.repeat(U_tdca, repeats = stimulus_num, axis = 1)
         self.model['U'] = U_tdca

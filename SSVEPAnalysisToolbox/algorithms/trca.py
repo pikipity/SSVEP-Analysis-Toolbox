@@ -12,11 +12,11 @@ import numpy as np
 import numpy.matlib as npmat
 import numpy.linalg as nplin
 import scipy.linalg as slin
-import scipy.stats as stats
+# import scipy.stats as stats
 import warnings
 
 from .basemodel import BaseModel
-from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep
+from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec
 
 def _sscor_cal_U(X_single_stimulus : ndarray,
                  n_component : int):
@@ -44,12 +44,8 @@ def _sscor_cal_U(X_single_stimulus : ndarray,
                 Gtotal = (g_tmp @ g_tmp.T) / 2
             else:
                 Gtotal = Gtotal + (g_tmp @ g_tmp.T) / 2
-        eig_d1, eig_v1 = slin.eig(Gtotal)
-        sort_idx = np.argsort(eig_d1)[::-1]
-        eig_vec = eig_v1[:,sort_idx]
+        eig_vec = eigvec(Gtotal)
         eig_vec = Kxx_inverse @ eig_vec
-        if np.iscomplex(eig_vec).any():
-            eig_vec = np.real(eig_vec)
         eig_vec = eig_vec[:channel_num, :n_component]
         U_sscor.append(np.expand_dims(eig_vec, axis = 0))
     U_sscor = np.concatenate(U_sscor, axis = 0)
@@ -78,13 +74,7 @@ def _trcaR_cal_template_U(X_single_stimulus : ndarray,
         # calculate spatial filters of trials
         Sb = template @ LL @ template.T
         Sw = template @ template.T
-        eig_d1, eig_v1 = slin.eig(Sb, Sw) #eig(Sw\Sb)
-        sort_idx = np.argsort(eig_d1)[::-1]
-        eig_vec = eig_v1[:,sort_idx]
-        if np.iscomplex(eig_vec).any():
-            eig_vec = np.real(eig_vec[:channel_num,:n_component])
-        else:
-            eig_vec = eig_vec[:channel_num,:n_component]
+        eig_vec = eigvec(Sb, Sw)[:channel_num,:n_component]
         U_trial.append(np.expand_dims(eig_vec, axis = 0))
     U_trial = np.concatenate(U_trial, axis = 0)
     return U_trial
@@ -130,10 +120,9 @@ def _trca_U_2(trca_X1: ndarray,
         shape: (channel_num * n_component)
     """
     S=trca_X1 @ trca_X1.T - trca_X2.T @ trca_X2
-    Q=trca_X2.T @ trca_X2
-    eig_d1, eig_v1 = slin.eig(S, Q)
-    sort_idx = np.argsort(eig_d1)[::-1]
-    eig_vec=eig_v1[:,sort_idx]
+    trca_X2_remove = trca_X2 - np.mean(trca_X2, 0)
+    Q=trca_X2_remove.T @ trca_X2_remove
+    eig_vec = eigvec(S, Q)
     return eig_vec
 
 def _trca_U(X: list) -> ndarray:
@@ -153,18 +142,7 @@ def _trca_U(X: list) -> ndarray:
         Spatial filter
         shape: (channel_num * n_component)
     """
-    # trca_X1 = np.zeros(X[0].shape)
-    # trca_X2 = []
-    # for X0 in X:
-    #     trca_X1 = trca_X1 + X0
-    #     trca_X2.append(X0.T)
-    # trca_X2 = np.concatenate(trca_X2, axis = 0)
     trca_X1, trca_X2 = _trca_U_1(X)
-    # S=trca_X1 @ trca_X1.T - trca_X2.T @ trca_X2
-    # Q=trca_X2.T @ trca_X2
-    # eig_d1, eig_v1 = slin.eig(S, Q)
-    # sort_idx = np.argsort(eig_d1)[::-1]
-    # eig_vec=eig_v1[:,sort_idx]
     eig_vec = _trca_U_2(trca_X1, trca_X2)
 
     return eig_vec
@@ -226,7 +204,8 @@ def _r_cca_canoncorr_withUV(X: ndarray,
             b = np.reshape(b, (-1))
             
             # r2 = stats.pearsonr(a, b)[0]
-            r = stats.pearsonr(a, b)[0]
+            # r = stats.pearsonr(a, b)[0]
+            r = np.corrcoef(a, b)[0,1]
             R[k,i] = r
     return R
 
@@ -462,6 +441,10 @@ class ETRCA(BaseModel):
         for filterbank_idx in range(filterbank_num):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
             U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            # U = []
+            # for X_single_class in X_train:
+            #     U_element = _trca_U(X = X_single_class)
+            #     U.append(U_element)
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca, repeats = stimulus_num, axis = 1)
@@ -487,6 +470,10 @@ class ETRCA(BaseModel):
         U = self.model['U'] 
 
         r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        # r=[]
+        # for a in X:
+        #     r_tmp = _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+        #     r.append(r_tmp)
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -551,8 +538,8 @@ class ETRCAwithR(BaseModel):
         ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
 
         U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
-        U_trca = [u for u in U_all_stimuli]
-        U_trca = np.concatenate(U_trca, axis = 2)
+        # U_trca = [u for u in U_all_stimuli]
+        U_trca = np.concatenate(U_all_stimuli, axis = 2)
         U_trca = np.expand_dims(U_trca, axis = 1)
         U_trca = np.repeat(U_trca, repeats = len(U_all_stimuli), axis = 1)
         self.model['U'] = U_trca

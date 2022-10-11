@@ -2,8 +2,8 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.openbmidataset import openBMIDataset
-from SSVEPAnalysisToolbox.utils.openbmipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
+from SSVEPAnalysisToolbox.datasets.wearabledataset import WearableDataset_wet, WearableDataset_dry
+from SSVEPAnalysisToolbox.utils.wearablepreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR, ITCCA
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
 from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
@@ -11,24 +11,28 @@ from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
 
 import time
 
+num_subbands = 5
+data_type = 'dry'
+
 # Prepare dataset
-dataset = openBMIDataset(path = 'openBMI')
-downsample_srate = 100
-dataset.regist_preprocess(lambda dataself, X: preprocess(dataself, X, downsample_srate))
-dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, downsample_srate))
-dataset.regist_ref_sig_fun(lambda dataself, sig_len, N, phases: ref_sig_fun(dataself, sig_len, N, phases, downsample_srate))
+if data_type.lower() == 'wet':
+    dataset = WearableDataset_wet(path = 'Wearable')
+else:
+    dataset = WearableDataset_dry(path = 'Wearable')
+dataset.regist_preprocess(preprocess)
+dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, num_subbands))
 
 # Prepare recognition model
-weights_filterbank = suggested_weights_filterbank()
-recog_model = SCCA_qr(n_jobs = 10, weights_filterbank = weights_filterbank)
+weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')
+recog_model = ETRCAwithR(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
-harmonic_num = 2
-tw = 4
-sub_idx = 0
-test_block_idx = 0
+harmonic_num = 5
+tw = 2
+sub_idx = 98
+test_block_idx = 8
 test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test_block_idx)
 
 # Get training data and train the recognition model

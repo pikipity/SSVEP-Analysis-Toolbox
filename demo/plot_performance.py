@@ -5,15 +5,24 @@ import os
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
 from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, close_fig
+from SSVEPAnalysisToolbox.utils.wearablepreprocess import subj_idx_highperformance
+
+import numpy as np
 
 data_file_list = ['res/benchmarkdataset_res.mat',
                   'res/betadataset_res.mat',
                   'res/nakanishidataset_res.mat',
-                  'res/eldbetadataset_res.mat']
+                  'res/eldbetadataset_res.mat',
+                  'res/openbmidataset_res.mat',
+                  'res/wearable_dry_res.mat',
+                  'res/wearable_wet_res.mat']
 sub_title = ['benchmark',
              'beta',
              'nakanishi',
-             'eldbeta']
+             'eldbeta',
+             'openbmi',
+             'wearable_dry',
+             'wearable_wet']
 
 
 for dataset_idx, data_file in enumerate(data_file_list):
