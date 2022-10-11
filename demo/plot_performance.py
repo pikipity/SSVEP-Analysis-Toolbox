@@ -32,13 +32,6 @@ for dataset_idx, data_file in enumerate(data_file_list):
     data = loaddata(data_file, 'mat')
     acc_store = data["acc_store"]
     itr_store = data["itr_store"]
-    if dataset_idx == 5 or dataset_idx == 6:
-        print(acc_store[0,:,:])
-        print(np.mean(acc_store[0,:,:],0))
-        print('--------------------')
-        print(acc_store[-1,:,:])
-        print(np.mean(acc_store[-1,:,:],0))
-        print('--------------------')
     train_time = data["train_time"]
     test_time = data["test_time"]
     tw_seq = data["tw_seq"]
