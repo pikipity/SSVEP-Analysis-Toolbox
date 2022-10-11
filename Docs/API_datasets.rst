@@ -7,6 +7,9 @@ Datasets
 Built-in dataset initialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Benchmark Dataset
+=====================
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.benchmarkdataset.BenchmarkDataset
 
     Initialize the benchmark dataset.
@@ -66,6 +69,9 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
+BETA Dataset
+================
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.betadataset.BETADataset
 
     Initialize the BETA dataset.
@@ -124,6 +130,9 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
+Nakanishi 2015 Dataset
+============================
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.betadataset.NakanishiDataset
 
     Initialize the Nakanishi2015 dataset.
@@ -174,6 +183,9 @@ Built-in dataset initialization
         If the provided path is not existed, the provided path will be created. 
     
         Default path is a folder :file:`Nakanishi2015 Dataset` in the working path. 
+
+eldBETA Dataset
+=====================
 
 .. py:function:: SSVEPAnalysisToolbox.datasets.eldbetadataset.ELDBETADataset
 
@@ -235,6 +247,9 @@ Built-in dataset initialization
         
         Default path is same as data path ``path``.
 
+openBMI Dataset
+=====================
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.openbmidataset.openBMIDataset
 
     Initialize the openBMI dataset.
@@ -294,6 +309,9 @@ Built-in dataset initialization
         If the provided path is not existed, the provided path will be created. 
         
         Default path is same as data path ``path``.
+
+Wearable SSVEP Dataset
+==========================
 
 .. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_wet
 
