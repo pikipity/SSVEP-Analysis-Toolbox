@@ -24,7 +24,7 @@ dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, num_subban
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')
-recog_model = ETRCA(weights_filterbank = weights_filterbank)
+recog_model = ETRCAwithR(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()

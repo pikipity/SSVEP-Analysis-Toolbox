@@ -15,7 +15,7 @@ import numpy as np
 
 num_subbands = 5
 data_type_list = ['dry','wet']
-select_subj = subj_idx_highperformance()
+# select_subj = subj_idx_highperformance()
 
 for data_type in data_type_list:
     print("Data type: {:s}".format(data_type))
@@ -44,24 +44,23 @@ for data_type in data_type_list:
                                                                 trials = all_trials,
                                                                 ch_used = ch_used,
                                                                 t_latency = None,
-                                                                shuffle = False,
-                                                                subjects = select_subj)
+                                                                shuffle = False)
 
 
     # Prepare models
     model_container = [
                     SCCA_qr(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
-                    #    SCCA_canoncorr(weights_filterbank = weights_filterbank),
-                    #    MsetCCA(weights_filterbank = weights_filterbank),
-                    #    MsetCCAwithR(weights_filterbank = weights_filterbank),
+                    SCCA_canoncorr(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
+                    MsetCCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
+                    MsetCCAwithR(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
                     ECCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'cca')),
                     #    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
-                    #    SSCOR(weights_filterbank = weights_filterbank),
-                    #    ESSCOR(weights_filterbank = weights_filterbank),
+                    SSCOR(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
+                    ESSCOR(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
                     TRCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
-                    #    TRCAwithR(weights_filterbank = weights_filterbank),
+                    TRCAwithR(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
                     ETRCA(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
-                    #    ETRCAwithR(weights_filterbank = weights_filterbank),
+                    ETRCAwithR(weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')),
                     #    MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
                     #    MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
                     #    TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
@@ -81,13 +80,11 @@ for data_type in data_type_list:
     acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,
                                                                             dataset_idx = 0,
                                                                             tw_seq = tw_seq,
-                                                                            train_or_test = 'test',
-                                                                            subj_seq = select_subj)
+                                                                            train_or_test = 'test')
     confusion_matrix = cal_confusionmatrix_onedataset_individual_diffsiglen(evaluator = evaluator,
                                                                             dataset_idx = 0,
                                                                             tw_seq = tw_seq,
-                                                                            train_or_test = 'test',
-                                                                            subj_seq = select_subj)                                                                       
+                                                                            train_or_test = 'test')                                                                       
 
     # Calculate training time and testing time
     train_time = np.zeros((len(model_container), len(evaluator.performance_container)))

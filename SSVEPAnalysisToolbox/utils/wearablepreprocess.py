@@ -17,17 +17,17 @@ def suggested_weights_filterbank(num_subbands: int = 5,
     """
     Provide weights of filterbank
     """
-    # if method_type.lower() == 'cca':
-    #     if data_type.lower() == 'wet':
-    #         return [i**(-1.25)+0 for i in range(1,num_subbands+1,1)]
-    #     else:
-    #         return [i**(-2)+0.25 for i in range(1,num_subbands+1,1)]
-    # else:
-    #     if data_type.lower() == 'wet':
-    #         return [i**(-1.75)+0.5 for i in range(1,num_subbands+1,1)]
-    #     else:
-    #         return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
-    return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
+    if method_type.lower() == 'cca':
+        if data_type.lower() == 'wet':
+            return [i**(-1.25)+0 for i in range(1,num_subbands+1,1)]
+        else:
+            return [i**(-2)+0.25 for i in range(1,num_subbands+1,1)]
+    else:
+        if data_type.lower() == 'wet':
+            return [i**(-1.75)+0.5 for i in range(1,num_subbands+1,1)]
+        else:
+            return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
+    # return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
 
 def suggested_ch() -> List[int]:
     """

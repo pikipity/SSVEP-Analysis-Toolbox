@@ -538,8 +538,8 @@ class ETRCAwithR(BaseModel):
         ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
 
         U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
-        U_trca = [u for u in U_all_stimuli]
-        U_trca = np.concatenate(U_trca, axis = 2)
+        # U_trca = [u for u in U_all_stimuli]
+        U_trca = np.concatenate(U_all_stimuli, axis = 2)
         U_trca = np.expand_dims(U_trca, axis = 1)
         U_trca = np.repeat(U_trca, repeats = len(U_all_stimuli), axis = 1)
         self.model['U'] = U_trca

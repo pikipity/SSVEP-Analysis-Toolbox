@@ -5,6 +5,37 @@ from numpy import iscomplex, ndarray
 
 import scipy.linalg as slin
 import numpy as np
+import numpy.linalg as nplin
+
+def norm_direction(V : ndarray,
+                   V_norm : Optional[List[float]] = None):
+    """
+    Normalize directions of colums 
+    """
+    _, n_col = V.shape
+    if V_norm is None:
+        if n_col == 1:
+            V_norm = [1]
+        else:
+            V_norm = []
+            for col_idx in range(n_col):
+                v1 = V[:,0]/nplin.norm(V[:,0])
+                v2 = V[:,col_idx]/nplin.norm(V[:,col_idx])
+                v_dot = np.dot(v1, v2)
+                if v_dot > 1:
+                    v_dot = 1
+                if v_dot < -1:
+                    v_dot = -1
+                v_angle = np.arccos(v_dot)/np.pi
+                if v_angle > 0.5:
+                    V[:,col_idx] = -1 * V[:,col_idx]
+                    V_norm.append(-1)
+                else:
+                    V_norm.append(1)
+    else:
+        for col_idx in range(n_col):
+            V[:,col_idx] = V_norm[col_idx] * V[:,col_idx]
+    return V, V_norm
 
 def eigvec(X : ndarray,
            Y : Optional[ndarray] = None):
@@ -36,7 +67,7 @@ def eigvec(X : ndarray,
 
     if Y is not None:
         norm_v = np.sqrt(np.diag(eig_vec.T @ Y @ eig_vec))
-        eig_v1 = eig_vec/norm_v
+        eig_vec = eig_vec/norm_v
 
     return eig_vec
 
