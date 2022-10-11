@@ -6,10 +6,12 @@ Recognition algorithms
 
 .. _common-functions-in-methods:
 
-Common functions for all models
+Common methods for all models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All following recognition models have these functions. The inputs and outputs are same so they will not be repeatedly introduced in following sections.
+All following recognition models have these methods. The inputs and outputs are same so they will not be repeatedly introduced in following sections. 
+
+When you define your own algorithm class, You may use the ``BaseModel`` as the father class and re-define the ``__init__`` method and the following methods. 
 
 .. py:function:: __copy__
 
@@ -21,7 +23,7 @@ All following recognition models have these functions. The inputs and outputs ar
 
 .. py:function:: fit
 
-    Train the recognition model. The trained model parameters will be stored in the class parameter ``model``. Different methods require different input parameters. You may follow the below parameter names to define your own fit function. 
+    Train the recognition model. The trained model parameters will be stored in the class parameter ``model``. Different methods may require different input parameters. You may follow the below parameter names to define your own fit function. 
 
     :param X: List of training EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
 

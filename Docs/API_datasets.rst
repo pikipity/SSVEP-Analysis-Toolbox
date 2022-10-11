@@ -486,7 +486,7 @@ All datasets have these attributes. Attributes in different datasets have differ
 
 :default_t_latency: Default/suggested latency time (in second).
 
-Functions of datasets
+Methods of datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For all datasets, the toolbox will the unified APIs to hook the proprocessing and filterbank functions and output signals. The unified APIs are listed here:
