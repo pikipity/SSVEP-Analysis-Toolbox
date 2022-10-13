@@ -10,7 +10,7 @@ Built-in dataset initialization
 Benchmark Dataset
 =====================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.benchmarkdataset.BenchmarkDataset
+.. py:function:: SSVEPAnalysisToolbox.datasets.BenchmarkDataset
 
     Initialize the benchmark dataset.
 
@@ -72,7 +72,7 @@ Benchmark Dataset
 BETA Dataset
 ================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.betadataset.BETADataset
+.. py:function:: SSVEPAnalysisToolbox.datasets.BETADataset
 
     Initialize the BETA dataset.
 
@@ -133,7 +133,7 @@ BETA Dataset
 Nakanishi 2015 Dataset
 ============================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.betadataset.NakanishiDataset
+.. py:function:: SSVEPAnalysisToolbox.datasets.NakanishiDataset
 
     Initialize the Nakanishi2015 dataset.
 
@@ -187,7 +187,7 @@ Nakanishi 2015 Dataset
 eldBETA Dataset
 =====================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.eldbetadataset.ELDBETADataset
+.. py:function:: SSVEPAnalysisToolbox.datasets.ELDBETADataset
 
     Initialize the eldBETA dataset.
     
@@ -250,7 +250,7 @@ eldBETA Dataset
 openBMI Dataset
 =====================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.openbmidataset.openBMIDataset
+.. py:function:: SSVEPAnalysisToolbox.datasets.openBMIDataset
 
     Initialize the openBMI dataset.
 
@@ -313,7 +313,7 @@ openBMI Dataset
 Wearable SSVEP Dataset
 ==========================
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_wet
+.. py:function:: SSVEPAnalysisToolbox.datasets.WearableDataset_wet
 
     Initialize the wearable dataset (wet electrodes).
 
@@ -384,7 +384,7 @@ Wearable SSVEP Dataset
         
         Default path is same as data path ``path``.
 
-.. py:function:: SSVEPAnalysisToolbox.datasets.wearabledataset.WearableDataset_dry
+.. py:function:: SSVEPAnalysisToolbox.datasets.WearableDataset_dry
 
     Initialize the wearable dataset (dry electrodes).
 
@@ -689,10 +689,10 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 How to define your own dataset class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use the abstract class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` as the father class to define your own dataset class. In your own dataset class, the following functions should be defined:
+You can use the abstract class ``SSVEPAnalysisToolbox.datasets.BaseDataset`` as the father class to define your own dataset class. In your own dataset class, the following functions should be defined:
 
-1. ``__init__``: Except ``path`` and ``path_support_file``, other attributes mentioned in `Section "Attributes of datasets" <#attributes-of-datasets>`_ normally have been defined in the dataset. Therefore, the initialization function should be re-defined. You may ask for ``__init__`` of the father class ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` to store these attributes in class.
-2.  Following abstract functions in ``SSVEPAnalysisToolbox.basedataset.BaseDataset`` are empty and should be defined in your own dataset class:
+1. ``__init__``: Except ``path`` and ``path_support_file``, other attributes mentioned in `Section "Attributes of datasets" <#attributes-of-datasets>`_ normally have been defined in the dataset. Therefore, the initialization function should be re-defined. You may ask for ``__init__`` of the father class ``SSVEPAnalysisToolbox.datasets.BaseDataset`` to store these attributes in class.
+2.  Following abstract functions in ``SSVEPAnalysisToolbox.datasets.BaseDataset`` are empty and should be defined in your own dataset class:
 
     .. py:function:: download_single_subject
 

@@ -2,7 +2,7 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
+from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR

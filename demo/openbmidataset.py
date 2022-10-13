@@ -2,7 +2,7 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.openbmidataset import openBMIDataset
+from SSVEPAnalysisToolbox.datasets import openBMIDataset
 from SSVEPAnalysisToolbox.utils.openbmipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
 from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
 from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
