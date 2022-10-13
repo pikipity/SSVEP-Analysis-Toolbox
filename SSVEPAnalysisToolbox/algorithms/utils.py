@@ -62,12 +62,12 @@ def eigvec(X : ndarray,
     sort_idx = np.argsort(eig_d1)[::-1]
     eig_vec = eig_v1[:,sort_idx]
 
-    if np.iscomplex(eig_vec).any():
-        eig_vec = np.real(eig_vec)
-
     if Y is not None:
         norm_v = np.sqrt(np.diag(eig_vec.T @ Y @ eig_vec))
         eig_vec = eig_vec/norm_v
+
+    if np.iscomplex(eig_vec).any():
+        eig_vec = np.real(eig_vec)
 
     return eig_vec
 
