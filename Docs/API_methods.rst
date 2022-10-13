@@ -67,7 +67,7 @@ The stimulus with the highest similarity is regarded as the target:
 
 where :math:`I` denotes the total number of stimuli.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.SCCA_canoncorr
+.. py:function:: SSVEPAnalysisToolbox.algorithms.SCCA_canoncorr
 
     FBCCA implemented directly following above equations.
 
@@ -81,9 +81,9 @@ where :math:`I` denotes the total number of stimuli.
 
     :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr
+.. py:function:: SSVEPAnalysisToolbox.algorithms.SCCA_qr
 
-    FBCCA implemented by the QR decomposition. This implementation is almost same as the `"SCCA_canoncorr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_canoncorr>`_. The only difference is that this implementation does not repeatedly compute the QR decomposition of reference signals, which can improve the computational efficiency.
+    FBCCA implemented by the QR decomposition. This implementation is almost same as the `"SCCA_canoncorr" model <#SSVEPAnalysisToolbox.algorithms.SCCA_canoncorr>`_. The only difference is that this implementation does not repeatedly compute the QR decomposition of reference signals, which can improve the computational efficiency.
 
     :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
 
@@ -154,9 +154,9 @@ The target stimulus is predicted by combining four correlation coefficients toge
 
 where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://en.wikipedia.org/wiki/Sign_function>`_.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.ITCCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.ITCCA
 
-    ITCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
+    ITCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.SCCA_qr>`_.
 
     :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
 
@@ -168,9 +168,9 @@ where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://e
 
     :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.ECCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.ECCA
 
-    eCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.cca.SCCA_qr>`_.
+    eCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.SCCA_qr>`_.
 
     :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
 
@@ -211,7 +211,7 @@ The target stimulus is predicted by combining two correlation coefficients:
 
     \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \sum_{k=1}^2 \text{sign}\left\{r_{k,i}\right\}\cdot r_{k,i}^2 \right\}
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MSCCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.MSCCA
 
     ms-CCA. The implementation directly follows above equations.
 
@@ -274,7 +274,7 @@ where
 
     \mathbf{w} = \left[ \mathbf{w}_1, \cdots, \mathbf{w}_{N_t} \right]^T.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MsetCCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.MsetCCA
 
     Multi-set CCA. The implementation directly follows above equations.
 
@@ -325,7 +325,7 @@ where :math:`\mathbf{Q}_i` is the QR decomposition of the :math:`i\text{-th}` st
 
     \mathbf{Q}_i\mathbf{R}_i = \mathbf{Y}_i
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.MsetCCAwithR
+.. py:function:: SSVEPAnalysisToolbox.algorithms.MsetCCAwithR
 
     Multi-set CCA with reference signals. The implementation directly follows above equations.
 
@@ -354,7 +354,7 @@ The target stimulus can be predicted by
 
     \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \frac{\mathbf{U}_i^T\mathbf{X}\overline{\mathbf{X}}_i^T\mathbf{U}_i}{\sqrt{\mathbf{U}_i^T\mathbf{X}\mathbf{X}^T\mathbf{U}_i\mathbf{U}_i^T\overline{\mathbf{X}}_i\overline{\mathbf{X}}_i^T\mathbf{U}_i}} \right\}
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.TRCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.TRCA
 
     TRCA. The implementation directly follows above equations.
 
@@ -364,7 +364,7 @@ The target stimulus can be predicted by
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ETRCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.ETRCA
 
     eTRCA. The spatial computation is same as the TRCA. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
 
@@ -389,7 +389,7 @@ The TRCA-R and the eTRCA-R are extensions of `the TRCA and the eTRCA <#task-rela
 
 where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training EEG signals of :math:`i\text{-th}` stimulus, and :math:`\mathbf{Q}_i` is obtained from the QR decomposition of the reference signals following `the MsetCCA-R <#multi-set-cca-with-reference-signals-msetcca-r>`_.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.TRCAwithR
+.. py:function:: SSVEPAnalysisToolbox.algorithms.TRCAwithR
 
     TRCA-R. The implementation directly follows above equations.
 
@@ -399,7 +399,7 @@ where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training 
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ETRCAwithR
+.. py:function:: SSVEPAnalysisToolbox.algorithms.ETRCAwithR
 
     eTRCA-R. The spatial computation is same as the TRCA-R. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
 
@@ -457,7 +457,7 @@ Let's define :math:`\mathbf{U}_i = \left(\mathbf{K}_i^{\overline{\mathbf{X}}}\ri
 
     \left( \sum_{j=1}^{N_t}\mathbf{G}_i^{(j)}\left(\mathbf{G}_i^{(j)}\right)^T \right)\mathbf{V}_i = \mathbf{V}_i\mathbf{\Lambda}_i
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.SSCOR
+.. py:function:: SSVEPAnalysisToolbox.algorithms.SSCOR
 
     SSCOR. The implementation directly follows above equations.
 
@@ -467,7 +467,7 @@ Let's define :math:`\mathbf{U}_i = \left(\mathbf{K}_i^{\overline{\mathbf{X}}}\ri
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.ESSCOR
+.. py:function:: SSVEPAnalysisToolbox.algorithms.ESSCOR
 
     eSSCOR. The spatial computation is same as the SSCOR. The only difference is that the recognition uses the same set of spatial filters for all stimuli. This set of saptial filters contain all eigen vectors with the highest eigen value of all stimuli.
 
@@ -490,9 +490,9 @@ The multi-stimulus TRCA (ms-TRCA) is similar as the `ms-CCA <#multi-stimulus-cca
 
     \sum_{d=i-m}^{i+n}\left\{ \sum_{j,k=1,\; j\neq k}^{N_t} \mathbf{X}_d^{(j)}\left(\mathbf{X}_d^{(k)}\right)^T \right\}\mathbf{U}_i = \sum_{d=i-m}^{i+n}\left\{ \sum_{j=1}^{N_t} \mathbf{X}_d^{(j)}\left(\mathbf{X}_d^{(j)}\right)^T \right\} \mathbf{U}_i\mathbf{\Lambda}_i
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.MSETRCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.MSETRCA
 
-    ms-TRCA. In this toolbox, the ms-TRCA follows the `eTRCA <#SSVEPAnalysisToolbox.algorithms.trca.ETRCA>`_ scheme to emsemble spatial filters of all stimuli for the recognition. 
+    ms-TRCA. In this toolbox, the ms-TRCA follows the `eTRCA <#SSVEPAnalysisToolbox.algorithms.ETRCA>`_ scheme to emsemble spatial filters of all stimuli for the recognition. 
 
     :param n_neighbor: Number of neighbers considered for computing the spatial filter of one stimulus. Default is ``2``.
 
@@ -502,9 +502,9 @@ The multi-stimulus TRCA (ms-TRCA) is similar as the `ms-CCA <#multi-stimulus-cca
 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.trca.MSCCA_and_MSETRCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.MSCCA_and_MSETRCA
 
-    This method ensembles correlation coefficients of the `ms-CCA <#SSVEPAnalysisToolbox.algorithms.cca.MSCCA>`_ and the `ms-TRCA <#SSVEPAnalysisToolbox.algorithms.trca.MSETRCA>`_ to recognize the target stimulus. Suppose that :math:`r_{1,i}` and :math:`r_{2,i}` are correlation coefficients obtained from the ms-CCA and the ms-TRCA respectively, then the ensembled correlation coefficient is 
+    This method ensembles correlation coefficients of the `ms-CCA <#SSVEPAnalysisToolbox.algorithms.MSCCA>`_ and the `ms-TRCA <#SSVEPAnalysisToolbox.algorithms.MSETRCA>`_ to recognize the target stimulus. Suppose that :math:`r_{1,i}` and :math:`r_{2,i}` are correlation coefficients obtained from the ms-CCA and the ms-TRCA respectively, then the ensembled correlation coefficient is 
 
     .. math::
 
@@ -579,7 +579,7 @@ Finally, the target stimulus can be predicted by
 
     \arg\max_{i\in\left\{1,2,\cdots,I\right\}}\left\{ \frac{\mathbf{U}^T\mathbf{X}_a\left(\overline{\mathbf{X}}_a^{(i)}\right)^T\mathbf{U}}{\sqrt{\mathbf{U}^T\mathbf{X}_a\mathbf{X}_a^T\mathbf{U}\mathbf{U}_i^T\left(\overline{\mathbf{X}}_a^{(i)}\right)\left(\overline{\mathbf{X}}_a^{(i)}\right)^T\mathbf{U}_i}} \right\}
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.tdca.TDCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.TDCA
 
     TDCA. The implementation directly follows above equations.
 
@@ -624,7 +624,7 @@ The basic idea of the OACCA is shown below:
 
 .. image:: ./_static/oacca.png
 
-.. py:function:: SSVEPAnalysisToolbox.algorithms.cca.OACCA
+.. py:function:: SSVEPAnalysisToolbox.algorithms.OACCA
 
     OACCA. The implementation directly follows above equations.
 

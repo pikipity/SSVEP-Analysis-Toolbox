@@ -2,13 +2,21 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.openbmidataset import openBMIDataset
-from SSVEPAnalysisToolbox.utils.openbmipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
-from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
-from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
-from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
+from SSVEPAnalysisToolbox.datasets import openBMIDataset
+from SSVEPAnalysisToolbox.utils.openbmipreprocess import (
+    preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
+)
+from SSVEPAnalysisToolbox.algorithms import (
+    SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR,
+    TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
+    TDCA
+)
+from SSVEPAnalysisToolbox.evaluator import (
+    BaseEvaluator, 
+    gen_trials_onedataset_individual_diffsiglen,
+    cal_performance_onedataset_individual_diffsiglen, 
+    cal_confusionmatrix_onedataset_individual_diffsiglen
+)
 from SSVEPAnalysisToolbox.utils.io import savedata
 
 import numpy as np
@@ -43,17 +51,17 @@ trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
 weights_filterbank = suggested_weights_filterbank()
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
-                #    SCCA_canoncorr(weights_filterbank = weights_filterbank),
-                #    MsetCCA(weights_filterbank = weights_filterbank),
-                #    MsetCCAwithR(weights_filterbank = weights_filterbank),
+                   SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                   MsetCCA(weights_filterbank = weights_filterbank),
+                   MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
                 #    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
-                #    SSCOR(weights_filterbank = weights_filterbank),
-                #    ESSCOR(weights_filterbank = weights_filterbank),
-                #    TRCA(weights_filterbank = weights_filterbank),
-                #    TRCAwithR(weights_filterbank = weights_filterbank),
+                   SSCOR(weights_filterbank = weights_filterbank),
+                   ESSCOR(weights_filterbank = weights_filterbank),
+                   TRCA(weights_filterbank = weights_filterbank),
+                   TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
-                #    ETRCAwithR(weights_filterbank = weights_filterbank),
+                   ETRCAwithR(weights_filterbank = weights_filterbank),
                 #    MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
                 #    MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
                 #    TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)

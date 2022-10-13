@@ -2,8 +2,8 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets.benchmarkdataset import BenchmarkDataset
-from SSVEPAnalysisToolbox.datasets.betadataset import BETADataset
+from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
+from SSVEPAnalysisToolbox.datasets import BETADataset
 from SSVEPAnalysisToolbox.utils.io import loaddata
 import matplotlib.pyplot as plt
 import matplotlib.patches as pach
