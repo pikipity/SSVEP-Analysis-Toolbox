@@ -9,7 +9,7 @@ from SSVEPAnalysisToolbox.algorithms import (
     TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
     TDCA
 )
-from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
+from SSVEPAnalysisToolbox.evaluator import cal_acc,cal_itr
 
 import time
 

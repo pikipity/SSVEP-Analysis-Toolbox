@@ -3,7 +3,9 @@
 import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.utils.io import loaddata
-from SSVEPAnalysisToolbox.evaluator.plot import bar_plot_with_errorbar, shadowline_plot, close_fig
+from SSVEPAnalysisToolbox.evaluator import (
+    bar_plot_with_errorbar, shadowline_plot, close_fig
+)
 
 import numpy as np
 
