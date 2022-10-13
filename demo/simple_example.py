@@ -4,9 +4,11 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets import WearableDataset_wet, WearableDataset_dry
 from SSVEPAnalysisToolbox.utils.wearablepreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR, ITCCA
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
-from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
+from SSVEPAnalysisToolbox.algorithms import (
+    SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR,
+    TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
+    TDCA
+)
 from SSVEPAnalysisToolbox.evaluator.performance import cal_acc,cal_itr
 
 import time

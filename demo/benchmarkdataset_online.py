@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
 from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, OACCA
+from SSVEPAnalysisToolbox.algorithms import SCCA_qr, OACCA
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_online
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_online, cal_confusionmatrix_onedataset_individual_online
 from SSVEPAnalysisToolbox.utils.io import savedata

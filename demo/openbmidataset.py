@@ -4,9 +4,11 @@ import sys
 sys.path.append('..')
 from SSVEPAnalysisToolbox.datasets import openBMIDataset
 from SSVEPAnalysisToolbox.utils.openbmipreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank, ref_sig_fun
-from SSVEPAnalysisToolbox.algorithms.cca import SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR
-from SSVEPAnalysisToolbox.algorithms.trca import TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR
-from SSVEPAnalysisToolbox.algorithms.tdca import TDCA
+from SSVEPAnalysisToolbox.algorithms import (
+    SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR,
+    TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
+    TDCA
+)
 from SSVEPAnalysisToolbox.evaluator.baseevaluator import BaseEvaluator, gen_trials_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.evaluator.performance import cal_performance_onedataset_individual_diffsiglen, cal_confusionmatrix_onedataset_individual_diffsiglen
 from SSVEPAnalysisToolbox.utils.io import savedata
