@@ -10,18 +10,18 @@ Built-in dataset initialization
 Benchmark Dataset
 =====================
 
+This dataset gathered SSVEP-BCI recordings of 35 healthy subjects (17 females, aged 17-34 years, mean age: 22 years) focusing on 40 characters flickering at different frequencies (8-15.8 Hz with an interval of 0.2 Hz).
+
+For each subject, the experiment consisted of 6 blocks. Each block contained 40 trials corresponding to all 40 characters indicated in a random order. Each trial started with a visual cue (a red square) indicating a target stimulus. The cue appeared for 0.5 s on the screen.
+
+Following the cue offset, all stimuli started to flicker on the screen concurrently and lasted 5 s.
+
+After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
+Each trial lasted a total of 6 s.
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.BenchmarkDataset
 
     Initialize the benchmark dataset.
-
-    This dataset gathered SSVEP-BCI recordings of 35 healthy subjects (17 females, aged 17-34 years, mean age: 22 years) focusing on 40 characters flickering at different frequencies (8-15.8 Hz with an interval of 0.2 Hz).
-
-    For each subject, the experiment consisted of 6 blocks. Each block contained 40 trials corresponding to all 40 characters indicated in a random order. Each trial started with a visual cue (a red square) indicating a target stimulus. The cue appeared for 0.5 s on the screen.
-
-    Following the cue offset, all stimuli started to flicker on the screen concurrently and lasted 5 s.
-
-    After stimulus offset, the screen was blank for 0.5 s before the next trial began, which allowed the subjects to have short breaks between consecutive trials.
-    Each trial lasted a total of 6 s.
 
     =============================   =======
     Num. of Subjects                35
@@ -72,17 +72,17 @@ Benchmark Dataset
 BETA Dataset
 ================
 
+EEG data after preprocessing are store as a 4-way tensor, with a dimension of channel x time point x block x condition. 
+
+Each trial comprises 0.5-s data before the event onset and 0.5-s data after the time window of 2 s or 3 s. 
+
+For S1-S15, the time window is 2 s and the trial length is 3 s, whereas for S16-S70 the time window is 3 s and the trial length is 4 s. 
+
+Additional details about the channel and condition information can be found in the supplementary information.
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.BETADataset
 
     Initialize the BETA dataset.
-
-    EEG data after preprocessing are store as a 4-way tensor, with a dimension of channel x time point x block x condition. 
-
-    Each trial comprises 0.5-s data before the event onset and 0.5-s data after the time window of 2 s or 3 s. 
-
-    For S1-S15, the time window is 2 s and the trial length is 3 s, whereas for S16-S70 the time window is 3 s and the trial length is 4 s. 
-
-    Additional details about the channel and condition information can be found in the following supplementary information.
 
     =============================   =======
     Num. of Subjects                70
@@ -133,18 +133,18 @@ BETA Dataset
 Nakanishi 2015 Dataset
 ============================
 
+Each .mat file has a four-way tensor electroencephalogram (EEG) data for each subject. 
+Please see the reference paper for the detail.
+
+size(eeg) = [Num. of targets, Num. of channels, Num. of sampling points, Num. of trials]
+
++ The order of the stimulus frequencies in the EEG data: [9.25, 11.25, 13.25, 9.75, 11.75, 13.75, 10.25, 12.25, 14.25, 10.75, 12.75, 14.75] Hz (e.g., eeg(1,:,:,:) and eeg(5,:,:,:) are the EEG data while a subject was gazing at the visual stimuli flickering at 9.25 Hz and 11.75Hz, respectively.)
+
++ The onset of visual stimulation is at 39th sample point.
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.NakanishiDataset
 
     Initialize the Nakanishi2015 dataset.
-
-    Each .mat file has a four-way tensor electroencephalogram (EEG) data for each subject. 
-    Please see the reference paper for the detail.
-
-    size(eeg) = [Num. of targets, Num. of channels, Num. of sampling points, Num. of trials]
-
-    + The order of the stimulus frequencies in the EEG data: [9.25, 11.25, 13.25, 9.75, 11.75, 13.75, 10.25, 12.25, 14.25, 10.75, 12.75, 14.75] Hz (e.g., eeg(1,:,:,:) and eeg(5,:,:,:) are the EEG data while a subject was gazing at the visual stimuli flickering at 9.25 Hz and 11.75Hz, respectively.)
-    
-    + The onset of visual stimulation is at 39th sample point.
 
     =============================   ====================
     Num. of Subjects                10
@@ -187,19 +187,19 @@ Nakanishi 2015 Dataset
 eldBETA Dataset
 =====================
 
+For the BCI users, there was an associated epoched record that is stored in ".mat" structure array from MATLAB. 
+    
+The structure array in each record was composed of the EEG data ("EEG") and its associated supplementary information ("Suppl_info") as its fields. In the "EEG" field of the record, two types of EEG data, i.e., EEG epochs and raw EEG were provided for researchers to facilitate diverse research purposes. 
+
+The EEG epochs were the EEG data with the data processing and stored as 4-dimensional matrices (channel x time point x condition x block). The names and locations of the channel dimension were given in the supplementary information. 
+
+For the dimension of time point, the epochs had a length of 6 s, which included 0.5 s before the stimulus onset, 5 s during the stimulation (SSVEPs) and 0.5 s after the stimulus offset. 
+
+Different from the epoched data, the raw EEG provided continuous EEG that were converted by EEGLAB. The raw EEG were stored as cell arrays, each of which contained a block of EEG data. The "Suppl_info" field of the record provided a basic information about personal statistics and experimental protocol. The personal statistics included the aged, gender, BCIQ and SNR with respect to each subject. The experimental protocol included channel location ("Channel), stimulus frequency ("Frequency"), stimulus initial phase ("Phase") and sampling rate ("Srate"). The channel location was represented by a 64x4 cell arrays. The first column and the fourth column denoted the channel index and channel name, respectively. The second column and the third column denoted the channel location in polar coordinates, i.e., degree and radius, respectively. The stimulus initial phase was given in radius. The sampling rate of the epoch data was denoted by "Srate". 
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.ELDBETADataset
 
     Initialize the eldBETA dataset.
-    
-    For the BCI users, there was an associated epoched record that is stored in ".mat" structure array from MATLAB. 
-    
-    The structure array in each record was composed of the EEG data ("EEG") and its associated supplementary information ("Suppl_info") as its fields. In the "EEG" field of the record, two types of EEG data, i.e., EEG epochs and raw EEG were provided for researchers to facilitate diverse research purposes. 
-    
-    The EEG epochs were the EEG data with the data processing and stored as 4-dimensional matrices (channel x time point x condition x block). The names and locations of the channel dimension were given in the supplementary information. 
-    
-    For the dimension of time point, the epochs had a length of 6 s, which included 0.5 s before the stimulus onset, 5 s during the stimulation (SSVEPs) and 0.5 s after the stimulus offset. 
-    
-    Different from the epoched data, the raw EEG provided continuous EEG that were converted by EEGLAB. The raw EEG were stored as cell arrays, each of which contained a block of EEG data. The "Suppl_info" field of the record provided a basic information about personal statistics and experimental protocol. The personal statistics included the aged, gender, BCIQ and SNR with respect to each subject. The experimental protocol included channel location ("Channel), stimulus frequency ("Frequency"), stimulus initial phase ("Phase") and sampling rate ("Srate"). The channel location was represented by a 64x4 cell arrays. The first column and the fourth column denoted the channel index and channel name, respectively. The second column and the third column denoted the channel location in polar coordinates, i.e., degree and radius, respectively. The stimulus initial phase was given in radius. The sampling rate of the epoch data was denoted by "Srate". 
 
     =============================   ====================
     Num. of Subjects                100
@@ -250,15 +250,15 @@ eldBETA Dataset
 openBMI Dataset
 =====================
 
+Fifty-four healthy subjects (ages 24-35, 25 females) participated in the experiment. Thirty-eight subjects were naive BCI users. The others had previous experience with BCI experiments. None of the participants had a history of neurological, psychiatric, or any other pertinent disease that otherwise might have affected the experimental results.
+
+EEG signals were recorded with a sampling rate of 1000 Hz and collected with 62 Ag/AgCl electrodes.
+
+Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 Hz and were presented in four positions (down, right, left, and up, respectively) on a monitor. The designed paradigm followed the conventional types of SSVEP-based BCI systems that require four-direction movements. Participants were asked to fixate the center of a black screen and then to gaze in the direction where the target stimulus was highlighted in a different color. Each SSVEP stimulus was presented for 4 s with an ISI of 6 s. Each target frequency was presented 25 times. Therefore, the corrected EEG data had 100 trials (4 classes × 25 trials) in the offline training phase and another 100 trials in the online test phase. Visual feedback was presented in the test phase; the estimated target frequency was highlighted for one second with a red border at the end of each trial.
+
 .. py:function:: SSVEPAnalysisToolbox.datasets.openBMIDataset
 
     Initialize the openBMI dataset.
-
-    Fifty-four healthy subjects (ages 24-35, 25 females) participated in the experiment. Thirty-eight subjects were naive BCI users. The others had previous experience with BCI experiments. None of the participants had a history of neurological, psychiatric, or any other pertinent disease that otherwise might have affected the experimental results.
-
-    EEG signals were recorded with a sampling rate of 1000 Hz and collected with 62 Ag/AgCl electrodes.
-
-    Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 Hz and were presented in four positions (down, right, left, and up, respectively) on a monitor. The designed paradigm followed the conventional types of SSVEP-based BCI systems that require four-direction movements. Participants were asked to fixate the center of a black screen and then to gaze in the direction where the target stimulus was highlighted in a different color. Each SSVEP stimulus was presented for 4 s with an ISI of 6 s. Each target frequency was presented 25 times. Therefore, the corrected EEG data had 100 trials (4 classes × 25 trials) in the offline training phase and another 100 trials in the online test phase. Visual feedback was presented in the test phase; the estimated target frequency was highlighted for one second with a red border at the end of each trial.
 
     =============================   ===============================================
     Num. of Subjects                54
