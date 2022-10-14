@@ -54,7 +54,7 @@ def cholesky(M : ndarray):
             break
         except nplin.LinAlgError:
             k += 1
-            w, v = nplin.eig(M)
+            v = eigvec(M)
             min_eig = v.min()
             M += (-min_eig * k * k + np.spacing(min_eig)) * I
     if Ki is None:
@@ -117,12 +117,13 @@ def eigvec(X : ndarray,
     sort_idx = np.argsort(eig_d1)[::-1]
     eig_vec = eig_v1[:,sort_idx]
 
+    if Y is not None:
+        square_val = np.diag(eig_vec.T @ Y @ eig_vec)
+        norm_v = np.sqrt(square_val)
+        eig_vec = eig_vec/norm_v
+
     if np.iscomplex(eig_vec).any():
         eig_vec = np.real(eig_vec)
-
-    if Y is not None:
-        norm_v = np.sqrt(np.diag(eig_vec.T @ Y @ eig_vec))
-        eig_vec = eig_vec/norm_v
 
     return eig_vec
 
