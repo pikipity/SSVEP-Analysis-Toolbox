@@ -57,7 +57,11 @@ def filterbank(dataself,
     band = [0.5, 40]
     bpB, bpA = signal.butter(5, [band_val/(srate/2) for band_val in band], 'bandpass')
     tmp = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
-    filterbank_X[0,:,:] = signal.detrend(tmp, axis = 1)
+    tmp = signal.detrend(tmp, axis = 1)
+    tmp = tmp - np.mean(tmp, axis = 1, keepdims = True)
+    tmp_std = np.std(tmp, axis = 1, keepdims = True, ddof=1)
+    tmp = tmp / tmp_std
+    filterbank_X[0,:,:] = tmp.copy()
     
     # for k in range(1, num_subbands+1, 1):
         # Wp = [(6*k)/(srate/2), 80/(srate/2)]

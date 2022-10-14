@@ -16,7 +16,7 @@ import scipy.linalg as slin
 import warnings
 
 from .basemodel import BaseModel
-from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec
+from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec, cholesky
 
 def _sscor_cal_U(X_single_stimulus : ndarray,
                  n_component : int):
@@ -29,7 +29,7 @@ def _sscor_cal_U(X_single_stimulus : ndarray,
     for filterbank_idx in range(filterbank_num):
         xx = np.mean(X_single_stimulus[:,filterbank_idx,:,:], axis = 0)
         Cxx = xx @ xx.T
-        Kxx = nplin.cholesky(Cxx).T
+        Kxx = cholesky(Cxx).T
         Kxx_inverse = nplin.inv(Kxx)
 
         Gtotal = None
@@ -37,7 +37,7 @@ def _sscor_cal_U(X_single_stimulus : ndarray,
             xi = X_single_stimulus[trial_idx,filterbank_idx,:,:]
             C0i = xx @ xi.T
             Cii = xi @ xi.T
-            Ki = nplin.cholesky(Cii).T
+            Ki = cholesky(Cii).T
             Ki_inverse = nplin.inv(Ki)
             g_tmp = Kxx_inverse.T @ C0i @ Ki_inverse
             if Gtotal is None:
