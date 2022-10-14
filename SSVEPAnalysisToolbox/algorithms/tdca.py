@@ -7,11 +7,9 @@ from numpy import ndarray
 from joblib import Parallel, delayed
 from functools import partial
 from copy import deepcopy
+import warnings
 
 import numpy as np
-import scipy.linalg as slin
-# import scipy.stats as stats
-import warnings
 
 from .basemodel import BaseModel
 from .utils import qr_list, mean_list, sum_list, eigvec

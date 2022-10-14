@@ -6,6 +6,33 @@ from numpy import iscomplex, ndarray
 import scipy.linalg as slin
 import numpy as np
 import numpy.linalg as nplin
+import numpy.matlib as npmat
+
+def inv(X : ndarray):
+    return nplin.inv(X)
+
+def repmat(X : ndarray,
+           rep_x : int,
+           rep_y : int):
+    return npmat.repmat(X, rep_x, rep_y)
+
+def svd(X : ndarray,
+        full_matrices : bool,
+        compute_uv : bool):
+    if compute_uv:
+        L, D, M = slin.svd(X,
+                            full_matrices=full_matrices,
+                            compute_uv=compute_uv,
+                            check_finite=False,
+                            lapack_driver='gesvd')
+        return L, D, M
+    else:
+        D = slin.svd(X,
+                        full_matrices=full_matrices,
+                        compute_uv=compute_uv,
+                        check_finite=False,
+                        lapack_driver='gesvd')
+        return D
 
 def cholesky(M : ndarray):
     """
