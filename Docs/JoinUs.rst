@@ -35,4 +35,4 @@ Work Plan
 
 .. raw:: html
 
-    <iframe width="700" height="534" frameborder="0" scrolling="no" src="https://onedrive.live.com/embed?resid=44EDF235CF3FC8C2%21380426&authkey=%21AIJTfXbmfmKoXCY&em=2&wdAllowInteractivity=False&Item='Task%20Plan'!A1%3AAJ18&wdInConfigurator=True&wdInConfigurator=True&edesNext=false&resen=false"></iframe>
+    <iframe width="700" height="630" frameborder="0" scrolling="no" src="https://onedrive.live.com/embed?resid=44EDF235CF3FC8C2%21380426&authkey=%21AIJTfXbmfmKoXCY&em=2&wdAllowInteractivity=False&Item='Task%20Plan'!A1%3AAJ18&wdInConfigurator=True&wdInConfigurator=True&edesNext=false&resen=false"></iframe>
