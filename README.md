@@ -2,7 +2,7 @@
 
 This repository provides a python package for SSVEP datasets and recognition algorithms. The goal of this toolbox is to make researchers be familier with SSVEP signals and related recognition algorithms quickly, and focus on improving algorithms with shortest preparation time.
 
-More detailed information can be found in [document](http://ssvep-analysis-toolbox.readthedocs.io/).
+More detailed information can be found in [document](http://ssvep-analysis-toolbox.readthedocs.io/) ([Chinese version](https://ssvep-analysis-toolbox.readthedocs.io/zh_CN/latest/)).
 
 ## Features
 
