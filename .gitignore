@@ -12,3 +12,4 @@ demo/test_*
 demo/eldBETA_database/*
 demo/openBMI/*
 demo/Wearable/*
+.DS_Store
