@@ -78,7 +78,7 @@ def fft(X : ndarray,
     else:
         fft_res = fft_res[:,:int(NFFT/2)]
         freqs = freqs[:,:int(NFFT/2)]
-    fft_res = fft_res/X_col
+    # fft_res = fft_res/X_col
     
     return freqs, fft_res
 
