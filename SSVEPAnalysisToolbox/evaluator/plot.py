@@ -19,6 +19,7 @@ def _plot_hist(ax,
                 range: Optional[tuple] = None,
                 density: bool = True,
                 color: Optional[Union[str,list,tuple]] = None,
+                label: Optional[Union[str,list]] = None,
                 alpha: float = 1,):
     X_shape = X.shape
     if len(X_shape)>1:
@@ -31,7 +32,7 @@ def _plot_hist(ax,
         color = 'blue'
 
     vals, bins, patches = ax.hist(X, bins = bins, range = range, density = density, 
-                                    color = color, alpha = alpha)
+                                    color = color, alpha = alpha, label = label)
     return vals, bins, patches
 
 def _plot_fit_norm_line(ax, 
@@ -78,20 +79,26 @@ def hist(X : Union[list, ndarray],
     if type(X) is not list:
         if type(color) is list:
             color = color[0]
+        if type(legend) is list:
+            legend = legend[0]
         vals, _, _ = _plot_hist(ax, X, bins = bins, range = range, density = density, 
-                                         color = color, alpha = alpha)
+                                         color = color, alpha = alpha, label = legend)
 
         if fit_line:
             _plot_fit_norm_line(ax, X, vals, range, line_points, color)
     else:
         if type(color) is not list:
-            color = [color for _ in range(len(X))]
+            raise ValueError("The color must be a list.")
         if len(X) != len(color):
             raise ValueError("The length of color should be same as the length of X.")
+        if type(legend) is not list:
+            raise ValueError("The legend must be a list.")
+        if len(X) != len(legend):
+            raise ValueError("The length of legend should be same as the length of X.")
         vals_list = []
-        for X_single_group, color_single_group in zip(X, color):
+        for X_single_group, color_single_group, legend_single_group in zip(X, color, legend):
             vals, _, _ = _plot_hist(ax, X_single_group, bins = bins, range = range, density = density, 
-                                             color = color_single_group, alpha = alpha)
+                                             color = color_single_group, alpha = alpha, label = legend_single_group)
             vals_list.append(vals)
         for X_single_group, vals, color_single_group in zip(X, vals_list, color):
             _plot_fit_norm_line(ax, X_single_group, vals, range, line_points, color_single_group)
@@ -103,7 +110,7 @@ def hist(X : Union[list, ndarray],
     if x_ticks is not None:
         ax.set_xticks(X, x_ticks)
     if legend is not None:
-        ax.legend(labels=legend)
+        ax.legend()
     ax.grid(grid)
     if xlim is not None:
         ax.set_xlim(xlim)

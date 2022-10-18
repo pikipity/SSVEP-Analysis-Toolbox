@@ -565,9 +565,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
                 srate : Optional[float] = None,
                 t_latency: Optional[float] = None,
                 remove_break : bool = True,
+                remove_pre_and_latency : bool = True,
                 display_progress : bool = False,
                 detrend_flag : bool = True,
-                NFFT : Optional[int] = None):
+                NFFT : Optional[int] = None,
+                sig_len : Optional[float] = None):
         """
         Calculate the SNR
         """
@@ -575,8 +577,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
             srate = self.srate
         if t_latency is None:
             t_latency = self.default_t_latency
+        if sig_len is None:
+            sig_len = self.trial_len
         snr = np.zeros((len(self.subjects), self.block_num, self.trial_num, len(self.channels))) # subj * block_num * stimulus_num * ch_num
-        sig_len = self.trial_len - self.t_prestim - t_latency
+        if remove_pre_and_latency:
+            sig_len = sig_len - self.t_prestim - t_latency
         if remove_break:
             sig_len -= self.t_break
         if display_progress:
