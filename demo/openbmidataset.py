@@ -107,9 +107,3 @@ data = {"acc_store": acc_store,
         "method_ID": [model.ID for model in model_container]}
 data_file = 'res/openbmidataset_res.mat'
 savedata(data_file, data, 'mat')
-
-
-
-
-
-
