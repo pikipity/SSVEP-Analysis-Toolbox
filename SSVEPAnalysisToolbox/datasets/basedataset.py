@@ -8,7 +8,6 @@ import abc
 from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray, expand_dims
 import warnings
-from inspect import currentframe, getframeinfo
 
 import numpy as np
 
@@ -380,11 +379,7 @@ class BaseDataset(metaclass=abc.ABCMeta):
             raise ValueError('Time cannot be negative')
         if sig_len + t_latency + self.t_prestim > self.trial_len:
             # raise ValueError('Total time length cannot be larger than single trial time')
-            # warnings.warn('Total time length ({:n}) is larger than single trial time ({:n})'.format(sig_len + t_latency, self.trial_len))
-            warnings.formatwarning('Total time length ({:n}) is larger than single trial time ({:n})'.format(sig_len + t_latency, self.trial_len),
-                                   UserWarning, 
-                                   getframeinfo(currentframe()).filename,
-                                   getframeinfo(currentframe()).lineno-59)
+            warnings.warn('Total time length ({:n}) is larger than single trial time ({:n})'.format(sig_len + t_latency, self.trial_len))
             
         t_pre = floor((self.t_prestim + t_latency) * self.srate)
         t_prestim = floor(self.t_prestim * self.srate)

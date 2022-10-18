@@ -8,7 +8,6 @@ from joblib import Parallel, delayed
 from functools import partial
 from copy import deepcopy
 import warnings
-from inspect import currentframe, getframeinfo
 
 import numpy as np
 
@@ -389,11 +388,7 @@ class ETRCA(BaseModel):
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None):
         if n_component is not None:
-            # warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA")
-            warnings.formatwarning("Although 'n_component' is provided, it will not considered in eTRCA",
-                                   UserWarning, 
-                                   getframeinfo(currentframe()).filename,
-                                   getframeinfo(currentframe()).lineno-13)
+            warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA")
         n_component = 1
         super().__init__(ID = 'eTRCA',
                          n_component = n_component,
@@ -492,11 +487,7 @@ class ETRCAwithR(BaseModel):
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None):
         if n_component is not None:
-            # warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA with reference")
-            warnings.formatwarning("Although 'n_component' is provided, it will not considered in eTRCA with reference",
-                                   UserWarning, 
-                                   getframeinfo(currentframe()).filename,
-                                   getframeinfo(currentframe()).lineno-13)
+            warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA")
         n_component = 1
         super().__init__(ID = 'eTRCA-R',
                          n_component = n_component,
@@ -586,11 +577,7 @@ class MSETRCA(BaseModel):
                  n_jobs: Optional[int] = None,
                  weights_filterbank: Optional[List[float]] = None):
         if n_component is not None:
-            # warnings.warn("Although 'n_component' is provided, it will not considered in ms-eTRCA")
-            warnings.formatwarning("Although 'n_component' is provided, it will not considered in ms-eTRCA",
-                                   UserWarning, 
-                                   getframeinfo(currentframe()).filename,
-                                   getframeinfo(currentframe()).lineno-13)
+            warnings.warn("Although 'n_component' is provided, it will not considered in eTRCA")
         n_component = 1
         super().__init__(ID = 'ms-eTRCA',
                          n_component = n_component,
