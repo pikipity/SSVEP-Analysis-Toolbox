@@ -3,6 +3,7 @@
 from numpy import ndarray, object
 from typing import Union, Optional, Dict, List, Tuple
 import warnings
+from inspect import currentframe, getframeinfo
 
 import scipy.io as sio
 import mat73
@@ -40,7 +41,11 @@ def savedata(file: str,
         try:
             sio.savemat(file, data)
         except:
-            warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a numpy data file.")
+            # warnings.warn("Cannot save data as 'mat' file!! So the data is saved as a numpy data file.")
+            warnings.formatwarning("Cannot save data as 'mat' file!! So the data is saved as a numpy data file.",
+                                   UserWarning, 
+                                   getframeinfo(currentframe()).filename,
+                                   getframeinfo(currentframe()).lineno-6)
             file = os.path.splitext(file)[0]+'.npy'
             savedata(file, data, 'np')
     elif save_type.lower() == 'np':
@@ -50,7 +55,11 @@ def savedata(file: str,
             with open(file, 'wb') as f:
                 np.save(f, data, allow_pickle=True, fix_imports=True)
         except:
-            warnings.warn("Cannot save data as 'np' file!! So the data is saved as a binary data file.")
+            # warnings.warn("Cannot save data as 'np' file!! So the data is saved as a binary data file.")
+            warnings.formatwarning("Cannot save data as 'np' file!! So the data is saved as a binary data file.",
+                                   UserWarning, 
+                                   getframeinfo(currentframe()).filename,
+                                   getframeinfo(currentframe()).lineno-6)
             file = os.path.splitext(file)[0]+'.pkl'
             with open(file, 'wb') as f:
                 pickle.dump(data, f, protocol = 4) # Load file: pickle.load(file)
@@ -86,7 +95,11 @@ def loaddata(file: str,
             data = np.load(f, allow_pickle=True)
             data = data.item()
         if not os.path.splitext(file)[1].lower() == '.npy':
-            warnings.warn("The following file seems not numpy file (.npy): {:s}".format(file))
+            # warnings.warn("The following file seems not numpy file (.npy): {:s}".format(file))
+            warnings.formatwarning("The following file seems not numpy file (.npy): {:s}".format(file),
+                                   UserWarning, 
+                                   getframeinfo(currentframe()).filename,
+                                   getframeinfo(currentframe()).lineno-7)
     else:
         raise ValueError("Unknown 'save_type'. 'save_type' only can be 'mat' or 'np'")
         
