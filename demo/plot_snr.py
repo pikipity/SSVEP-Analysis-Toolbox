@@ -30,7 +30,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -42,7 +42,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -54,7 +54,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -69,7 +69,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -86,7 +86,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       sig_len = sig_len,
                       srate = downsample_srate,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*downsample_srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*downsample_srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -101,7 +101,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
@@ -112,7 +112,7 @@ print("{:s}: ".format(dataset.ID))
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
-                      NFFT = 2 ** nextpow2(5*dataset.srate)) # filterbank index is 0
+                      NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 
