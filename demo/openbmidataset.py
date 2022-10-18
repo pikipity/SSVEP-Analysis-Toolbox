@@ -23,7 +23,7 @@ import numpy as np
 
 # Prepare dataset
 dataset = openBMIDataset(path = 'openBMI')
-downsample_srate = 100
+downsample_srate = 250
 dataset.regist_preprocess(lambda dataself, X: preprocess(dataself, X, downsample_srate))
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, downsample_srate))
 dataset.regist_ref_sig_fun(lambda dataself, sig_len, N, phases: ref_sig_fun(dataself, sig_len, N, phases, downsample_srate))
