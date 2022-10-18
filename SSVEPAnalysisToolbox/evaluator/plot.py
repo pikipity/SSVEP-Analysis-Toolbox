@@ -7,6 +7,16 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.stats as st
 
+def gen_colors(color_no : int,
+               colormap_name : str = 'rainbow'):
+    if type(color_no) is not int:
+        raise ValueError("The number of colors must be an integer.")
+    color_gen = cm.get_cmap(colormap_name)(np.linspace(0,1,color_no))
+    colors = []
+    for i in range(color_no):
+        colors.append(color_gen[i, :3])
+    return colors
+
 def close_fig(fig):
     """
     Close figure

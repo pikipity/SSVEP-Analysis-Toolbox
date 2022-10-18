@@ -12,13 +12,14 @@ from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
 )
 
 from SSVEPAnalysisToolbox.evaluator import (
-    hist, close_fig
+    hist, close_fig, gen_colors
 )
 from SSVEPAnalysisToolbox.utils.io import savedata
 from SSVEPAnalysisToolbox.utils.algsupport import nextpow2
 
 snr_list = []
 legend = []
+dataset_no = 0
 harmonic_num = 5
 sig_len = 1
 
@@ -33,6 +34,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # BETA datset
 dataset = BETADataset(path = '2020_BETA_SSVEP_database_update')
@@ -45,6 +47,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # eldBETA dataset
 dataset = ELDBETADataset(path = 'eldBETA_database')
@@ -57,6 +60,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # Nakanishi dataset
 from SSVEPAnalysisToolbox.utils.nakanishipreprocess import (
@@ -72,6 +76,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # openBMI dataset
 from SSVEPAnalysisToolbox.utils.openbmipreprocess import (
@@ -89,6 +94,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*downsample_srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # Wearable dataset
 from SSVEPAnalysisToolbox.utils.wearablepreprocess import (
@@ -104,6 +110,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 dataset = WearableDataset_dry(path = 'Wearable')
 dataset.regist_preprocess(preprocess)
@@ -115,6 +122,7 @@ snr = dataset.get_snr(Nh = harmonic_num, display_progress = True,
                       NFFT = 2 ** nextpow2(10*dataset.srate)) # filterbank index is 0
 snr_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
+dataset_no += 1
 
 # Store results
 data = {"snr_list": snr_list,
@@ -123,8 +131,9 @@ data_file = 'res/snr.mat'
 savedata(data_file, data, 'mat')
 
 # plot histogram of SNR
+color = gen_colors(dataset_no)
 fig, ax = hist(snr_list, bins = list(range(-30,0+1)), range = (-30, 0), density = True,
-               color = ['blue', 'green', 'orange'], alpha = 0.3, fit_line = True, line_points = 1000,
+               color = color, alpha = 0.3, fit_line = True, line_points = 1000,
                x_label = 'SNR (dB)',
                y_label = 'Probability',
                grid = True,
