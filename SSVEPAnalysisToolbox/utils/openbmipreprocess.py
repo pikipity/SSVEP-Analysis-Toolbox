@@ -12,8 +12,9 @@ def ref_sig_fun(dataself, sig_len: float, N: int, phases: List[float], srate: fl
     """
     Because downsampling, the sampling rate of reference signals also should be changed
     """
-    L = floor(sig_len * srate)
-    ref_sig = [gen_ref_sin(freq, srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+    L = floor(sig_len * dataself.srate)
+    ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+    ref_sig = [signal.resample_poly(sig, 1000*srate, 1000*dataself.srate, axis = 1) for sig in ref_sig]
     return ref_sig
 
 def suggested_weights_filterbank() -> List[float]:
