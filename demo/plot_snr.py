@@ -11,7 +11,9 @@ from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
     preprocess, filterbank, suggested_ch
 )
 
-from SSVEPAnalysisToolbox.evaluator.plot import hist, close_fig
+from SSVEPAnalysisToolbox.evaluator import (
+    hist, close_fig
+)
 from SSVEPAnalysisToolbox.utils.io import savedata
 from SSVEPAnalysisToolbox.utils.algsupport import nextpow2
 
