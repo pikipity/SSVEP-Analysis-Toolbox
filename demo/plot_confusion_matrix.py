@@ -22,6 +22,9 @@ dataset_container = [
 target_time = 0.5
 
 for dataset_idx, data_file in enumerate(data_file_list):
+    if not os.path.isfile(data_file):
+        print("'{:s}' does not exist.".format(data_file))
+        continue
     data = loaddata(data_file, 'mat')
     confusion_matrix = data["confusion_matrix"]
     method_ID = data["method_ID"]
