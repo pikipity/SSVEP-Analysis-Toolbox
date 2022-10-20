@@ -34,8 +34,8 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i/100 for i in range(50,100+10,10)]
-# tw_seq = [tw-dataset.default_t_latency for tw in tw_seq]
+# tw_seq = [i/100 for i in range(50,100+10,10)]
+tw_seq = [i/100 for i in range(25,100+5,5)]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -54,16 +54,16 @@ model_container = [
                    MsetCCA(weights_filterbank = weights_filterbank),
                    MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
-                #    MSCCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
+                   MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
                    SSCOR(weights_filterbank = weights_filterbank),
                    ESSCOR(weights_filterbank = weights_filterbank),
                    TRCA(weights_filterbank = weights_filterbank),
                    TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
                    ETRCAwithR(weights_filterbank = weights_filterbank),
-                #    MSETRCA(n_neighbor = 6, weights_filterbank = weights_filterbank),
-                #    MSCCA_and_MSETRCA(n_neighbor_mscca = 6, n_neighber_msetrca = 6, weights_filterbank = weights_filterbank),
-                #    TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
+                   MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
+                   MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
+                   TDCA(n_component = 5, weights_filterbank = weights_filterbank, n_delay = 2)
                   ]
 
 # Evaluate models
