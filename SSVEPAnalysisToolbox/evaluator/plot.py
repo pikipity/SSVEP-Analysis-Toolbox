@@ -7,6 +7,147 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.stats as st
 
+def _plot_polar_phase(ax,
+                      Phase : ndarray,
+                      color : Optional[Union[str,list,tuple]] = None,
+                      alpha : float = 0.1):
+    X_shape = Phase.shape
+    if len(X_shape)>1:
+        Phase = np.reshape(Phase, np.prod(Phase.shape))
+    for phase_val in Phase:
+        ax.plot([0, phase_val], [0, 1], '-', color = color, label='_nolegend_', alpha = alpha)
+
+def _plot_polar_phase_shadow(ax,
+                             X : ndarray,
+                             step_theta : float,
+                             alpha = 0.3,
+                             color : Optional[Union[str,list,tuple]] = None,
+                             errorbar_type : str = '95ci'):
+    if len(X.shape)>1:
+        X = np.reshape(X, np.prod(X.shape))
+    if errorbar_type.lower() == 'std':
+        Y_error = np.std(X, 0)
+    elif errorbar_type.lower() == '95ci':
+        Y_error = cal_CI95(X)
+    else:
+        raise ValueError("Unknow 'errorbar_type'. 'errorbar_type' must be 'std' or '95ci'")
+    Y_mean = np.mean(X)
+    theta_range = np.arange(Y_mean-Y_error, Y_mean+Y_error+step_theta, step_theta)
+    ax.fill_between(theta_range, 0, np.ones_like(theta_range),alpha=alpha, facecolor=color, label='_nolegend_')
+    return Y_mean, Y_error
+    
+
+def polar_phase(X : ndarray,
+                color: Optional[Union[str,list,tuple]] = None,
+                x_label: Optional[str] = None,
+                y_label: Optional[str] = None,
+                x_ticks: Optional[List[str]] = None,
+                legend: Optional[List[str]] = None,
+                grid: bool = True,
+                xlim: Optional[List[float]] = None,
+                ylim: Optional[List[float]] = None,
+                figsize: List[float] = [6.4, 4.8]):
+    """
+    Plot phase
+    """
+    if ylim is None:
+        ylim = [0, 1.1]
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0,0,1,1], projection = 'polar')
+
+    if type(X) is not list:
+        if type(color) is list:
+            color = color[0]
+        if type(legend) is list:
+            legend = legend[0]
+        _plot_polar_phase(ax, X, color)
+        ax.plot([0, np.mean(X)], [0, 1.1], '--', color = color, label=legend)
+    else:
+        if type(color) is not list:
+            raise ValueError("The color must be a list.")
+        if len(X) != len(color):
+            raise ValueError("The length of color should be same as the length of X.")
+        if type(legend) is not list:
+            raise ValueError("The legend must be a list.")
+        if len(X) != len(legend):
+            raise ValueError("The length of legend should be same as the length of X.")
+        for X_single_group, color_single_group, legend_single_group in zip(X, color, legend):
+            _plot_polar_phase(ax, X_single_group, color = color_single_group)
+            ax.plot([0, np.mean(X_single_group)], [0, 1.1], '--', color = color_single_group, label=legend_single_group)
+    
+    if x_label is not None:
+        ax.set_xlabel(x_label)
+    if y_label is not None:
+        ax.set_ylabel(y_label)
+    if x_ticks is not None:
+        ax.set_xticks(X, x_ticks)
+    if legend is not None:
+        ax.legend()
+    ax.grid(grid)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    return fig, ax
+
+def polar_phase_shadow(X : ndarray,
+                        color: Optional[Union[str,list,tuple]] = None,
+                        x_label: Optional[str] = None,
+                        y_label: Optional[str] = None,
+                        x_ticks: Optional[List[str]] = None,
+                        legend: Optional[List[str]] = None,
+                        grid: bool = True,
+                        xlim: Optional[List[float]] = None,
+                        ylim: Optional[List[float]] = None,
+                        errorbar_type : str = '95ci',
+                        alpha : float = 0.2,
+                        figsize: List[float] = [6.4, 4.8]):
+    """
+    Plot phase with shadow
+    """
+    if ylim is None:
+        ylim = [0, 1]
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0,0,1,1], projection = 'polar')
+    step_theta = 0.1/180*np.pi
+
+    if type(X) is not list:
+        if type(color) is list:
+            color = color[0]
+        if type(legend) is list:
+            legend = legend[0]
+        Y_mean, _ = _plot_polar_phase_shadow(ax, X, step_theta, alpha, color, errorbar_type)
+        ax.plot([0, Y_mean], [0, 1], '--', color = color, label=legend)
+    else:
+        if type(color) is not list:
+            raise ValueError("The color must be a list.")
+        if len(X) != len(color):
+            raise ValueError("The length of color should be same as the length of X.")
+        if type(legend) is not list:
+            raise ValueError("The legend must be a list.")
+        if len(X) != len(legend):
+            raise ValueError("The length of legend should be same as the length of X.")
+        for X_single_group, color_single_group, legend_single_group in zip(X, color, legend):
+            Y_mean, _ = _plot_polar_phase_shadow(ax, X_single_group, step_theta, alpha, color_single_group, errorbar_type)
+            ax.plot([0, Y_mean], [0, 1], '--', color = color_single_group, label=legend_single_group)
+    
+    if x_label is not None:
+        ax.set_xlabel(x_label)
+    if y_label is not None:
+        ax.set_ylabel(y_label)
+    if x_ticks is not None:
+        ax.set_xticks(X, x_ticks)
+    if legend is not None:
+        ax.legend()
+    ax.grid(grid)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    return fig, ax
+
 def gen_colors(color_no : int,
                colormap_name : str = 'rainbow'):
     if type(color_no) is not int:
