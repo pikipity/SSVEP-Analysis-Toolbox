@@ -12,8 +12,9 @@ def ref_sig_fun(dataself, sig_len: float, N: int, phases: List[float], srate: fl
     """
     Because downsampling, the sampling rate of reference signals also should be changed
     """
-    L = floor(sig_len * srate)
-    ref_sig = [gen_ref_sin(freq, srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+    L = floor(sig_len * dataself.srate)
+    ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
+    ref_sig = [signal.resample_poly(sig, 1000*srate, 1000*dataself.srate, axis = 1) for sig in ref_sig]
     return ref_sig
 
 def suggested_weights_filterbank() -> List[float]:
@@ -57,7 +58,11 @@ def filterbank(dataself,
     band = [0.5, 40]
     bpB, bpA = signal.butter(5, [band_val/(srate/2) for band_val in band], 'bandpass')
     tmp = signal.filtfilt(bpB, bpA, X, axis = 1, padtype='odd', padlen=3*(max(len(bpB),len(bpA))-1))
-    filterbank_X[0,:,:] = signal.detrend(tmp, axis = 1)
+    tmp = signal.detrend(tmp, axis = 1)
+    tmp = tmp - np.mean(tmp, axis = 1, keepdims = True)
+    tmp_std = np.std(tmp, axis = 1, keepdims = True, ddof=1)
+    tmp = tmp / tmp_std
+    filterbank_X[0,:,:] = tmp.copy()
     
     # for k in range(1, num_subbands+1, 1):
         # Wp = [(6*k)/(srate/2), 80/(srate/2)]

@@ -23,7 +23,7 @@ import numpy as np
 
 # Prepare dataset
 dataset = openBMIDataset(path = 'openBMI')
-downsample_srate = 100
+downsample_srate = 250
 dataset.regist_preprocess(lambda dataself, X: preprocess(dataself, X, downsample_srate))
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, downsample_srate))
 dataset.regist_ref_sig_fun(lambda dataself, sig_len, N, phases: ref_sig_fun(dataself, sig_len, N, phases, downsample_srate))
@@ -36,7 +36,7 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i for i in range(1,4+1,1)]
+tw_seq = [i/100 for i in range(25,100+5,5)]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -107,9 +107,3 @@ data = {"acc_store": acc_store,
         "method_ID": [model.ID for model in model_container]}
 data_file = 'res/openbmidataset_res.mat'
 savedata(data_file, data, 'mat')
-
-
-
-
-
-

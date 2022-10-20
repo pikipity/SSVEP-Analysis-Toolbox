@@ -18,5 +18,6 @@ from .performance import (
 
 from .plot import (
     close_fig,
-    shadowline_plot, bar_plot, bar_plot_with_errorbar, cal_CI95
+    shadowline_plot, bar_plot, bar_plot_with_errorbar, cal_CI95,
+    hist, gen_colors
 )

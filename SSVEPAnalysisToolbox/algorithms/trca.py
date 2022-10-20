@@ -7,16 +7,15 @@ from numpy import ndarray
 from joblib import Parallel, delayed
 from functools import partial
 from copy import deepcopy
-
-import numpy as np
-import numpy.matlib as npmat
-import numpy.linalg as nplin
-import scipy.linalg as slin
-# import scipy.stats as stats
 import warnings
 
+import numpy as np
+
 from .basemodel import BaseModel
-from .utils import gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec
+from .utils import (
+    gen_template, sort, canoncorr, separate_trainSig, qr_list, blkrep, eigvec, cholesky,
+    inv, repmat
+)
 
 def _sscor_cal_U(X_single_stimulus : ndarray,
                  n_component : int):
@@ -29,16 +28,16 @@ def _sscor_cal_U(X_single_stimulus : ndarray,
     for filterbank_idx in range(filterbank_num):
         xx = np.mean(X_single_stimulus[:,filterbank_idx,:,:], axis = 0)
         Cxx = xx @ xx.T
-        Kxx = nplin.cholesky(Cxx).T
-        Kxx_inverse = nplin.inv(Kxx)
+        Kxx = cholesky(Cxx).T
+        Kxx_inverse = inv(Kxx)
 
         Gtotal = None
         for trial_idx in range(trial_num):
             xi = X_single_stimulus[trial_idx,filterbank_idx,:,:]
             C0i = xx @ xi.T
             Cii = xi @ xi.T
-            Ki = nplin.cholesky(Cii).T
-            Ki_inverse = nplin.inv(Ki)
+            Ki = cholesky(Cii).T
+            Ki_inverse = inv(Ki)
             g_tmp = Kxx_inverse.T @ C0i @ Ki_inverse
             if Gtotal is None:
                 Gtotal = (g_tmp @ g_tmp.T) / 2
@@ -62,7 +61,7 @@ def _trcaR_cal_template_U(X_single_stimulus : ndarray,
     trial_num, filterbank_num, channel_num, signal_len = X_single_stimulus.shape
     # prepare center matrix
     # I = np.eye(signal_len)
-    LL = npmat.repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
+    LL = repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
     # calculate spatial filters of each filterbank
     U_trial = []
     for filterbank_idx in range(filterbank_num):

@@ -11,12 +11,13 @@ from copy import deepcopy
 import warnings
 
 import numpy as np
-import numpy.matlib as npmat
-import scipy.linalg as slin
-# import scipy.stats as stats
 
 from .basemodel import BaseModel
-from .utils import qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, gen_template, sort, separate_trainSig, blkrep, blkmat, eigvec
+from .utils import (
+    qr_remove_mean, qr_inverse, mldivide, canoncorr, qr_list, 
+    gen_template, sort, separate_trainSig, blkrep, blkmat, eigvec,
+    svd, repmat
+)
 
 def _msetcca_cal_template_U(X_single_stimulus : ndarray,
                             I : ndarray):
@@ -27,7 +28,7 @@ def _msetcca_cal_template_U(X_single_stimulus : ndarray,
     n_component = 1
     # prepare center matrix
     # I = np.eye(signal_len)
-    LL = npmat.repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
+    LL = repmat(I, trial_num, trial_num) - blkrep(I, trial_num)
     # calculate templates and spatial filters of each filterbank
     U_trial = []
     CCA_template = []
@@ -420,18 +421,10 @@ def _r_cca_qr(X: ndarray,
                 full_matrices=True
             
             if n_component == 0 and force_output_UV is False:
-                D = slin.svd(svd_X,
-                             full_matrices=full_matrices,
-                             compute_uv=False,
-                             check_finite=False,
-                             lapack_driver='gesvd')
-                # r1 = D[0]
+                D = svd(svd_X, full_matrices, False)
                 r = D[0]
             else:
-                L, D, M = slin.svd(svd_X,
-                                 full_matrices=full_matrices,
-                                 check_finite=False,
-                                 lapack_driver='gesvd')
+                L, D, M = svd(svd_X, full_matrices, True)
                 M = M.T
                 A = mldivide(X_R, L) * np.sqrt(signal_len - 1)
                 B = mldivide(Y_R_tmp, M) * np.sqrt(signal_len - 1)

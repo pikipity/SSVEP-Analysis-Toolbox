@@ -3,6 +3,84 @@
 from typing import Union, Optional, Dict, List, Tuple
 from numpy import ndarray, linspace, pi, sin, cos, expand_dims, concatenate
 import numpy as np
+from scipy import signal
+
+def freqs_snr(X : ndarray,
+              target_fre : float,
+              srate : float,
+              Nh : int,
+              detrend_flag : bool = True,
+              NFFT : Optional[int] = None):
+    """
+    Calculate FFT and then calculate SNR
+    """
+    freq, fft_res = fft(X, srate, detrend_flag = detrend_flag, NFFT = NFFT)
+    abs_fft_res = np.abs(fft_res)
+
+    stim_amp = 0
+    for n in range(Nh):
+        freLoc = np.argmin(np.abs(freq - (target_fre*(n+1))))
+        stim_amp += abs_fft_res[0,freLoc]
+    snr = 10*np.log10(stim_amp/(np.sum(abs_fft_res)-stim_amp))
+    return snr
+
+
+def nextpow2(n):
+    '''
+    Retrun the first P such that 2 ** P >= abs(n).
+    '''
+    return np.ceil(np.log2(np.abs(n)))
+
+def fft(X : ndarray,
+        fs : float,
+        detrend_flag : bool = True,
+        NFFT : Optional[int] = None):
+    """
+    Calculate FFT
+
+    Parameters
+    -----------
+    X : ndarray
+        Input signal. The shape is (1*N) where N is the sampling number.
+    fs : float
+        Sampling freqeuncy.
+    detrend_flag : bool
+        Whether detrend. If True, X will be detrended first. Default is True.
+    NFFT : Optional[int]
+        Number of FFT. If None, NFFT is equal to 2^nextpow2(X.shape[1]). Default is None.
+
+    Returns
+    -------------
+    freqs : ndarray
+        Corresponding frequencies
+    fft_res : ndarray
+        FFT result
+    """
+    X_raw, X_col = X.shape
+    if X_raw!=1:
+        raise ValueError('The row number of the input signal for the FFT must be 1.')
+    if X_col==1:
+        raise ValueError('The column number of the input signal for the FFT cannot be 1.')
+    if NFFT is None:
+        NFFT = 2 ** nextpow2(X_col)
+    if type(NFFT) is not int:
+        NFFT = int(NFFT)
+    
+    if detrend_flag:
+        X = signal.detrend(X, axis = 1)
+
+    fft_res = np.fft.fft(X, NFFT, axis = 1)
+    freqs = np.fft.fftfreq(NFFT, 1/fs)
+    freqs = np.expand_dims(freqs,0)
+    if NFFT & 0x1:
+        fft_res = fft_res[:,:int((NFFT+1)/2)]
+        freqs = freqs[:,:int((NFFT+1)/2)]
+    else:
+        fft_res = fft_res[:,:int(NFFT/2)]
+        freqs = freqs[:,:int(NFFT/2)]
+    # fft_res = fft_res/X_col
+    
+    return freqs, fft_res
 
 def gen_ref_sin(freq: float,
                 srate: int,

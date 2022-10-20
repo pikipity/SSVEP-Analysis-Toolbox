@@ -72,7 +72,7 @@ class BETADataset(BaseDataset):
                          srate = 250, 
                          block_num = 4, 
                          trial_num = len(self._FREQS),
-                         trial_len = 2, 
+                         trial_len = 3, 
                          stim_info = {'stim_num': len(self._FREQS),
                                       'freqs': self._FREQS,
                                       'phases': [i * np.pi for i in self._PHASES]},

@@ -6,6 +6,61 @@ from numpy import iscomplex, ndarray
 import scipy.linalg as slin
 import numpy as np
 import numpy.linalg as nplin
+import numpy.matlib as npmat
+
+def inv(X : ndarray):
+    return nplin.inv(X)
+
+def repmat(X : ndarray,
+           rep_x : int,
+           rep_y : int):
+    return npmat.repmat(X, rep_x, rep_y)
+
+def svd(X : ndarray,
+        full_matrices : bool,
+        compute_uv : bool):
+    if compute_uv:
+        L, D, M = slin.svd(X,
+                            full_matrices=full_matrices,
+                            compute_uv=compute_uv,
+                            check_finite=False,
+                            lapack_driver='gesvd')
+        return L, D, M
+    else:
+        D = slin.svd(X,
+                        full_matrices=full_matrices,
+                        compute_uv=compute_uv,
+                        check_finite=False,
+                        lapack_driver='gesvd')
+        return D
+
+def cholesky(M : ndarray):
+    """
+    Calculate cholesky decomposition of M. If M is not positive definite matrix, the nearest positive definite matrix for M will be created.
+
+    ref: https://github.com/Cysu/open-reid/commit/61f9c4a4da95d0afc3634180eee3b65e38c54a14
+
+    Find the nearest positive definite matrix for M. Modified from
+    http://www.mathworks.com/matlabcentral/fileexchange/42885-nearestspd
+    Might take several minutes
+    """
+    M = (M + M.T) * 0.5
+    k = 0
+    I = np.eye(M.shape[0])
+    Ki = None
+    while k<=1000:
+        try:
+            Ki = nplin.cholesky(M)
+            break
+        except nplin.LinAlgError:
+            k += 1
+            v = eigvec(M)
+            min_eig = v.min()
+            M += (-min_eig * k * k + np.spacing(min_eig)) * I
+    if Ki is None:
+        raise ValueError('Cannot calculate cholesky decomposition')
+    else:
+        return Ki
 
 def norm_direction(V : ndarray,
                    V_norm : Optional[List[float]] = None):
@@ -62,12 +117,13 @@ def eigvec(X : ndarray,
     sort_idx = np.argsort(eig_d1)[::-1]
     eig_vec = eig_v1[:,sort_idx]
 
+    if Y is not None:
+        square_val = np.diag(eig_vec.T @ Y @ eig_vec)
+        norm_v = np.sqrt(square_val)
+        eig_vec = eig_vec/norm_v
+
     if np.iscomplex(eig_vec).any():
         eig_vec = np.real(eig_vec)
-
-    if Y is not None:
-        norm_v = np.sqrt(np.diag(eig_vec.T @ Y @ eig_vec))
-        eig_vec = eig_vec/norm_v
 
     return eig_vec
 

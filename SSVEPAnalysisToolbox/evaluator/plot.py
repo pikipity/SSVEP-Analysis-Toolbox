@@ -7,11 +7,127 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.stats as st
 
+def gen_colors(color_no : int,
+               colormap_name : str = 'rainbow'):
+    if type(color_no) is not int:
+        raise ValueError("The number of colors must be an integer.")
+    color_gen = cm.get_cmap(colormap_name)(np.linspace(0,1,color_no))
+    colors = []
+    for i in range(color_no):
+        colors.append(color_gen[i, :3])
+    return colors
+
 def close_fig(fig):
     """
     Close figure
     """
     plt.close(fig)
+
+def _plot_hist(ax, 
+                X : ndarray,
+                bins: Optional[int] = None,
+                range: Optional[tuple] = None,
+                density: bool = True,
+                color: Optional[Union[str,list,tuple]] = None,
+                label: Optional[Union[str,list]] = None,
+                alpha: float = 1,):
+    X_shape = X.shape
+    if len(X_shape)>1:
+        X = np.reshape(X, np.prod(X.shape))
+    if bins is None:
+        bins = 'auto'
+    if range is None:
+        range = (X.min(), X.max())
+    if color is None:
+        color = 'blue'
+
+    vals, bins, patches = ax.hist(X, bins = bins, range = range, density = density, 
+                                    color = color, alpha = alpha, label = label)
+    return vals, bins, patches
+
+def _plot_fit_norm_line(ax, 
+                        X : ndarray,
+                        vals : ndarray,
+                        range: Optional[tuple] = None,
+                        line_points : int = 1000,
+                        color: Optional[Union[str,list,tuple]] = None):
+    X_shape = X.shape
+    if len(X_shape)>1:
+        X = np.reshape(X, np.prod(X.shape))
+    if range is None:
+        range = (X.min(), X.max())
+    if color is None:
+        color = 'blue'
+    mu, std = st.norm.fit(X)
+    x_line = np.linspace(range[0], range[1], line_points)
+    y_line = st.norm.pdf(x_line, loc = mu, scale = std)
+    ax.plot(x_line, y_line, '-', color = color)
+    ax.plot([mu, mu], [0, np.max([y_line.max(), vals.max()])], '--', color = color)
+
+def hist(X : Union[list, ndarray],
+         bins: Optional[int] = None,
+         range: Optional[tuple] = None,
+         density: bool = True,
+         color: Optional[Union[str,list,tuple]] = None,
+         alpha: float = 1,
+         fit_line: bool = True,
+         line_points: int = 1000,
+         x_label: Optional[str] = None,
+         y_label: Optional[str] = None,
+         x_ticks: Optional[List[str]] = None,
+         legend: Optional[List[str]] = None,
+         grid: bool = True,
+         xlim: Optional[List[float]] = None,
+         ylim: Optional[List[float]] = None,
+         figsize: List[float] = [6.4, 4.8]):
+    """
+    Plot histogram
+    """
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0,0,1,1])
+
+    if type(X) is not list:
+        if type(color) is list:
+            color = color[0]
+        if type(legend) is list:
+            legend = legend[0]
+        vals, _, _ = _plot_hist(ax, X, bins = bins, range = range, density = density, 
+                                         color = color, alpha = alpha, label = legend)
+
+        if fit_line:
+            _plot_fit_norm_line(ax, X, vals, range, line_points, color)
+    else:
+        if type(color) is not list:
+            raise ValueError("The color must be a list.")
+        if len(X) != len(color):
+            raise ValueError("The length of color should be same as the length of X.")
+        if type(legend) is not list:
+            raise ValueError("The legend must be a list.")
+        if len(X) != len(legend):
+            raise ValueError("The length of legend should be same as the length of X.")
+        vals_list = []
+        for X_single_group, color_single_group, legend_single_group in zip(X, color, legend):
+            vals, _, _ = _plot_hist(ax, X_single_group, bins = bins, range = range, density = density, 
+                                             color = color_single_group, alpha = alpha, label = legend_single_group)
+            vals_list.append(vals)
+        for X_single_group, vals, color_single_group in zip(X, vals_list, color):
+            _plot_fit_norm_line(ax, X_single_group, vals, range, line_points, color_single_group)
+
+    if x_label is not None:
+        ax.set_xlabel(x_label)
+    if y_label is not None:
+        ax.set_ylabel(y_label)
+    if x_ticks is not None:
+        ax.set_xticks(X, x_ticks)
+    if legend is not None:
+        ax.legend()
+    ax.grid(grid)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    return fig, ax
 
 def shadowline_plot(X: Union[list, ndarray],
                     Y: ndarray,

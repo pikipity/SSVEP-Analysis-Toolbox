@@ -9,11 +9,14 @@ from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray, expand_dims
 import warnings
 
+import numpy as np
+
 import random
 random.seed()
 
 from .subjectinfo import SubInfo
-from ..utils.algsupport import gen_ref_sin, floor
+from ..utils.algsupport import gen_ref_sin, floor, freqs_snr
+from ..evaluator.baseevaluator import create_pbar
 
 class BaseDataset(metaclass=abc.ABCMeta):
     """
@@ -200,6 +203,13 @@ class BaseDataset(metaclass=abc.ABCMeta):
         train_block.remove(block_idx)
         
         return test_block, train_block
+
+    def get_ch_idx(self,
+                   ch_name : str):
+        for ch_idx, ch_val in enumerate(self.channels):
+            if ch_val.upper() == ch_name.upper():
+                return ch_idx
+        return None
     
     def get_data(self,
                  sub_idx: int,
@@ -519,7 +529,76 @@ class BaseDataset(metaclass=abc.ABCMeta):
         Get labels of given trials
         """
         return [self.get_label_single_trial(sub_idx, block_idx, trial_idx) for trial_idx in trials]
-        
+
+    def get_snr_single_trial(self,
+                             sub_idx : int,
+                             block_idx : int,
+                             trial_idx : int,
+                             ch_idx : int,
+                             sig_len : float,
+                             Nh : int,
+                             filter_bank_idx : int = 0,
+                             srate : Optional[float] = None,
+                             t_latency: Optional[float] = None,
+                             detrend_flag : bool = True,
+                             NFFT : Optional[int] = None):
+        """
+        Calculate the SNR of one single trial
+        """
+        if srate is None:
+            srate = self.srate
+        X_fft, Y_fft = self.get_data(sub_idx = sub_idx,
+                                        blocks = [block_idx],
+                                        trials = [trial_idx],
+                                        channels = [ch_idx],
+                                        sig_len = sig_len,
+                                        t_latency = t_latency)
+        X_fft = X_fft[0][filter_bank_idx,:,:]
+        Y_fft = Y_fft[0]
+        return freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh, 
+                         detrend_flag = detrend_flag,
+                         NFFT = NFFT)
+
+    def get_snr(self,
+                Nh : int = 1,
+                filter_bank_idx : int = 0,
+                srate : Optional[float] = None,
+                t_latency: Optional[float] = None,
+                remove_break : bool = True,
+                remove_pre_and_latency : bool = True,
+                display_progress : bool = False,
+                detrend_flag : bool = True,
+                NFFT : Optional[int] = None,
+                sig_len : Optional[float] = None):
+        """
+        Calculate the SNR
+        """
+        if srate is None:
+            srate = self.srate
+        if t_latency is None:
+            t_latency = self.default_t_latency
+        if sig_len is None:
+            sig_len = self.trial_len
+        snr = np.zeros((len(self.subjects), self.block_num, self.trial_num, len(self.channels))) # subj * block_num * stimulus_num * ch_num
+        if remove_pre_and_latency:
+            sig_len = sig_len - self.t_prestim - t_latency
+        if remove_break:
+            sig_len -= self.t_break
+        if display_progress:
+            pbar = create_pbar([len(self.subjects), self.block_num])
+        for sub_idx in range(len(self.subjects)):
+            for block_idx in range(self.block_num):
+                if display_progress:
+                    pbar.update(1)
+                X_all_trials, Y_all_trials = self.get_data_all_trials(sub_idx, [block_idx], list(range(len(self.channels))),sig_len, t_latency)
+                for trial_idx, X_single_trial in enumerate(X_all_trials):
+                    Y_fft = Y_all_trials[trial_idx]
+                    for ch_idx in range(len(self.channels)):
+                        X_fft = X_single_trial[filter_bank_idx, ch_idx:(ch_idx+1), :]
+                        snr[sub_idx, block_idx, trial_idx, ch_idx] = freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh,
+                                                                               detrend_flag = detrend_flag,
+                                                                               NFFT = NFFT)
+        return snr
             
     def __repr__(self):
         return self.__str__()
