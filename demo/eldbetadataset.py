@@ -34,7 +34,7 @@ dataset_container = [
 
 
 # Prepare train and test trials
-tw_seq = [i/100 for i in range(10,100+10,10)]
+tw_seq = [i/100 for i in range(25,100+5,5)]
 trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                              tw_seq = tw_seq,
                                                              dataset_container = dataset_container,
@@ -49,19 +49,19 @@ trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
 weights_filterbank = suggested_weights_filterbank()
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
-                   # SCCA_canoncorr(weights_filterbank = weights_filterbank),
-                   # MsetCCA(weights_filterbank = weights_filterbank),
-                   # MsetCCAwithR(weights_filterbank = weights_filterbank),
+                   SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                   MsetCCA(weights_filterbank = weights_filterbank),
+                   MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
-                   # MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
-                   # SSCOR(weights_filterbank = weights_filterbank),
-                   # ESSCOR(weights_filterbank = weights_filterbank),
-                   # TRCA(weights_filterbank = weights_filterbank),
-                   # TRCAwithR(weights_filterbank = weights_filterbank),
+                   MSCCA(n_neighbor = 8, weights_filterbank = weights_filterbank),
+                   SSCOR(weights_filterbank = weights_filterbank),
+                   ESSCOR(weights_filterbank = weights_filterbank),
+                   TRCA(weights_filterbank = weights_filterbank),
+                   TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
-                   # ETRCAwithR(weights_filterbank = weights_filterbank),
-                   # MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
-                   # MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
+                   ETRCAwithR(weights_filterbank = weights_filterbank),
+                   MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
+                   MSCCA_and_MSETRCA(n_neighbor_mscca = 8, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
                    TDCA(n_component = 5, weights_filterbank = weights_filterbank, n_delay = 3)
                   ]
 
