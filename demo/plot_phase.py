@@ -17,12 +17,9 @@ from SSVEPAnalysisToolbox.evaluator import (
 from SSVEPAnalysisToolbox.utils.io import savedata
 from SSVEPAnalysisToolbox.utils.algsupport import nextpow2
 
-import numpy as np
-
 phase_list = []
 legend = []
 dataset_no = 0
-harmonic_num = 5
 sig_len = 1
 
 # Benchmark dataset
@@ -113,7 +110,7 @@ phase_list.append(snr[:,:,:,suggested_ch()])
 legend.append(dataset.ID)
 dataset_no += 1
 
-# dataset = WearableDataset_dry(path = 'Wearable')
+dataset = WearableDataset_dry(path = 'Wearable')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, 5))
 print("{:s}: ".format(dataset.ID))
@@ -132,11 +129,6 @@ data_file = 'res/phase.mat'
 savedata(data_file, data, 'mat')
 
 # plot histogram of SNR
-# phase_list_plot = []
-# for phase in phase_list:
-#     phase_mean = np.mean(phase, axis = 1)
-#     phase_mean = np.mean(phase_mean, axis = 1)
-#     phase_list_plot.append(phase_mean)
 color = gen_colors(dataset_no)
 fig, ax = polar_phase_shadow(phase_list,
                             color = color,
