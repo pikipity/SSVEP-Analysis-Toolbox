@@ -84,6 +84,11 @@ for data_type in data_type_list:
 
     evaluator.run(n_jobs = 10,
                 eval_train = False)
+    if data_type.lower() == 'wet':
+        evaluator_file = 'res/wearable_wet_evaluator.pkl'
+    else:
+        evaluator_file = 'res/wearable_dry_evaluator.pkl'
+    evaluator.save(evaluator_file)
 
     # Calculate performance
     acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,
