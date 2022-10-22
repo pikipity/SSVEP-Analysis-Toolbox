@@ -136,31 +136,31 @@ class BaseDataset(metaclass=abc.ABCMeta):
         self.reset_filterbank()
         self.reset_ref_sig_fun()
 
-    def reset_ref_sig_fun(self):
-        def default_ref_sig_fun(dataself, sig_len: float, N: int, phases: List[float]):
+    def default_ref_sig_fun(self, dataself, sig_len: float, N: int, phases: List[float]):
             L = floor(sig_len * dataself.srate)
             ref_sig = [gen_ref_sin(freq, dataself.srate, L, N, phase) for freq, phase in zip(dataself.stim_info['freqs'], phases)]
             return ref_sig
-        self.regist_ref_sig_fun(default_ref_sig_fun)
+    def reset_ref_sig_fun(self):
+        self.regist_ref_sig_fun(self.default_ref_sig_fun)
+    def default_preprocess(self, dataself, X: ndarray) -> ndarray:
+        """
+        default preprocess (do nothing)
+        """
+        return X
     def reset_preprocess(self):
-        def default_preprocess(dataself, X: ndarray) -> ndarray:
-            """
-            default preprocess (do nothing)
-            """
+        self.regist_preprocess(self.default_preprocess)
+    def default_filterbank(self, dataself, X: ndarray) -> ndarray:
+        """
+        default filterbank (1 filterbank contains original signal)
+        """
+        if len(X.shape) == 2:
+            return expand_dims(X,0)
+        elif len(X.shape) == 3:
             return X
-        self.regist_preprocess(default_preprocess)
+        else:
+            raise ValueError("The shapes of EEG signals are not correct")
     def reset_filterbank(self):
-        def default_filterbank(dataself, X: ndarray) -> ndarray:
-            """
-            default filterbank (1 filterbank contains original signal)
-            """
-            if len(X.shape) == 2:
-                return expand_dims(X,0)
-            elif len(X.shape) == 3:
-                return X
-            else:
-                raise ValueError("The shapes of EEG signals are not correct")
-        self.regist_filterbank(default_filterbank)
+        self.regist_filterbank(self.default_filterbank)
     def download_all(self):
         """
         Download all subjects' data
