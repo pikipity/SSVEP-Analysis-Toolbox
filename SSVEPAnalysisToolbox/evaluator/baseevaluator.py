@@ -398,12 +398,14 @@ class BaseEvaluator:
         desertation_dir = os.path.dirname(file)
         if not os.path.exists(desertation_dir):
             os.makedirs(desertation_dir)
+        if os.path.isfile(file):
+            os.remove(file)
         with open(file,'wb') as file_:
             pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
 
     def load(self,
              file: str):
-        if not os.path.exists(file):
+        if not os.path.isfile(file):
             raise ValueError('{:s} does not exist!!'.format(file))
         with open(file,'rb') as file_:
             self_load = pickle.load(file_)
