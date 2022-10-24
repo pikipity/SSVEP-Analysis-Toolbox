@@ -74,6 +74,8 @@ evaluator = BaseEvaluator(dataset_container = dataset_container,
 
 evaluator.run(n_jobs = 10,
               eval_train = False)
+evaluator_file = 'res/eldbeta_evaluator.pkl'
+evaluator.save(evaluator_file)
 
 # Calculate performance
 acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,

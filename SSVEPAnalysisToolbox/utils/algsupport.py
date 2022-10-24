@@ -24,6 +24,29 @@ def freqs_snr(X : ndarray,
     snr = 10*np.log10(stim_amp/(np.sum(abs_fft_res)-stim_amp))
     return snr
 
+def freqs_phase(X : ndarray,
+                target_fre : float,
+                target_phase : float,
+                srate : float,
+                detrend_flag : bool = True,
+                NFFT : Optional[int] = None):
+    """
+    Calculate FFT and then calculate phase
+    """
+    freq, fft_res = fft(X, srate, detrend_flag = detrend_flag, NFFT = NFFT)
+    angle_fft_res = np.angle(fft_res)
+    freLoc = np.argmin(np.abs(freq - target_fre))
+    stim_phase = angle_fft_res[0,freLoc]
+    if stim_phase != target_phase:
+        k1 = np.floor((target_phase - stim_phase)/(2*np.pi))
+        k2 = -k1
+        k3 = np.floor((stim_phase - target_phase)/(2*np.pi))
+        k4 = -k3
+        k = np.array([k1,k2,k3,k4])
+        k_loc = np.argmin(np.abs(stim_phase + 2*np.pi*k - target_phase))
+        stim_phase = stim_phase + 2*np.pi*k[k_loc]
+    return stim_phase
+
 
 def nextpow2(n):
     '''

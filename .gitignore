@@ -15,3 +15,6 @@ demo/Wearable/*
 .DS_Store
 explore_*
 *plore_*
+phase_*
+temp.*
+*.pkl

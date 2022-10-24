@@ -55,16 +55,16 @@ model_container = [
                    MsetCCA(weights_filterbank = weights_filterbank),
                    MsetCCAwithR(weights_filterbank = weights_filterbank),
                    ECCA(weights_filterbank = weights_filterbank),
-                #    MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
+                   MSCCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
                    SSCOR(weights_filterbank = weights_filterbank),
                    ESSCOR(weights_filterbank = weights_filterbank),
                    TRCA(weights_filterbank = weights_filterbank),
                    TRCAwithR(weights_filterbank = weights_filterbank),
                    ETRCA(weights_filterbank = weights_filterbank),
                    ETRCAwithR(weights_filterbank = weights_filterbank),
-                #    MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
-                #    MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
-                #    TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
+                   MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
+                   MSCCA_and_MSETRCA(n_neighbor_mscca = 2, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
+                   TDCA(n_component = 3, weights_filterbank = weights_filterbank, n_delay = 2)
                   ]
 
 # Evaluate models
@@ -76,6 +76,8 @@ evaluator = BaseEvaluator(dataset_container = dataset_container,
 
 evaluator.run(n_jobs = 10,
               eval_train = False)
+evaluator_file = 'res/openbmi_evaluator.pkl'
+evaluator.save(evaluator_file)
 
 # Calculate performance
 acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,

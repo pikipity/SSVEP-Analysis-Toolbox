@@ -10,6 +10,9 @@ from numpy import ndarray
 from tqdm import tqdm
 import time
 import numpy as np
+import os
+import pickle
+import copy
 
 def gen_trials_onedataset_individual_online(dataset_idx: int,
                                          tw_seq: List[float],
@@ -355,9 +358,9 @@ class BaseEvaluator:
     BaseEvaluator
     """
     def __init__(self,
-                 dataset_container : list,
-                 model_container : list,
-                 trial_container : list,
+                 dataset_container : Optional[list] = None,
+                 model_container : Optional[list] = None,
+                 trial_container : Optional[list] = None,
                  save_model: bool = False,
                  disp_processbar: bool = True,
                  ignore_stim_phase: bool = False):
@@ -389,6 +392,32 @@ class BaseEvaluator:
         
         self.performance_container = []
         self.trained_model_container = []
+
+    def save(self,
+             file: str):
+        desertation_dir = os.path.dirname(file)
+        if not os.path.exists(desertation_dir):
+            os.makedirs(desertation_dir)
+        if os.path.isfile(file):
+            os.remove(file)
+        with open(file,'wb') as file_:
+            pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
+
+    def load(self,
+             file: str):
+        if not os.path.isfile(file):
+            raise ValueError('{:s} does not exist!!'.format(file))
+        with open(file,'rb') as file_:
+            self_load = pickle.load(file_)
+        self.dataset_container = copy.deepcopy(self_load.dataset_container)
+        self.model_container = copy.deepcopy(self_load.model_container)
+        self.trial_container = copy.deepcopy(self_load.trial_container)
+        self.save_model = copy.deepcopy(self_load.save_model)
+        self.disp_processbar = copy.deepcopy(self_load.disp_processbar)
+        self.ignore_stim_phase = copy.deepcopy(self_load.ignore_stim_phase)
+        
+        self.performance_container = copy.deepcopy(self_load.performance_container)
+        self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
         
     def run(self,
             n_jobs : Optional[int] = None,
@@ -405,6 +434,8 @@ class BaseEvaluator:
         save_model_after_evaluate : bool
             Whether save the model after the evaluation. To evaluate the online method, this flag is set as True
         """
+        if self.dataset_container is None or self.model_container is None or self.trial_container is None:
+            raise ValueError("Please check 'dataset_container', 'model_container', and 'trial_container'.")
         if n_jobs is not None:
             for i in range(len(self.model_container)):
                 self.model_container[i].n_jobs = n_jobs
@@ -517,6 +548,8 @@ class BaseEvaluator:
             List of indices of trials that satify the given information
 
         """
+        if self.dataset_container is None or self.model_container is None or self.trial_container is None:
+            raise ValueError("Please check 'dataset_container', 'model_container', and 'trial_container'.")
         if train_or_test.lower() == "train":
             idx = 0
         elif train_or_test.lower() == "test":

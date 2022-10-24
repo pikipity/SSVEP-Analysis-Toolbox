@@ -44,8 +44,9 @@ for data_type in data_type_list:
 
 
     # Prepare train and test trials
-    tw_seq = [i/100 for i in range(50,200+50,50)]
-    tw_seq = [0.2, 0.3, 0.4] + tw_seq
+    # tw_seq = [i/100 for i in range(50,200+50,50)]
+    # tw_seq = [0.2, 0.3, 0.4] + tw_seq
+    tw_seq = [i/100 for i in range(25,100+5,5)]
     trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
                                                                 tw_seq = tw_seq,
                                                                 dataset_container = dataset_container,
@@ -84,6 +85,11 @@ for data_type in data_type_list:
 
     evaluator.run(n_jobs = 10,
                 eval_train = False)
+    if data_type.lower() == 'wet':
+        evaluator_file = 'res/wearable_wet_evaluator.pkl'
+    else:
+        evaluator_file = 'res/wearable_dry_evaluator.pkl'
+    evaluator.save(evaluator_file)
 
     # Calculate performance
     acc_store, itr_store = cal_performance_onedataset_individual_diffsiglen(evaluator = evaluator,
