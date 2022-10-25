@@ -7,9 +7,6 @@ from SSVEPAnalysisToolbox.datasets import (
     BenchmarkDataset, BETADataset, ELDBETADataset, NakanishiDataset, openBMIDataset,
     WearableDataset_wet, WearableDataset_dry
 )
-from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
-    preprocess, filterbank, suggested_ch
-)
 
 from SSVEPAnalysisToolbox.evaluator import (
     hist, close_fig, gen_colors
@@ -24,10 +21,15 @@ harmonic_num = 5
 sig_len = 1
 
 # Benchmark dataset
+from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
+    preprocess, filterbank, suggested_ch
+)
 dataset = BenchmarkDataset(path = '2016_Tsinghua_SSVEP_database')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(filterbank)
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -41,6 +43,8 @@ dataset = BETADataset(path = '2020_BETA_SSVEP_database_update')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(filterbank)
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -54,6 +58,8 @@ dataset = ELDBETADataset(path = 'eldBETA_database')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(filterbank)
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -70,6 +76,8 @@ dataset = NakanishiDataset(path = 'Nakanishi_2015')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(filterbank)
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -80,13 +88,16 @@ dataset_no += 1
 
 # openBMI dataset
 from SSVEPAnalysisToolbox.utils.openbmipreprocess import (
-    preprocess, filterbank, suggested_ch
+    preprocess, filterbank, suggested_ch, ref_sig_fun
 )
 dataset = openBMIDataset(path = 'openBMI')
 downsample_srate = 100
 dataset.regist_preprocess(lambda dataself, X: preprocess(dataself, X, downsample_srate))
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, downsample_srate))
+dataset.regist_ref_sig_fun(lambda dataself, sig_len, N, phases: ref_sig_fun(dataself, sig_len, N, phases, downsample_srate))
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       srate = downsample_srate,
@@ -104,6 +115,8 @@ dataset = WearableDataset_wet(path = 'Wearable')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, 5))
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -116,6 +129,8 @@ dataset = WearableDataset_dry(path = 'Wearable')
 dataset.regist_preprocess(preprocess)
 dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, 5))
 print("{:s}: ".format(dataset.ID))
+# snr = dataset.get_snr(type = 'sine', ch_used_recog=suggested_ch(), display_progress = True)
+# snr_list.append(snr)
 snr = dataset.get_snr(Nh = harmonic_num, display_progress = True, 
                       sig_len = sig_len,
                       remove_break = False, remove_pre_and_latency = False,
@@ -127,16 +142,16 @@ dataset_no += 1
 # Store results
 data = {"snr_list": snr_list,
         "legend": legend}
-data_file = 'res/snr.mat'
+data_file = 'res/snr_fft.mat'
 savedata(data_file, data, 'mat')
 
 # plot histogram of SNR
 color = gen_colors(dataset_no)
-fig, ax = hist(snr_list, bins = list(range(-30,0+1)), range = (-30, 0), density = True,
+fig, ax = hist(snr_list, bins = list(range(-100,0+1)), range = (-100, 0), density = True,
                color = color, alpha = 0.3, fit_line = True, line_points = 1000,
                x_label = 'SNR (dB)',
                y_label = 'Probability',
                grid = True,
                legend = legend)
-fig.savefig('res/SNR.jpg', bbox_inches='tight', dpi=300)
+fig.savefig('res/SNR_fft.jpg', bbox_inches='tight', dpi=300)
 close_fig(fig)
