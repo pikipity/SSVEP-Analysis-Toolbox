@@ -14,6 +14,8 @@ import os
 import pickle
 import copy
 
+import warnings
+
 def gen_trials_onedataset_individual_online(dataset_idx: int,
                                          tw_seq: List[float],
                                          dataset_container: list,
@@ -401,7 +403,11 @@ class BaseEvaluator:
         if os.path.isfile(file):
             os.remove(file)
         with open(file,'wb') as file_:
-            pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
+            try:
+                pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
+            except:
+                warnings.warn("Cannot save whole evaluator. So only save 'performance_container'.")
+                pickle.dump(self.performance_container, file_, pickle.HIGHEST_PROTOCOL)
 
     def load(self,
              file: str):
