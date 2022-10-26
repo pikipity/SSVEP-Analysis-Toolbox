@@ -21,13 +21,15 @@ from SSVEPAnalysisToolbox.utils.io import savedata
 
 import numpy as np
 
+num_subbands = 5
+
 # Prepare dataset
 dataset = NakanishiDataset(path = 'Nakanishi_2015')
 dataset.regist_preprocess(preprocess)
-dataset.regist_filterbank(filterbank)
+dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, num_subbands))
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
-harmonic_num = 3
+harmonic_num = 5
 dataset_container = [
                         dataset
                     ]
@@ -47,7 +49,7 @@ trial_container = gen_trials_onedataset_individual_diffsiglen(dataset_idx = 0,
 
 
 # Prepare models
-weights_filterbank = suggested_weights_filterbank()
+weights_filterbank = suggested_weights_filterbank(num_subbands)
 model_container = [
                    SCCA_qr(weights_filterbank = weights_filterbank),
                    SCCA_canoncorr(weights_filterbank = weights_filterbank),

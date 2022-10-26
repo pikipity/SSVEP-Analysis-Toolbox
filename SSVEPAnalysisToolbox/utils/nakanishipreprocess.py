@@ -15,7 +15,10 @@ def suggested_weights_filterbank(num_subbands: Optional[int] = 1) -> List[float]
     weights_filterbank : List[float]
         Suggested weights of filterbank
     """
-    return [1 for _ in range(num_subbands)]
+    if num_subbands == 1:
+        return [1 for _ in range(num_subbands)]
+    else:
+        return [i**(-1.25)+0.25 for i in range(1,num_subbands+1,1)]
 
 def suggested_ch() -> List[int]:
     """
