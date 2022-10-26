@@ -562,9 +562,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
             return freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh, 
                             detrend_flag = detrend_flag,
                             NFFT = NFFT)
-        else:
+        elif type.lower() == 'sine':
             ref_sig = self.get_ref_sig(sig_len, harmonic_num, ignore_stim_phase)
             return sine_snr(X_fft, ref_sig[Y_fft])
+        else:
+            raise ValueError('Unknown SNR type')
 
     def get_phase_single_trial(self,
                              sub_idx : int,
@@ -633,11 +635,13 @@ class BaseDataset(metaclass=abc.ABCMeta):
         
         if type.lower() == 'fft':
             snr = np.zeros((len(self.subjects), self.block_num, self.trial_num, len(self.channels))) # subj * block_num * stimulus_num * ch_num
-        else:
+        elif type.lower() == 'sine':
             if ch_used_recog is None:
                 raise ValueError("'ch_used_recog' cannot be None.")
             snr = np.zeros((len(self.subjects), self.block_num, self.trial_num)) # subj * block_num * stimulus_num
             ref_sig = self.get_ref_sig(sig_len, harmonic_num, ignore_stim_phase)
+        else:
+            raise ValueError('Unknown SNR type')
 
         for sub_idx in range(len(self.subjects)):
             for block_idx in range(self.block_num):
@@ -652,9 +656,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
                             snr[sub_idx, block_idx, trial_idx, ch_idx] = freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh,
                                                                                     detrend_flag = detrend_flag,
                                                                                     NFFT = NFFT)
-                    else:
+                    elif type.lower() == 'sine':
                         X_fft = X_single_trial[filter_bank_idx, ch_used_recog, :]
                         snr[sub_idx, block_idx, trial_idx] = sine_snr(X_fft, ref_sig[Y_fft])
+                    else:
+                        raise ValueError('Unknown SNR type')
         return snr
 
     def get_phase(self,
