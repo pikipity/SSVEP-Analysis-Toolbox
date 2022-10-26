@@ -14,6 +14,11 @@ import os
 import pickle
 import copy
 
+from joblib import Parallel, delayed
+from functools import partial
+
+import warnings
+
 def gen_trials_onedataset_individual_online(dataset_idx: int,
                                          tw_seq: List[float],
                                          dataset_container: list,
@@ -159,7 +164,26 @@ def gen_trials_onedataset_individual_diffsiglen(dataset_idx: int,
                 trial_container.append([train_trial, test_trial])
     return trial_container
 
-def create_pbar(loop_list_num: List[int],
+class pbarParallel(Parallel):
+    def __init__(self, 
+                 loop_list_num: List[int],
+                 use_tqdm : bool = True,
+                 desc: str = '',
+                 *args, **kwargs):
+        self.loop_list_num = loop_list_num
+        self.use_tqdm = use_tqdm
+        self.desc = desc
+        super().__init__(*args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        with create_pbar(self.use_tqdm, self.loop_list_num, self.desc) as self._pbar:
+            return Parallel.__call__(self, *args, **kwargs)
+    def print_progress(self):
+        # self._pbar.total = self.n_dispatched_tasks
+        self._pbar.n = self.n_completed_tasks
+        self._pbar.refresh()
+
+def create_pbar(use_tqdm : bool,
+                loop_list_num: List[int],
                 desc: str = ''):
     """
     Create process bar
@@ -179,7 +203,8 @@ def create_pbar(loop_list_num: List[int],
     total_num = 1
     for loop_num in loop_list_num:
         total_num = total_num * loop_num
-    pbar = tqdm(total = total_num,
+    pbar = tqdm(disable=not use_tqdm,
+                total = total_num,
                 desc = desc,
                 bar_format = '{desc}{percentage:3.3f}%|{bar}| {n_fmt}/{total_fmt} [Time: {elapsed}<{remaining}]',
                 dynamic_ncols = True)
@@ -353,6 +378,73 @@ class TrialInfo:
         return X, Y, ref_sig, freqs
         
 
+def _run_loop(trial_idx, trial_container, 
+              model_container, dataset_container, ignore_stim_phase,
+              eval_train,
+              save_model):
+    trial = trial_container[trial_idx]
+
+    # Create performance for one trial
+    performance_one_trial = [PerformanceContainer(model.ID) for model in model_container]
+    
+    # Get train data
+    train_trial_info = trial[0]
+    # if self.disp_processbar:
+    #     print('-------train info------------')
+    #     print(train_trial_info.__dict__)
+    if len(train_trial_info.dataset_idx) == 0:
+        raise ValueError('Train trial {:d} information is empty'.format(trial_idx))
+    X, Y, ref_sig, freqs = train_trial_info.get_data(dataset_container, ignore_stim_phase)
+    
+    # Train models 
+    model_one_trial = []
+    for train_model_idx, model_tmp in enumerate(model_container):
+        trained_model = model_tmp.__copy__()
+        tic = time.time()
+        trained_model.fit(X=X, Y=Y, ref_sig=ref_sig, freqs=freqs) 
+        performance_one_trial[train_model_idx].add_train_time(time.time()-tic)
+        model_one_trial.append(trained_model)
+        # if disp_processbar:
+        #     pbar.update(pbar_update_val)
+    if eval_train:
+        for test_model_idx, model_tmp in enumerate(model_one_trial):
+            tic = time.time()
+            pred_label = model_tmp.predict(X)
+            performance_one_trial[test_model_idx].add_test_time_train(time.time()-tic)
+            performance_one_trial[test_model_idx].add_pred_label_train(pred_label)
+            performance_one_trial[test_model_idx].add_true_label_train(Y)
+            # if disp_processbar:
+            #     pbar.update(pbar_update_val)
+
+    # Get test data
+    test_trial_info = trial[1]
+    # if self.disp_processbar:
+    #     print('-------test info------------')
+    #     print(test_trial_info.__dict__)
+    if len(test_trial_info.dataset_idx) == 0:
+        raise ValueError('Test trial {:d} information is empty'.format(trial_idx))
+    X, Y, ref_sig, _ = test_trial_info.get_data(dataset_container, ignore_stim_phase)
+        
+    # Test models
+    for test_model_idx, model_tmp in enumerate(model_one_trial):
+        tic = time.time()
+        pred_label = model_tmp.predict(X)
+        # print(np.array(Y)-np.array(pred_label))
+        performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
+        performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
+        performance_one_trial[test_model_idx].add_true_label_test(Y)
+        # if disp_processbar:
+        #     pbar.update(pbar_update_val)
+
+    if save_model:
+        return performance_one_trial, model_one_trial
+    else:
+        return performance_one_trial, None
+        
+    # self.performance_container.append(performance_one_trial)
+    # if self.save_model:
+    #     self.trained_model_container.append(model_one_trial)
+
 class BaseEvaluator:
     """
     BaseEvaluator
@@ -401,7 +493,11 @@ class BaseEvaluator:
         if os.path.isfile(file):
             os.remove(file)
         with open(file,'wb') as file_:
-            pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
+            try:
+                pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
+            except:
+                warnings.warn("Cannot save whole evaluator. So only save 'performance_container'.")
+                pickle.dump(self.performance_container, file_, pickle.HIGHEST_PROTOCOL)
 
     def load(self,
              file: str):
@@ -421,6 +517,7 @@ class BaseEvaluator:
         
     def run(self,
             n_jobs : Optional[int] = None,
+            timeout : Optional[int] = None,
             eval_train : bool = False):
         """
         Run evaluator
@@ -436,79 +533,33 @@ class BaseEvaluator:
         """
         if self.dataset_container is None or self.model_container is None or self.trial_container is None:
             raise ValueError("Please check 'dataset_container', 'model_container', and 'trial_container'.")
-        if n_jobs is not None:
-            for i in range(len(self.model_container)):
-                self.model_container[i].n_jobs = n_jobs
+        # if n_jobs is not None:
+        #     for i in range(len(self.model_container)):
+        #         self.model_container[i].n_jobs = n_jobs
+        for i in range(len(self.model_container)):
+            self.model_container[i].n_jobs = None
                 
         if self.disp_processbar:
             print('\n========================\n   Start\n========================\n')
-            if eval_train:
-                pbar = create_pbar([len(self.trial_container), len(self.model_container)*3])
-            else:
-                pbar = create_pbar([len(self.trial_container), len(self.model_container)*2])
-            pbar_update_val = 1
-            
-        for trial_idx, trial in enumerate(self.trial_container):
-            # Create performance for one trial
-            performance_one_trial = [PerformanceContainer(model.ID) for model in self.model_container]
-            
-            # Get train data
-            train_trial_info = trial[0]
-            # if self.disp_processbar:
-            #     print('-------train info------------')
-            #     print(train_trial_info.__dict__)
-            if len(train_trial_info.dataset_idx) == 0:
-                raise ValueError('Train trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig, freqs = train_trial_info.get_data(self.dataset_container, self.ignore_stim_phase)
-            
-            # Train models 
-            model_one_trial = []
-            for train_model_idx, model_tmp in enumerate(self.model_container):
-                trained_model = model_tmp.__copy__()
-                tic = time.time()
-                trained_model.fit(X=X, Y=Y, ref_sig=ref_sig, freqs=freqs) 
-                performance_one_trial[train_model_idx].add_train_time(time.time()-tic)
-                model_one_trial.append(trained_model)
-                if self.disp_processbar:
-                    pbar.update(pbar_update_val)
-            if eval_train:
-                for test_model_idx, model_tmp in enumerate(model_one_trial):
-                    tic = time.time()
-                    pred_label = model_tmp.predict(X)
-                    performance_one_trial[test_model_idx].add_test_time_train(time.time()-tic)
-                    performance_one_trial[test_model_idx].add_pred_label_train(pred_label)
-                    performance_one_trial[test_model_idx].add_true_label_train(Y)
-                    if self.disp_processbar:
-                        pbar.update(pbar_update_val)
+            # pbar = create_pbar([len(self.trial_container)])
+            # if eval_train:
+            #     pbar = create_pbar([len(self.trial_container), len(self.model_container)*3])
+            # else:
+            #     pbar = create_pbar([len(self.trial_container), len(self.model_container)*2])
+            # pbar_update_val = 1
                 
-            # Get test data
-            test_trial_info = trial[1]
-            # if self.disp_processbar:
-            #     print('-------test info------------')
-            #     print(test_trial_info.__dict__)
-            if len(test_trial_info.dataset_idx) == 0:
-                raise ValueError('Test trial {:d} information is empty'.format(trial_idx))
-            X, Y, ref_sig, _ = test_trial_info.get_data(self.dataset_container, self.ignore_stim_phase)
-                
-            # Test models
-            for test_model_idx, model_tmp in enumerate(model_one_trial):
-                tic = time.time()
-                pred_label = model_tmp.predict(X)
-                # print(np.array(Y)-np.array(pred_label))
-                performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
-                performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
-                performance_one_trial[test_model_idx].add_true_label_test(Y)
-                if self.disp_processbar:
-                    pbar.update(pbar_update_val)
-                
-            self.performance_container.append(performance_one_trial)
-            if self.save_model:
-                self.trained_model_container.append(model_one_trial)
-                
-            
+        self.performance_container, self.trained_model_container = zip(*pbarParallel(n_jobs=n_jobs,timeout=timeout,loop_list_num=[len(self.trial_container)],use_tqdm=self.disp_processbar)
+                                                                                               (delayed(partial(_run_loop, model_container = self.model_container,
+                                                                                                                           trial_container = self.trial_container,
+                                                                                                                           dataset_container = self.dataset_container,
+                                                                                                                           ignore_stim_phase = self.ignore_stim_phase,
+                                                                                                                           eval_train = eval_train,
+                                                                                                                           save_model = self.save_model
+                                                                                                                           ))(trial_idx = trial_idx) 
+                                                                                                                           for trial_idx in range(len(self.trial_container))))
         
         if self.disp_processbar:
-            pbar.close()
+            # pbar.close()
             print('\n========================\n   End\n========================\n')     
             
     def search_trial_idx(self,

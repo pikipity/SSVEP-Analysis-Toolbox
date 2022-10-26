@@ -5,6 +5,17 @@ from numpy import ndarray, linspace, pi, sin, cos, expand_dims, concatenate
 import numpy as np
 from scipy import signal
 
+def sine_snr(X : ndarray,
+             ref : ndarray):
+    """
+    Calculate SNR using reference
+    """
+    ref = ref/ref.shape[1]
+    ref_mul = ref.T @ ref
+    X_ref = np.trace(X @ ref.T @ ref @ X.T)
+    X_non_ref = np.trace(X @ (np.eye(ref.shape[1]) - ref_mul) @ X.T)
+    return 10*np.log10(X_ref/X_non_ref)
+
 def freqs_snr(X : ndarray,
               target_fre : float,
               srate : float,

@@ -15,7 +15,7 @@ import random
 random.seed()
 
 from .subjectinfo import SubInfo
-from ..utils.algsupport import gen_ref_sin, floor, freqs_snr, freqs_phase
+from ..utils.algsupport import gen_ref_sin, floor, freqs_snr, freqs_phase, sine_snr, nextpow2
 from ..evaluator.baseevaluator import create_pbar
 
 class BaseDataset(metaclass=abc.ABCMeta):
@@ -536,12 +536,15 @@ class BaseDataset(metaclass=abc.ABCMeta):
                              trial_idx : int,
                              ch_idx : int,
                              sig_len : float,
-                             Nh : int,
                              filter_bank_idx : int = 0,
+                             Nh : int = 1,
                              srate : Optional[float] = None,
                              t_latency: Optional[float] = None,
                              detrend_flag : bool = True,
-                             NFFT : Optional[int] = None):
+                             NFFT : Optional[int] = None,
+                             type : str = 'fft',
+                             harmonic_num : int = 5,
+                             ignore_stim_phase : bool = False):
         """
         Calculate the SNR of one single trial
         """
@@ -555,9 +558,13 @@ class BaseDataset(metaclass=abc.ABCMeta):
                                         t_latency = t_latency)
         X_fft = X_fft[0][filter_bank_idx,:,:]
         Y_fft = Y_fft[0]
-        return freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh, 
-                         detrend_flag = detrend_flag,
-                         NFFT = NFFT)
+        if type.lower() == 'fft':
+            return freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh, 
+                            detrend_flag = detrend_flag,
+                            NFFT = NFFT)
+        else:
+            ref_sig = self.get_ref_sig(sig_len, harmonic_num, ignore_stim_phase)
+            return sine_snr(X_fft, ref_sig[Y_fft])
 
     def get_phase_single_trial(self,
                              sub_idx : int,
@@ -593,8 +600,8 @@ class BaseDataset(metaclass=abc.ABCMeta):
         return phase
 
     def get_snr(self,
-                Nh : int = 1,
                 filter_bank_idx : int = 0,
+                Nh : int = 1,
                 srate : Optional[float] = None,
                 t_latency: Optional[float] = None,
                 remove_break : bool = True,
@@ -602,7 +609,11 @@ class BaseDataset(metaclass=abc.ABCMeta):
                 display_progress : bool = False,
                 detrend_flag : bool = True,
                 NFFT : Optional[int] = None,
-                sig_len : Optional[float] = None):
+                sig_len : Optional[float] = None,
+                type : str = 'fft',
+                harmonic_num : int = 5,
+                ignore_stim_phase : bool = False,
+                ch_used_recog : List[int] = None):
         """
         Calculate the SNR
         """
@@ -612,13 +623,22 @@ class BaseDataset(metaclass=abc.ABCMeta):
             t_latency = self.default_t_latency
         if sig_len is None:
             sig_len = self.trial_len
-        snr = np.zeros((len(self.subjects), self.block_num, self.trial_num, len(self.channels))) # subj * block_num * stimulus_num * ch_num
+        
         if remove_pre_and_latency:
             sig_len = sig_len - self.t_prestim - t_latency
         if remove_break:
             sig_len -= self.t_break
         if display_progress:
             pbar = create_pbar([len(self.subjects), self.block_num])
+        
+        if type.lower() == 'fft':
+            snr = np.zeros((len(self.subjects), self.block_num, self.trial_num, len(self.channels))) # subj * block_num * stimulus_num * ch_num
+        else:
+            if ch_used_recog is None:
+                raise ValueError("'ch_used_recog' cannot be None.")
+            snr = np.zeros((len(self.subjects), self.block_num, self.trial_num)) # subj * block_num * stimulus_num
+            ref_sig = self.get_ref_sig(sig_len, harmonic_num, ignore_stim_phase)
+
         for sub_idx in range(len(self.subjects)):
             for block_idx in range(self.block_num):
                 if display_progress:
@@ -626,11 +646,15 @@ class BaseDataset(metaclass=abc.ABCMeta):
                 X_all_trials, Y_all_trials = self.get_data_all_trials(sub_idx, [block_idx], list(range(len(self.channels))),sig_len, t_latency)
                 for trial_idx, X_single_trial in enumerate(X_all_trials):
                     Y_fft = Y_all_trials[trial_idx]
-                    for ch_idx in range(len(self.channels)):
-                        X_fft = X_single_trial[filter_bank_idx, ch_idx:(ch_idx+1), :]
-                        snr[sub_idx, block_idx, trial_idx, ch_idx] = freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh,
-                                                                               detrend_flag = detrend_flag,
-                                                                               NFFT = NFFT)
+                    if type.lower() == 'fft':
+                        for ch_idx in range(len(self.channels)):
+                            X_fft = X_single_trial[filter_bank_idx, ch_idx:(ch_idx+1), :]
+                            snr[sub_idx, block_idx, trial_idx, ch_idx] = freqs_snr(X_fft, self.stim_info['freqs'][Y_fft], srate, Nh,
+                                                                                    detrend_flag = detrend_flag,
+                                                                                    NFFT = NFFT)
+                    else:
+                        X_fft = X_single_trial[filter_bank_idx, ch_used_recog, :]
+                        snr[sub_idx, block_idx, trial_idx] = sine_snr(X_fft, ref_sig[Y_fft])
         return snr
 
     def get_phase(self,

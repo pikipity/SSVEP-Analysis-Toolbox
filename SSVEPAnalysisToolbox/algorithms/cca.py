@@ -551,7 +551,15 @@ class MsetCCA(BaseModel):
 
         separated_trainSig = separate_trainSig(X, Y)
 
-        U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_msetcca_cal_template_U, I = np.eye(X[0].shape[-1])))(a) for a in separated_trainSig))
+        if self.n_jobs is not None:
+            U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_msetcca_cal_template_U, I = np.eye(X[0].shape[-1])))(a) for a in separated_trainSig))
+        else:
+            U_all_stimuli = []
+            template_all_stimuli = []
+            for a in separated_trainSig:
+                U_temp, template_temp = _msetcca_cal_template_U(a, I = np.eye(X[0].shape[-1]))
+                U_all_stimuli.append(U_temp)
+                template_all_stimuli.append(template_temp)
 
         self.model['U_trial'] = U_all_stimuli
         self.model['template'] = template_all_stimuli
@@ -580,7 +588,14 @@ class MsetCCA(BaseModel):
         template_sig_R = self.model['template_sig_R'] 
         template_sig_P = self.model['template_sig_P'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_qr(a, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False)
+                )
         # self.model['U'] = U
         # self.model['U_template'] = V
 
@@ -643,7 +658,15 @@ class MsetCCAwithR(BaseModel):
         separated_trainSig = separate_trainSig(X, Y)
         ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
 
-        U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_msetcca_cal_template_U)(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q)))
+        if self.n_jobs is not None:
+            U_all_stimuli, template_all_stimuli = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_msetcca_cal_template_U)(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q)))
+        else:
+            U_all_stimuli = []
+            template_all_stimuli = []
+            for a, Q in zip(separated_trainSig, ref_sig_Q):
+                U_temp, template_temp = _msetcca_cal_template_U(X_single_stimulus = a, I = Q @ Q.T)
+                U_all_stimuli.append(U_temp)
+                template_all_stimuli.append(template_temp)
 
         self.model['U_trial'] = U_all_stimuli
         self.model['template'] = template_all_stimuli
@@ -672,7 +695,14 @@ class MsetCCAwithR(BaseModel):
         template_sig_R = self.model['template_sig_R'] 
         template_sig_P = self.model['template_sig_P'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False))(a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_qr(a, n_component=self.n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=False)
+                )
         # self.model['U'] = U
         # self.model['U_template'] = V
 
@@ -779,7 +809,17 @@ class OACCA(BaseModel):
                 #     self.model['U0'] = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
                 sf1x_list = [cca_sfx[k,cca_res,:,:] for k in range(filterbank_num)]
                 old_covar_mat_list = [self.model['covar_mat'][:,:,k] for k in range(filterbank_num)]
-                u0_list, new_covar_mat_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_oacca_cal_u0)(sf1x = sf1x, old_covar_mat = old_covar_mat) for sf1x, old_covar_mat in zip(sf1x_list, old_covar_mat_list)))
+
+                if self.n_jobs is not None:
+                    u0_list, new_covar_mat_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_oacca_cal_u0)(sf1x = sf1x, old_covar_mat = old_covar_mat) for sf1x, old_covar_mat in zip(sf1x_list, old_covar_mat_list)))
+                else:
+                    u0_list = []
+                    new_covar_mat_list = []
+                    for sf1x, old_covar_mat in zip(sf1x_list, old_covar_mat_list):
+                        u0_temp, new_covar_mat_temp = _oacca_cal_u0(sf1x = sf1x, old_covar_mat = old_covar_mat)
+                        u0_list.append(u0_temp)
+                        new_covar_mat_list.append(new_covar_mat_temp)
+
                 self.model['covar_mat'] = np.concatenate([np.expand_dims(covar_mat, axis = 2) for covar_mat in new_covar_mat_list], axis = 2)
                 u0 = np.concatenate([np.expand_dims(tmp, axis = 0) for tmp in u0_list], axis = 0)
                 u0 = np.expand_dims(u0, axis = 1)
@@ -798,7 +838,21 @@ class OACCA(BaseModel):
             filteredData_list = [x_single_trial[k,:,:] for k in range(filterbank_num)]
             old_Cxx_list = [self.model['Cxx'][:,:,k] for k in range(filterbank_num)]
             old_Cxy_list = [self.model['Cxy'][:,:,k] for k in range(filterbank_num)]
-            u1_list, v1_list, new_Cxx_list, new_Cxy_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_oacca_cal_u1_v1, sinTemplate = Y[prototype_res][:,:signal_len]))(filteredData = filteredData, old_Cxx = old_Cxx, old_Cxy = old_Cxy) for filteredData, old_Cxx, old_Cxy in zip(filteredData_list, old_Cxx_list, old_Cxy_list)))
+
+            if self.n_jobs is not None:
+                u1_list, v1_list, new_Cxx_list, new_Cxy_list = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_oacca_cal_u1_v1, sinTemplate = Y[prototype_res][:,:signal_len]))(filteredData = filteredData, old_Cxx = old_Cxx, old_Cxy = old_Cxy) for filteredData, old_Cxx, old_Cxy in zip(filteredData_list, old_Cxx_list, old_Cxy_list)))
+            else:
+                u1_list = []
+                v1_list = []
+                new_Cxx_list = []
+                new_Cxy_list = []
+                for filteredData, old_Cxx, old_Cxy in zip(filteredData_list, old_Cxx_list, old_Cxy_list):
+                    u1_temp, v1_temp, new_Cxx_temp, new_Cxy_temp = _oacca_cal_u1_v1(filteredData = filteredData, old_Cxx = old_Cxx, old_Cxy = old_Cxy, sinTemplate = Y[prototype_res][:,:signal_len])
+                    u1_list.append(u1_temp)
+                    v1_list.append(v1_temp)
+                    new_Cxx_list.append(new_Cxx_temp)
+                    new_Cxy_list.append(new_Cxy_temp)
+
             self.model['Cxx'] = np.concatenate([np.expand_dims(Cxx, axis = 2) for Cxx in new_Cxx_list], axis = 2)
             self.model['Cxy'] = np.concatenate([np.expand_dims(Cxy, axis = 2) for Cxy in new_Cxy_list], axis = 2)
             u1 = np.concatenate([np.expand_dims(tmp, axis = 0) for tmp in u1_list], axis = 0)
@@ -903,15 +957,39 @@ class SCCA_canoncorr(BaseModel):
         
         if update_UV or self.model['U'] is None or self.model['V'] is None:
             if force_output_UV or not update_UV:
-                r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr, n_component=n_component, Y=Y, force_output_UV=True))(a) for a in X))
+                if self.n_jobs is not None:
+                    r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr, n_component=n_component, Y=Y, force_output_UV=True))(a) for a in X))
+                else:
+                    r = []
+                    U = []
+                    V = []
+                    for a in X:
+                        r_temp, U_temp, V_temp = _r_cca_canoncorr(a, n_component=n_component, Y=Y, force_output_UV=True)
+                        r.append(r_temp)
+                        U.append(U_temp)
+                        V.append(V_temp)
                 self.model['U'] = U
                 self.model['V'] = V
             else:
-                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr, n_component=n_component, Y=Y, force_output_UV=False))(a) for a in X)
+                if self.n_jobs is not None:
+                    r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr, n_component=n_component, Y=Y, force_output_UV=False))(a) for a in X)
+                else:
+                    r = []
+                    for a in X:
+                        r.append(
+                            _r_cca_canoncorr(a, n_component=n_component, Y=Y, force_output_UV=False)
+                        )
         else:
             U = self.model['U']
             V = self.model['V']
-            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=Y))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            if self.n_jobs is not None:
+                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=Y))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            else:
+                r = []
+                for a, u, v in zip(X,U,V):
+                    r.append(
+                        _r_cca_canoncorr_withUV(X=a, U=u, V=v, Y=Y)
+                    )
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
@@ -1003,15 +1081,39 @@ class SCCA_qr(BaseModel):
         
         if update_UV or self.model['U'] is None or self.model['V'] is None:
             if force_output_UV or not update_UV:
-                r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                if self.n_jobs is not None:
+                    r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                else:
+                    r = []
+                    U = []
+                    V = []
+                    for a in X:
+                        r_temp, U_temp, V_temp = _r_cca_qr(a, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True)
+                        r.append(r_temp)
+                        U.append(U_temp)
+                        V.append(V_temp)
                 self.model['U'] = U
                 self.model['V'] = V
             else:
-                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
+                if self.n_jobs is not None:
+                    r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
+                else:
+                    r = []
+                    for a in X:
+                        r.append(
+                            _r_cca_qr(a, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False)
+                        )
         else:
             U = self.model['U']
             V = self.model['V']
-            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            if self.n_jobs is not None:
+                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            else:
+                r = []
+                for a, u, v in zip(X,U,V):
+                    r.append(
+                        _r_cca_qr_withUV(X=a, U=u, V=v, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P)
+                    )
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
@@ -1098,15 +1200,39 @@ class ITCCA(BaseModel):
         
         if update_UV or self.model['U'] is None or self.model['V'] is None:
             if force_output_UV or not update_UV:
-                r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                if self.n_jobs is not None:
+                    r, U, V = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True))(a) for a in X))
+                else:
+                    r = []
+                    U = []
+                    V = []
+                    for a in X:
+                        r_temp, U_temp, V_temp = _r_cca_qr(a, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=True)
+                        r.append(r_temp)
+                        U.append(U_temp)
+                        V.append(V_temp)
                 self.model['U'] = U
                 self.model['V'] = V
             else:
-                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
+                if self.n_jobs is not None:
+                    r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False))(a) for a in X)
+                else:
+                    r = []
+                    for a in X:
+                        r.append(
+                            _r_cca_qr(a, n_component=n_component, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P, force_output_UV=False)
+                        )
         else:
             U = self.model['U']
             V = self.model['V']
-            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            if self.n_jobs is not None:
+                r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P))(X=a, U=u, V=v) for a, u, v in zip(X,U,V))
+            else:
+                r = []
+                for a, u, v in zip(X,U,V):
+                    r.append(
+                        _r_cca_qr_withUV(X=a, U=u, V=v, Y_Q=Y_Q, Y_R=Y_R, Y_P=Y_P)
+                    )
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
@@ -1209,9 +1335,17 @@ class ECCA(BaseModel):
         U3 = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
         V3 = np.zeros((filterbank_num, stimulus_num, harmonic_num, n_component))
         for filterbank_idx in range(filterbank_num):
-            U, V, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
-                                                                                                            Y=ref_sig_single.T) 
-                                                        for template_sig_single, ref_sig_single in zip(template_sig,ref_sig)))
+            if self.n_jobs is not None:
+                U, V, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
+                                                                                                                Y=ref_sig_single.T) 
+                                                            for template_sig_single, ref_sig_single in zip(template_sig,ref_sig)))
+            else:
+                U = []
+                V = []
+                for template_sig_single, ref_sig_single in zip(template_sig,ref_sig):
+                    U_temp, V_temp, _ = canoncorr(X=template_sig_single[filterbank_idx,:,:].T, Y=ref_sig_single.T, force_output_UV = True)
+                    U.append(U_temp)
+                    V.append(V_temp)
             for stim_idx, (u, v) in enumerate(zip(U,V)):
                 U3[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
                 V3[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
@@ -1249,25 +1383,66 @@ class ECCA(BaseModel):
         
         # r1
         if update_UV or self.model['U1'] is None or self.model['V1'] is None:
-            r1, U1, V1 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P, force_output_UV=True))(a) for a in X))
+            if self.n_jobs is not None:
+                r1, U1, V1 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P, force_output_UV=True))(a) for a in X))
+            else:
+                r1 = []
+                U1 = []
+                V1 = []
+                for a in X:
+                    r1_temp, U1_temp, V1_temp = _r_cca_qr(a, n_component=n_component, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P, force_output_UV=True)
+                    r1.append(r1_temp)
+                    U1.append(U1_temp)
+                    V1.append(V1_temp)
             self.model['U1'] = U1
             self.model['V1'] = V1
         else:
             U1 = self.model['U1']
             V1 = self.model['V1']
-            r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U1,V1))
+            if self.n_jobs is not None:
+                r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U1,V1))
+            else:
+                r1 = []
+                for a, u, v in zip(X,U1,V1):
+                    r1.append(
+                        _r_cca_qr_withUV(X=a, U=u, V=v, Y_Q=ref_sig_Q, Y_R=ref_sig_R, Y_P=ref_sig_P)
+                    )
         
         # r2
         if update_UV or self.model['U2'] is None:
-            _, U2, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=True))(a) for a in X))
+            if self.n_jobs is not None:
+                _, U2, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr, n_component=n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=True))(a) for a in X))
+            else:
+                U2 = []
+                for a in X:
+                    _, U2_temp, _ = _r_cca_qr(a, n_component=n_component, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, force_output_UV=True)
+                    U2.append(U2_temp)
             self.model['U2'] = U2
-        r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U2,U2))
         
-        # r3
-        r3 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U1,U1))
-        
-        # r4
-        r4 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, U=U3, V=U3))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U2,U2))
+            
+            # r3
+            r3 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P))(X=a, U=u, V=v) for a, u, v in zip(X,U1,U1))
+            
+            # r4
+            r4 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_qr_withUV, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, U=U3, V=U3))(X=a) for a in X)
+        else:
+            r2 = []
+            for a, u, v in zip(X,U2,U2):
+                r2.append(
+                    _r_cca_qr_withUV(X=a, U=u, V=v, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P)
+                )
+            r3 = []
+            for a, u, v in zip(X,U1,U1):
+                r3.append(
+                    _r_cca_qr_withUV(X=a, U=u, V=v, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P)
+                )
+            r4 = []
+            for a in X:
+                r4.append(
+                    _r_cca_qr_withUV(X=a, Y_Q=template_sig_Q, Y_R=template_sig_R, Y_P=template_sig_P, U=U3, V=U3)
+                )
         
         
         Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
@@ -1385,12 +1560,23 @@ class MSCCA(BaseModel):
             template_sig_tmp = [template_sig_sort[i] for i in range(start_idx, end_idx)]
             template_sig_mscca.append(np.concatenate(template_sig_tmp, axis = -1))
         for filterbank_idx in range(filterbank_num):
-            U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
-                                                                                                                    Y=ref_sig_single.T) 
-                                                        for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
-            for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
-                U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
-                V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
+            if self.n_jobs is not None:
+                U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
+                                                                                                                        Y=ref_sig_single.T) 
+                                                            for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
+            else:
+                U_tmp = []
+                V_tmp = []
+                for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca):
+                    U_temp_temp, V_temp_temp, _ = canoncorr(X=template_sig_single[filterbank_idx,:,:].T, Y=ref_sig_single.T, force_output_UV = True)
+                    U_tmp.append(U_temp_temp)
+                    V_tmp.append(V_temp_temp)
+            try:
+                for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
+                    U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
+                    V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
+            except:
+                print('D')
         self.model['U'] = U[:, return_freqs_idx, :, :]
         self.model['V'] = V[:, return_freqs_idx, :, :]
         
@@ -1415,8 +1601,20 @@ class MSCCA(BaseModel):
         U = self.model['U']
         V = self.model['V']
 
-        r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=ref_sig, U=U, V=V))(X=a) for a in X)
-        r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=ref_sig, U=U, V=V))(X=a) for a in X)
+            r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r1 = []
+            for a in X:
+                r1.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=ref_sig, U=U, V=V)
+                )
+            r2 = []
+            for a in X:
+                r2.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
         
         Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
                                                         np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
