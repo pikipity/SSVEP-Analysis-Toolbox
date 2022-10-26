@@ -53,6 +53,20 @@ Evaluator
 
     Saving models by setting ``save_model`` as ``True`` may occupy large memory.  
 
+.. py:function:: save
+    :module: BaseEvaluator
+
+    Save the evaluator. If the whole evaluator cannot be saved, only ``performance_container`` will be saved.
+
+    :param file: Saved path.
+
+.. py:function:: load
+    :module: BaseEvaluator
+
+    Load existed evaluator. If the whole evaluator cannot be loaded, only ``performance_container`` will be reloaded.
+
+    :param file: Local file path of the existed evalutor. 
+
 .. py:function:: run
     :module: BaseEvaluator
 
