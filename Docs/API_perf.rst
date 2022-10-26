@@ -53,6 +53,20 @@ Evaluator
 
     Saving models by setting ``save_model`` as ``True`` may occupy large memory.  
 
+.. py:function:: save
+    :module: BaseEvaluator
+
+    Save the evaluator. If the whole evaluator cannot be saved, only ``performance_container`` will be saved.
+
+    :param file: Saved path.
+
+.. py:function:: load
+    :module: BaseEvaluator
+
+    Load existed evaluator. If the whole evaluator cannot be loaded, only ``performance_container`` will be reloaded.
+
+    :param file: Local file path of the existed evalutor. 
+
 .. py:function:: run
     :module: BaseEvaluator
 
@@ -67,7 +81,7 @@ Evaluator
 
     where ``performance_method_1``, ``performance_method_2``, ... are instances of the ``PerformanceContainer`` class for different recognition models/methods. The order follows ``model_container``.
 
-    :param n_jobs: Number of threadings using for recognition methods. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. The evaluator will reset ``n_jobs`` in recognition methods.
+    :param n_jobs: Number of threadings using for recognition methods. If the given value is larger than 1, the parallel computation will be applied to improve the computational speed. Default is ``None``, which means the parallel computation will not be applied. The evaluator will reset ``n_jobs`` in recognition methods as ``None``. Parallel computation will be applied to evaluation trials. 
 
     :param eval_train: *Please ignore this parameter and leave this parameter as the default value. The function related to this parameter is under development.* 
 

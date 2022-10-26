@@ -505,15 +505,18 @@ class BaseEvaluator:
             raise ValueError('{:s} does not exist!!'.format(file))
         with open(file,'rb') as file_:
             self_load = pickle.load(file_)
-        self.dataset_container = copy.deepcopy(self_load.dataset_container)
-        self.model_container = copy.deepcopy(self_load.model_container)
-        self.trial_container = copy.deepcopy(self_load.trial_container)
-        self.save_model = copy.deepcopy(self_load.save_model)
-        self.disp_processbar = copy.deepcopy(self_load.disp_processbar)
-        self.ignore_stim_phase = copy.deepcopy(self_load.ignore_stim_phase)
-        
-        self.performance_container = copy.deepcopy(self_load.performance_container)
-        self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
+        if type(self_load) is not list:
+            self.dataset_container = copy.deepcopy(self_load.dataset_container)
+            self.model_container = copy.deepcopy(self_load.model_container)
+            self.trial_container = copy.deepcopy(self_load.trial_container)
+            self.save_model = copy.deepcopy(self_load.save_model)
+            self.disp_processbar = copy.deepcopy(self_load.disp_processbar)
+            self.ignore_stim_phase = copy.deepcopy(self_load.ignore_stim_phase)
+            self.performance_container = copy.deepcopy(self_load.performance_container)
+            self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
+        else:
+            self.performance_container = copy.deepcopy(self_load)
+            warnings.warn("Cannot read attributes except 'performance_container'.")
         
     def run(self,
             n_jobs : Optional[int] = None,
