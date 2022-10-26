@@ -517,6 +517,7 @@ class BaseEvaluator:
         
     def run(self,
             n_jobs : Optional[int] = None,
+            timeout : Optional[int] = None,
             eval_train : bool = False):
         """
         Run evaluator
@@ -547,7 +548,7 @@ class BaseEvaluator:
             #     pbar = create_pbar([len(self.trial_container), len(self.model_container)*2])
             # pbar_update_val = 1
                 
-        self.performance_container, self.trained_model_container = zip(*pbarParallel(n_jobs=n_jobs,loop_list_num=[len(self.trial_container)],use_tqdm=self.disp_processbar)
+        self.performance_container, self.trained_model_container = zip(*pbarParallel(n_jobs=n_jobs,timeout=timeout,loop_list_num=[len(self.trial_container)],use_tqdm=self.disp_processbar)
                                                                                                (delayed(partial(_run_loop, model_container = self.model_container,
                                                                                                                            trial_container = self.trial_container,
                                                                                                                            dataset_container = self.dataset_container,
