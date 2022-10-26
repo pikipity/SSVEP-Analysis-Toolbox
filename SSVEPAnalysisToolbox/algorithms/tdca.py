@@ -225,10 +225,29 @@ class TDCA(BaseModel):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
             trial_num = len(X_train[0])
 
-            X_train_delay = Parallel(n_jobs = self.n_jobs)(delayed(partial(_gen_delay_X, n_delay = n_delay))(X = X_single_class) for X_single_class in X_train)
-            P_combine_X_train = Parallel(n_jobs = self.n_jobs)(delayed(_gen_P_combine_X)(X = X_single_class, P = P_single_class) for X_single_class, P_single_class in zip(X_train_delay, ref_sig_P))
+            if self.n_jobs is not None:
+                X_train_delay = Parallel(n_jobs = self.n_jobs)(delayed(partial(_gen_delay_X, n_delay = n_delay))(X = X_single_class) for X_single_class in X_train)
+                P_combine_X_train = Parallel(n_jobs = self.n_jobs)(delayed(_gen_P_combine_X)(X = X_single_class, P = P_single_class) for X_single_class, P_single_class in zip(X_train_delay, ref_sig_P))
+            else:
+                X_train_delay = []
+                for X_single_class in X_train:
+                    X_train_delay.append(
+                        _gen_delay_X(X = X_single_class, n_delay = n_delay)
+                    )
+                P_combine_X_train = []
+                for X_single_class, P_single_class in zip(X_train_delay, ref_sig_P):
+                    P_combine_X_train.append(
+                        _gen_P_combine_X(X = X_single_class, P = P_single_class)
+                    )
             # Calculate template
-            P_combine_X_train_mean = Parallel(n_jobs=self.n_jobs)(delayed(mean_list)(X = P_combine_X_train_single_class) for P_combine_X_train_single_class in P_combine_X_train)
+            if self.n_jobs is not None:
+                P_combine_X_train_mean = Parallel(n_jobs=self.n_jobs)(delayed(mean_list)(X = P_combine_X_train_single_class) for P_combine_X_train_single_class in P_combine_X_train)
+            else:
+                P_combine_X_train_mean = []
+                for P_combine_X_train_single_class in P_combine_X_train:
+                    P_combine_X_train_mean.append(
+                        mean_list(X = P_combine_X_train_single_class)
+                    )
             for stim_idx, P_combine_X_train_mean_single_class in enumerate(P_combine_X_train_mean):
                 template_sig[stim_idx][filterbank_idx,:,:] = P_combine_X_train_mean_single_class
             # Calulcate spatial filter
@@ -239,13 +258,27 @@ class TDCA(BaseModel):
                 for X_tmp_tmp in P_combine_X_train_single_class:
                     X_tmp.append(X_tmp_tmp)
                     X_mean.append(P_combine_X_train_mean_single_class)
-            Sw_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, num = trial_num,
-                                                                                     division_num = trial_num))(X = X_tmp_tmp, X_mean = X_mean_tmp)
-                                                                                     for X_tmp_tmp, X_mean_tmp in zip(X_tmp, X_mean))
-            Sb_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, X_mean = P_combine_X_train_all_mean,
-                                                                                     num = stimulus_num,
-                                                                                     division_num = stimulus_num))(X = P_combine_X_train_mean_single_class)
-                                                                                     for P_combine_X_train_mean_single_class in P_combine_X_train_mean)
+
+            if self.n_jobs is not None:
+                Sw_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, num = trial_num,
+                                                                                        division_num = trial_num))(X = X_tmp_tmp, X_mean = X_mean_tmp)
+                                                                                        for X_tmp_tmp, X_mean_tmp in zip(X_tmp, X_mean))
+                Sb_list = Parallel(n_jobs=self.n_jobs)(delayed(partial(_covariance_tdca, X_mean = P_combine_X_train_all_mean,
+                                                                                        num = stimulus_num,
+                                                                                        division_num = stimulus_num))(X = P_combine_X_train_mean_single_class)
+                                                                                        for P_combine_X_train_mean_single_class in P_combine_X_train_mean)
+            else:
+                Sw_list = []
+                for X_tmp_tmp, X_mean_tmp in zip(X_tmp, X_mean):
+                    Sw_list.append(
+                        _covariance_tdca(X = X_tmp_tmp, X_mean = X_mean_tmp, num = trial_num, division_num = trial_num)
+                    )
+                Sb_list = []
+                for P_combine_X_train_mean_single_class in P_combine_X_train_mean:
+                    Sb_list.append(
+                        _covariance_tdca(X = P_combine_X_train_mean_single_class, X_mean = P_combine_X_train_all_mean, num = stimulus_num, division_num = stimulus_num)
+                    )
+
             Sw = sum_list(Sw_list)
             Sb = sum_list(Sb_list)
             eig_vec = eigvec(Sb, Sw)
@@ -277,7 +310,14 @@ class TDCA(BaseModel):
         U = self.model['U'] 
         ref_sig_P = self.model['ref_sig_P']
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_tdca_canoncorr_withUV, Y=template_sig, P=ref_sig_P, U=U, V=U))(X=a) for a in X_delay)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_tdca_canoncorr_withUV, Y=template_sig, P=ref_sig_P, U=U, V=U))(X=a) for a in X_delay)
+        else:
+            r = []
+            for a in X_delay:
+                r.append(
+                    _r_tdca_canoncorr_withUV(X=a, Y=template_sig, P=ref_sig_P, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         

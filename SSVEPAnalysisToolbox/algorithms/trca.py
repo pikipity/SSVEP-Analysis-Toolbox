@@ -266,7 +266,14 @@ class TRCA(BaseModel):
         possible_class.sort(reverse = False)
         for filterbank_idx in range(filterbank_num):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
-            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            if self.n_jobs is not None:
+                U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            else:
+                U = []
+                for X_single_class in X_train:
+                    U.append(
+                        _trca_U(X = X_single_class)
+                    )
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
         self.model['U'] = U_trca
@@ -289,7 +296,14 @@ class TRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -350,7 +364,14 @@ class TRCAwithR(BaseModel):
         separated_trainSig = separate_trainSig(X, Y)
         ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
 
-        U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        if self.n_jobs is not None:
+            U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        else:
+            U_all_stimuli = []
+            for a, Q in zip(separated_trainSig, ref_sig_Q):
+                U_all_stimuli.append(
+                    _trcaR_cal_template_U(X_single_stimulus = a, I = Q @ Q.T, n_component = self.n_component)
+                )
         U_trca = [np.expand_dims(u, axis=1) for u in U_all_stimuli]
         U_trca = np.concatenate(U_trca, axis = 1)
         self.model['U'] = U_trca
@@ -373,7 +394,14 @@ class TRCAwithR(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -439,7 +467,14 @@ class ETRCA(BaseModel):
         possible_class.sort(reverse = False)
         for filterbank_idx in range(filterbank_num):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
-            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            if self.n_jobs is not None:
+                U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U)(X = X_single_class) for X_single_class in X_train)
+            else:
+                U = []
+                for X_single_class in X_train:
+                    U.append(
+                        _trca_U(X = X_single_class)
+                    )
             # U = []
             # for X_single_class in X_train:
             #     U_element = _trca_U(X = X_single_class)
@@ -468,11 +503,14 @@ class ETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
-        # r=[]
-        # for a in X:
-        #     r_tmp = _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
-        #     r.append(r_tmp)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -536,7 +574,14 @@ class ETRCAwithR(BaseModel):
         separated_trainSig = separate_trainSig(X, Y)
         ref_sig_Q, ref_sig_R, ref_sig_P = qr_list(ref_sig)
 
-        U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        if self.n_jobs is not None:
+            U_all_stimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_trcaR_cal_template_U, n_component = self.n_component))(X_single_stimulus = a, I = Q @ Q.T) for a, Q in zip(separated_trainSig, ref_sig_Q))
+        else:
+            U_all_stimuli = []
+            for a, Q in zip(separated_trainSig, ref_sig_Q):
+                U_all_stimuli.append(
+                    _trcaR_cal_template_U(X_single_stimulus = a, I = Q @ Q.T, n_component = self.n_component)
+                )
         # U_trca = [u for u in U_all_stimuli]
         U_trca = np.concatenate(U_all_stimuli, axis = 2)
         U_trca = np.expand_dims(U_trca, axis = 1)
@@ -561,7 +606,14 @@ class ETRCAwithR(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -641,7 +693,15 @@ class MSETRCA(BaseModel):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
             X_train = [X_train[i] for i in freqs_idx]
 
-            trca_X1, trca_X2 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_trca_U_1)(a) for a in X_train))
+            if self.n_jobs is not None:
+                trca_X1, trca_X2 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_trca_U_1)(a) for a in X_train))
+            else:
+                trca_X1 = []
+                trca_X2 = []
+                for a in X_train:
+                    trca_X1_temp, trca_X2_temp = _trca_U_1(a)
+                    trca_X1.append(trca_X1_temp)
+                    trca_X2.append(trca_X2_temp)
 
             trca_X1_mstrca = []
             trca_X2_mstrca = []
@@ -660,7 +720,14 @@ class MSETRCA(BaseModel):
                 trca_X2_mstrca_tmp = [trca_X2[i].T for i in range(start_idx, end_idx)]
                 trca_X2_mstrca.append(np.concatenate(trca_X2_mstrca_tmp, axis=-1))
 
-            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U_2)(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T) for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca))
+            if self.n_jobs is not None:
+                U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U_2)(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T) for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca))
+            else:
+                U = []
+                for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca):
+                    U.append(
+                        _trca_U_2(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T)
+                    )
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca[:,:,:,return_freqs_idx], repeats = stimulus_num, axis = 1)
@@ -685,7 +752,14 @@ class MSETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -812,9 +886,17 @@ class MSCCA_and_MSETRCA(BaseModel):
             template_sig_tmp = [template_sig_sort[i] for i in range(start_idx, end_idx)]
             template_sig_mscca.append(np.concatenate(template_sig_tmp, axis = -1))
         for filterbank_idx in range(filterbank_num):
-            U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
-                                                                                                                    Y=ref_sig_single.T) 
-                                                        for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
+            if self.n_jobs is not None:
+                U_tmp, V_tmp, _ = zip(*Parallel(n_jobs=self.n_jobs)(delayed(partial(canoncorr, force_output_UV = True))(X=template_sig_single[filterbank_idx,:,:].T, 
+                                                                                                                        Y=ref_sig_single.T) 
+                                                            for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca)))
+            else:
+                U_tmp = []
+                V_tmp = []
+                for template_sig_single, ref_sig_single in zip(template_sig_mscca,ref_sig_mscca):
+                    U_temp_temp, V_temp_temp, _ = canoncorr(X=template_sig_single[filterbank_idx,:,:].T, Y=ref_sig_single.T, force_output_UV = True)
+                    U_tmp.append(U_temp_temp)
+                    V_tmp.append(V_temp_temp)
             for stim_idx, (u, v) in enumerate(zip(U_tmp,V_tmp)):
                 U[filterbank_idx, stim_idx, :, :] = u[:channel_num,:n_component]
                 V[filterbank_idx, stim_idx, :, :] = v[:harmonic_num,:n_component]
@@ -842,7 +924,15 @@ class MSCCA_and_MSETRCA(BaseModel):
             X_train = [[X[i][filterbank_idx,:,:] for i in np.where(np.array(Y) == class_val)[0]] for class_val in possible_class]
             X_train = [X_train[i] for i in freqs_idx]
 
-            trca_X1, trca_X2 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_trca_U_1)(a) for a in X_train))
+            if self.n_jobs is not None:
+                trca_X1, trca_X2 = zip(*Parallel(n_jobs=self.n_jobs)(delayed(_trca_U_1)(a) for a in X_train))
+            else:
+                trca_X1 = []
+                trca_X2 = []
+                for a in X_train:
+                    trca_X1_temp, trca_X2_temp = _trca_U_1(a)
+                    trca_X1.append(trca_X1_temp)
+                    trca_X2.append(trca_X2_temp)
 
             trca_X1_mstrca = []
             trca_X2_mstrca = []
@@ -861,7 +951,14 @@ class MSCCA_and_MSETRCA(BaseModel):
                 trca_X2_mstrca_tmp = [trca_X2[i].T for i in range(start_idx, end_idx)]
                 trca_X2_mstrca.append(np.concatenate(trca_X2_mstrca_tmp, axis=-1))
 
-            U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U_2)(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T) for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca))
+            if self.n_jobs is not None:
+                U = Parallel(n_jobs = self.n_jobs)(delayed(_trca_U_2)(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T) for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca))
+            else:
+                U = []
+                for trca_X1_single_class, trca_X2_single_class in zip(trca_X1_mstrca, trca_X2_mstrca):
+                    U.append(
+                        _trca_U_2(trca_X1 = trca_X1_single_class, trca_X2 = trca_X2_single_class.T)
+                    )
             for stim_idx, u in enumerate(U):
                 U_trca[filterbank_idx, 0, :, stim_idx] = u[:channel_num,0]
         U_trca = np.repeat(U_trca[:,:,:,return_freqs_idx], repeats = stimulus_num, axis = 1)
@@ -876,11 +973,18 @@ class MSCCA_and_MSETRCA(BaseModel):
         U = self.model['U_mscca']
         V = self.model['V_mscca']
 
-        r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=ref_sig, U=U, V=V))(X=a) for a in X)
-        # r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
-        
-        # Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
-        #                                                 np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
+        if self.n_jobs is not None:
+            r1 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=ref_sig, U=U, V=V))(X=a) for a in X)
+            # r2 = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+            
+            # Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
+            #                                                 np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
+        else:
+            r1 = []
+            for a in X:
+                r1.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=ref_sig, U=U, V=V)
+                )
         
         return r1
     def predict_msetrca(self,
@@ -888,7 +992,14 @@ class MSCCA_and_MSETRCA(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U_msetrca'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         # Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -963,7 +1074,14 @@ class SSCOR(BaseModel):
 
         separated_trainSig = separate_trainSig(X, Y)
 
-        U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component=self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        if self.n_jobs is not None:
+            U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component=self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        else:
+            U_allstimuli = []
+            for a in separated_trainSig:
+                U_allstimuli.append(
+                    _sscor_cal_U(X_single_stimulus=a, n_component=self.n_component)
+                )
         U_allstimuli = np.concatenate(U_allstimuli, axis = 1)
 
         self.model['U'] = U_allstimuli
@@ -986,7 +1104,14 @@ class SSCOR(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
@@ -1043,7 +1168,14 @@ class ESSCOR(BaseModel):
         separated_trainSig = separate_trainSig(X, Y)
 
         stimulus_num = len(template_sig)
-        U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component = self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        if self.n_jobs is not None:
+            U_allstimuli = Parallel(n_jobs=self.n_jobs)(delayed(partial(_sscor_cal_U, n_component = self.n_component))(X_single_stimulus=a) for a in separated_trainSig)
+        else:
+            U_allstimuli = []
+            for a in separated_trainSig:
+                U_allstimuli.append(
+                    _sscor_cal_U(X_single_stimulus=a, n_component = self.n_component)
+                )
         U_allstimuli = np.concatenate(U_allstimuli, axis = 1)
         U_allstimuli = np.transpose(U_allstimuli, [0,3,2,1])
         U_allstimuli = np.repeat(U_allstimuli, repeats = stimulus_num, axis = 1)
@@ -1068,7 +1200,14 @@ class ESSCOR(BaseModel):
         template_sig = self.model['template_sig']
         U = self.model['U'] 
 
-        r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        if self.n_jobs is not None:
+            r = Parallel(n_jobs=self.n_jobs)(delayed(partial(_r_cca_canoncorr_withUV, Y=template_sig, U=U, V=U))(X=a) for a in X)
+        else:
+            r = []
+            for a in X:
+                r.append(
+                    _r_cca_canoncorr_withUV(X=a, Y=template_sig, U=U, V=U)
+                )
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
