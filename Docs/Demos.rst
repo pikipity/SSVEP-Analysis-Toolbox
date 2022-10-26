@@ -79,3 +79,31 @@ Generated graphs are stored in :file:`demo/res/benchmarkdataset_confusionmatrix`
 + eCCA (0.5s) in Benchmark Dataset
 
   .. image:: ../demo/res/benchmarkdataset_confusionmatrix/eCCA_T0.5.jpg
+
+Calculate SNR
+^^^^^^^^^^^^^^^^^^
+
+This demo shows how to calculate SNRs and how to plot distributions of SNRs.
+
+Demo file: :file:`demo/plot_snr.py`
+
+.. literalinclude:: ../demo/plot_snr.py
+  :language: python
+
+Generated graphs are stored in :file:`demo/res`. One example of results is shown below.
+
+.. image:: ../demo/res/SNR_fft.jpg
+
+Calculate Phase
+^^^^^^^^^^^^^^^^^^^^^
+
+This demo shows how to calculate phases and how to plot distributions of phases.
+
+Demo file: :file:`demo/plot_phase.py`
+
+.. literalinclude:: ../demo/plot_phase.py
+  :language: python
+
+Generated graph is stored in :file:`demo/res`, and shown below.
+
+.. image:: ../demo/res/phase.jpg

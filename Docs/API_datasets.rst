@@ -684,6 +684,99 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 
         + ``ref_sig``: List of reference signals. Each stimulus have one set of reference signals.
 
+.. py:function:: get_snr_single_trial
+
+    Calculate SNR of one specific single trial
+
+    :param sub_idx: Subject index.
+    :param block_idx: Block index.
+    :param trial_idx: Trial index.
+    :param ch_idx: Channel index.
+    :param sig_len: Signal length (in second).
+    :param filter_bank_idx: Filterbank index. Default is 0, which will calculate the SNR of signals obtained from the first filter.
+    :param Nh: Number of harmonics if use the FFT to calculate the SNR. Default is 1.
+    :param srate: Sampling frequency (Hz). Default is ``None``, which will use the sampling freqency of the dataset.
+    :param t_latency: Latency time (in second). Default is ``None``, which will use the default latency time of the dataset.
+    :param detrend_flag: If use the FFT to calculate the SNR, whether detrend the signal before the FFT. Default is ``True``.
+    :param NFFT: Number of the FFT if use the FFT to calculate the SNR. Default is ``None``, which will use the signal length.
+    :param type: Method of calculating the FFT. Default is ``'fft'``. Supported methods:
+
+        + ``'fft'``: Use the FFT to calculate spectrum of the signal, and then calculate the SNR.
+        + ``'sine'``: Use the sine-cosine reference signal to calculate the SNR.
+        
+    :param harmonic_num: Number of harmonic if use the sine-cosine reference signal to calculate the SNR.
+    :param ignore_stim_phase: Whether ignore the stimulus phase of generating the reference signals if use the sine-cosine reference signal to calculate the SNR.
+
+    :return:
+
+        + ``snr``: SNR of the specific single trial.
+
+.. py:function:: get_snr
+
+    Calculate SNRs of all trials
+
+    :param filter_bank_idx: Filterbank index. Default is 0, which will calculate the SNR of signals obtained from the first filter.
+    :param Nh: Number of harmonics if use the FFT to calculate the SNR. Default is 1.
+    :param srate: Sampling frequency (Hz). Default is ``None``, which will use the sampling freqency of the dataset.
+    :param t_latency: Latency time (in second). Default is ``None``, which will use the default latency time of the dataset.
+    :param remove_break: Whether remove the break time. Default is ``True``.
+    :param remove_pre_and_latency: Whether remove pre-stimulus and latency time. Default is ``True``.
+    :param display_progress: Whether display the progress bar. Default is ``False``.
+    :param detrend_flag: If use the FFT to calculate the SNR, whether detrend the signal before the FFT. Default is ``True``.
+    :param NFFT: Number of the FFT if use the FFT to calculate the SNR. Default is ``None``, which will use the signal length.
+    :param sig_len: Signal length (in second).
+    :param type: Method of calculating the FFT. Default is ``'fft'``. Supported methods:
+
+        + ``'fft'``: Use the FFT to calculate spectrum of the signal, and then calculate the SNR.
+        + ``'sine'``: Use the sine-cosine reference signal to calculate the SNR.
+        
+    :param harmonic_num: Number of harmonic if use the sine-cosine reference signal to calculate the SNR.
+    :param ignore_stim_phase: Whether ignore the stimulus phase of generating the reference signals if use the sine-cosine reference signal to calculate the SNR.
+    :param ch_used_recog: List of channel indices if use the sine-cosine reference signal to calculate the SNR.
+
+    :return:
+
+        + ``snr``: SNRs of all trials. If ``type`` is ``fft``, the shape is (subjects :raw-html:`&#215;` blocks :raw-html:`&#215;` trials :raw-html:`&#215;` channels). If ``type`` is ``sine``, the shape is (subjects :raw-html:`&#215;` blocks :raw-html:`&#215;` trials).
+
+.. py:function:: get_phase_single_trial
+
+    Calculate phases of SSVEP signals in one specific single trial
+
+    :param sub_idx: Subject index.
+    :param block_idx: Block index.
+    :param trial_idx: Trial index.
+    :param ch_idx: Channel index.
+    :param sig_len: Signal length (in second).
+    :param filter_bank_idx: Filterbank index. Default is 0, which will calculate the SNR of signals obtained from the first filter.
+    :param srate: Sampling frequency (Hz). Default is ``None``, which will use the sampling freqency of the dataset.
+    :param t_latency: Latency time (in second). Default is ``None``, which will use the default latency time of the dataset.
+    :param detrend_flag: If use the FFT to calculate the SNR, whether detrend the signal before the FFT. Default is ``True``.
+    :param NFFT: Number of the FFT if use the FFT to calculate the SNR. Default is ``None``, which will use the signal length.
+    :param remove_target_phase: Whether remove the stimulus phase recorded in the dataset.
+
+    :return:
+
+        + ``phase``: Phase of the specific single trial.
+
+.. py:function:: get_phase
+
+    Calculate phases of SSVEP signals in all trials
+
+    :param filter_bank_idx: Filterbank index. Default is 0, which will calculate the SNR of signals obtained from the first filter.
+    :param srate: Sampling frequency (Hz). Default is ``None``, which will use the sampling freqency of the dataset.
+    :param t_latency: Latency time (in second). Default is ``None``, which will use the default latency time of the dataset.
+    :param remove_break: Whether remove the break time. Default is ``True``.
+    :param remove_pre_and_latency: Whether remove pre-stimulus and latency time. Default is ``True``.
+    :param display_progress: Whether display the progress bar. Default is ``False``.
+    :param detrend_flag: If use the FFT to calculate the SNR, whether detrend the signal before the FFT. Default is ``True``.
+    :param NFFT: Number of the FFT if use the FFT to calculate the SNR. Default is ``None``, which will use the signal length.
+    :param sig_len: Signal length (in second).
+    :param remove_target_phase: Whether minus the stimulus phase recorded in the dataset.
+
+    :return:
+
+        + ``phase``: Phases of all trials. The shape is (subjects :raw-html:`&#215;` blocks :raw-html:`&#215;` trials :raw-html:`&#215;` channels).
+
 .. _define-own-dataset:
 
 How to define your own dataset class
