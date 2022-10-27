@@ -496,8 +496,20 @@ class BaseEvaluator:
             try:
                 pickle.dump(self, file_, pickle.HIGHEST_PROTOCOL)
             except:
-                warnings.warn("Cannot save whole evaluator. So only save 'performance_container'.")
-                pickle.dump(self.performance_container, file_, pickle.HIGHEST_PROTOCOL)
+                warnings.warn("Cannot save whole evaluator. So remove 'dataset_container' and try to save it again.")
+                saved_self = copy.deepcopy(self)
+                try:
+                    saved_self.dataset_container = None
+                    pickle.dump(saved_self, file_, pickle.HIGHEST_PROTOCOL)
+                except:
+                    warnings.warn("Remove 'dataset_container' still cannot be saved. So remove 'model_container' and 'trained_model_container' and try to save it again.")
+                    try:
+                        saved_self.model_container = None
+                        saved_self.trained_model_container = None
+                        pickle.dump(saved_self, file_, pickle.HIGHEST_PROTOCOL)
+                    except:
+                        warnings.warn("Remove 'model_container' and 'trained_model_container' still cannot be saved. So only save 'performance_container'.")
+                        pickle.dump(self.performance_container, file_, pickle.HIGHEST_PROTOCOL)
 
     def load(self,
              file: str):
