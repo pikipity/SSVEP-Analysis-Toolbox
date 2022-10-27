@@ -505,7 +505,7 @@ class BaseEvaluator:
             raise ValueError('{:s} does not exist!!'.format(file))
         with open(file,'rb') as file_:
             self_load = pickle.load(file_)
-        if type(self_load) is not list:
+        if type(self_load) is not list and type(self_load) is not tuple:
             self.dataset_container = copy.deepcopy(self_load.dataset_container)
             self.model_container = copy.deepcopy(self_load.model_container)
             self.trial_container = copy.deepcopy(self_load.trial_container)
@@ -516,7 +516,7 @@ class BaseEvaluator:
             self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
         else:
             self.performance_container = copy.deepcopy(self_load)
-            warnings.warn("Cannot read attributes except 'performance_container'.")
+            warnings.warn("'{:s}' only contains a list or a tuple. So only 'performance_container' is reloaded.".format(file))
         
     def run(self,
             n_jobs : Optional[int] = None,
