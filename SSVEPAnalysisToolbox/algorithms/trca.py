@@ -307,7 +307,7 @@ class TRCA(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 class TRCAwithR(BaseModel):
     """
@@ -405,7 +405,7 @@ class TRCAwithR(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 class ETRCA(BaseModel):
     """
@@ -514,7 +514,7 @@ class ETRCA(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 class ETRCAwithR(BaseModel):
     """
@@ -617,7 +617,7 @@ class ETRCAwithR(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 class MSETRCA(BaseModel):
     """
@@ -763,7 +763,7 @@ class MSETRCA(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 
 class MSCCA_and_MSETRCA(BaseModel):
@@ -1025,7 +1025,11 @@ class MSCCA_and_MSETRCA(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
                                                         np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
-        return Y_pred
+
+        r = [(np.sign(r1_single) * np.square(r1_single) + 
+              np.sign(r2_single) * np.square(r2_single)) for r1_single, r2_single in zip(r1, r2)]
+
+        return Y_pred, r
 
 class SSCOR(BaseModel):
     """
@@ -1115,7 +1119,7 @@ class SSCOR(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
 
 class ESSCOR(BaseModel):
     """
@@ -1211,4 +1215,4 @@ class ESSCOR(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
