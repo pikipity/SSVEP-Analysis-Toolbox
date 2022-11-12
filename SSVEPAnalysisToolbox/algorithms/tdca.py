@@ -321,4 +321,4 @@ class TDCA(BaseModel):
 
         Y_pred = [int( np.argmax( weights_filterbank @ r_tmp)) for r_tmp in r]
         
-        return Y_pred 
+        return Y_pred, r
