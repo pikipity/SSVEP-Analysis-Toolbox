@@ -230,10 +230,14 @@ class PerformanceContainer:
         self.true_label_train.extend(true_label)
     def add_pred_label_train(self,pred_label:list):
         self.pred_label_train.extend(pred_label)
+    def add_pred_r_train(self,pred_r:list):
+        self.pred_r_train.extend(pred_r)
     def add_true_label_test(self,true_label:list):
         self.true_label_test.extend(true_label)
     def add_pred_label_test(self,pred_label:list):
         self.pred_label_test.extend(pred_label)
+    def add_pred_r_test(self,pred_r:list):
+        self.pred_r_test.extend(pred_r)
     def add_train_time(self,train_time:list):
         self.train_time.append(train_time)
     def add_test_time_train(self,test_time:list):
@@ -243,8 +247,10 @@ class PerformanceContainer:
     def clear(self):
         self.true_label_train = []
         self.pred_label_train = []
+        self.pred_r_train = []
         self.true_label_test = []
         self.pred_label_test = []
+        self.pred_r_test = []
         self.train_time = []
         self.test_time_train = []
         self.test_time_test = []
@@ -409,9 +415,10 @@ def _run_loop(trial_idx, trial_container,
     if eval_train:
         for test_model_idx, model_tmp in enumerate(model_one_trial):
             tic = time.time()
-            pred_label = model_tmp.predict(X)
+            pred_label, pred_r = model_tmp.predict(X)
             performance_one_trial[test_model_idx].add_test_time_train(time.time()-tic)
             performance_one_trial[test_model_idx].add_pred_label_train(pred_label)
+            performance_one_trial[test_model_idx].add_pred_r_train(pred_r)
             performance_one_trial[test_model_idx].add_true_label_train(Y)
             # if disp_processbar:
             #     pbar.update(pbar_update_val)
@@ -428,10 +435,11 @@ def _run_loop(trial_idx, trial_container,
     # Test models
     for test_model_idx, model_tmp in enumerate(model_one_trial):
         tic = time.time()
-        pred_label = model_tmp.predict(X)
+        pred_label, pred_r = model_tmp.predict(X)
         # print(np.array(Y)-np.array(pred_label))
         performance_one_trial[test_model_idx].add_test_time_test(time.time()-tic)
         performance_one_trial[test_model_idx].add_pred_label_test(pred_label)
+        performance_one_trial[test_model_idx].add_pred_r_test(pred_r)
         performance_one_trial[test_model_idx].add_true_label_test(Y)
         # if disp_processbar:
         #     pbar.update(pbar_update_val)

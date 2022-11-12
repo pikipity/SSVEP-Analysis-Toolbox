@@ -601,7 +601,7 @@ class MsetCCA(BaseModel):
 
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
-        return Y_pred
+        return Y_pred, r
 
 class MsetCCAwithR(BaseModel):
     """
@@ -708,7 +708,7 @@ class MsetCCAwithR(BaseModel):
 
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
-        return Y_pred
+        return Y_pred, r
 
 
 class OACCA(BaseModel):
@@ -773,6 +773,7 @@ class OACCA(BaseModel):
         harmonic_num, _ = Y[0].shape
         # Calculate Res
         Y_pred = []
+        r_pred = []
         for x_single_trial in X:
             filterbank_num, channel_num, signal_len = x_single_trial.shape
             # Calculate res of this step
@@ -798,6 +799,7 @@ class OACCA(BaseModel):
             # print(x_single_trial.shape)
             # raise ValueError
             Y_pred.append(oacca_res)
+            r_pred.append(cca_r + r2 + r3)
             # Update parameters
             if self.model['covar_mat'] is None:
                 self.model['covar_mat'] = np.zeros((channel_num, channel_num, filterbank_num))
@@ -873,7 +875,7 @@ class OACCA(BaseModel):
                 # self.model['Cxy'][:,:,k] = new_Cxy_list[k]
                     
                 
-        return Y_pred
+        return Y_pred, r_pred
 
 
 
@@ -993,7 +995,7 @@ class SCCA_canoncorr(BaseModel):
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
-        return Y_pred
+        return Y_pred, r
      
 
 class SCCA_qr(BaseModel):
@@ -1117,7 +1119,7 @@ class SCCA_qr(BaseModel):
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
-        return Y_pred
+        return Y_pred, r
     
 class ITCCA(BaseModel):
     """
@@ -1236,7 +1238,7 @@ class ITCCA(BaseModel):
         
         Y_pred = [int(np.argmax(weights_filterbank @ r_single, axis = 1)) for r_single in r]
         
-        return Y_pred
+        return Y_pred, r
 
     
     
@@ -1449,8 +1451,12 @@ class ECCA(BaseModel):
                                                         np.sign(r2_single) * np.square(r2_single) +
                                                         np.sign(r3_single) * np.square(r3_single) +
                                                         np.sign(r4_single) * np.square(r4_single)))) for r1_single, r2_single, r3_single, r4_single in zip(r1, r2, r3, r4)]
+        r = [(np.sign(r1_single) * np.square(r1_single) + 
+              np.sign(r2_single) * np.square(r2_single) +
+              np.sign(r3_single) * np.square(r3_single) +
+              np.sign(r4_single) * np.square(r4_single)) for r1_single, r2_single, r3_single, r4_single in zip(r1, r2, r3, r4)]
         
-        return Y_pred
+        return Y_pred, r
 
 
 
@@ -1619,4 +1625,7 @@ class MSCCA(BaseModel):
         Y_pred = [int( np.argmax( weights_filterbank @ (np.sign(r1_single) * np.square(r1_single) + 
                                                         np.sign(r2_single) * np.square(r2_single)))) for r1_single, r2_single in zip(r1, r2)]
         
-        return Y_pred
+        r = [(np.sign(r1_single) * np.square(r1_single) + 
+              np.sign(r2_single) * np.square(r2_single)) for r1_single, r2_single in zip(r1, r2)]
+        
+        return Y_pred, r
