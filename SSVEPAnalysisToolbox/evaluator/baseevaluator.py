@@ -182,8 +182,8 @@ class pbarParallel(Parallel):
         self._pbar.n = self.n_completed_tasks
         self._pbar.refresh()
 
-def create_pbar(use_tqdm : bool,
-                loop_list_num: List[int],
+def create_pbar(loop_list_num: List[int],
+                use_tqdm : bool = True,
                 desc: str = ''):
     """
     Create process bar
