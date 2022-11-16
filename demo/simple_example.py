@@ -2,8 +2,10 @@
 
 import sys
 sys.path.append('..')
-from SSVEPAnalysisToolbox.datasets import WearableDataset_wet, WearableDataset_dry
-from SSVEPAnalysisToolbox.utils.wearablepreprocess import preprocess, filterbank, suggested_ch, suggested_weights_filterbank
+from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
+from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
+    preprocess, filterbank, suggested_ch, suggested_weights_filterbank
+)
 from SSVEPAnalysisToolbox.algorithms import (
     SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR,
     TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
@@ -14,27 +16,23 @@ from SSVEPAnalysisToolbox.evaluator import cal_acc,cal_itr
 import time
 
 num_subbands = 5
-data_type = 'dry'
 
 # Prepare dataset
-if data_type.lower() == 'wet':
-    dataset = WearableDataset_wet(path = 'Wearable')
-else:
-    dataset = WearableDataset_dry(path = 'Wearable')
+dataset = BenchmarkDataset(path = '2016_Tsinghua_SSVEP_database')
 dataset.regist_preprocess(preprocess)
-dataset.regist_filterbank(lambda dataself, X: filterbank(dataself, X, num_subbands))
+dataset.regist_filterbank(filterbank)
 
 # Prepare recognition model
-weights_filterbank = suggested_weights_filterbank(num_subbands, data_type, 'trca')
+weights_filterbank = suggested_weights_filterbank()
 recog_model = ETRCAwithR(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
 harmonic_num = 5
-tw = 2
-sub_idx = 98
-test_block_idx = 8
+tw = 1
+sub_idx = 1
+test_block_idx = 0
 test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test_block_idx)
 
 # Get training data and train the recognition model
@@ -56,7 +54,7 @@ X_test, Y_test = dataset.get_data(sub_idx = sub_idx,
                                     channels = ch_used,
                                     sig_len = tw)
 tic = time.time()
-pred_label = recog_model.predict(X_test)
+pred_label, _ = recog_model.predict(X_test)
 toc_test = time.time()-tic
 toc_test_onetrial = toc_test/len(Y_test)
 
