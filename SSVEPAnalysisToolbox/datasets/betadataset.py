@@ -86,39 +86,54 @@ class BETADataset(BaseDataset):
     def download_single_subject(self,
                                 subject: SubInfo):
         data_file = os.path.join(subject.path, subject.ID + '.mat')
+
+        sub_idx = int(subject.ID[1:])
+        if sub_idx <= 10:
+            file_name = 'S1-S10.tar.gz'
+        elif sub_idx <= 20:
+            file_name = 'S11-S20.tar.gz'
+        elif sub_idx <= 30:
+            file_name = 'S21-S30.tar.gz'
+        elif sub_idx <= 40:
+            file_name = 'S31-S40.tar.gz'
+        elif sub_idx <= 50:
+            file_name = 'S41-S50.tar.gz'
+        elif sub_idx <= 60:
+            file_name = 'S51-S60.tar.gz'
+        elif sub_idx <= 70:
+            file_name = 'S61-S70.tar.gz'
+        source_url = self.url + file_name
+        desertation = os.path.join(subject.path, file_name)
+
+        download_flag = True
         
         if not os.path.isfile(data_file):
-            sub_idx = int(subject.ID[1:])
-            if sub_idx <= 10:
-                file_name = 'S1-S10.tar.gz'
-            elif sub_idx <= 20:
-                file_name = 'S11-S20.tar.gz'
-            elif sub_idx <= 30:
-                file_name = 'S21-S30.tar.gz'
-            elif sub_idx <= 40:
-                file_name = 'S31-S40.tar.gz'
-            elif sub_idx <= 50:
-                file_name = 'S41-S50.tar.gz'
-            elif sub_idx <= 60:
-                file_name = 'S51-S60.tar.gz'
-            elif sub_idx <= 70:
-                file_name = 'S61-S70.tar.gz'
-            source_url = self.url + file_name
-            desertation = os.path.join(subject.path, file_name)
-            download_single_file(source_url, desertation)
-        
-            with tarfile.open(desertation,'r') as archive:
-                archive.extractall(subject.path)
-                
-            os.remove(desertation)
+            try:
+                download_single_file(source_url, desertation)
+            
+                with tarfile.open(desertation,'r') as archive:
+                    archive.extractall(subject.path)
+                    
+                os.remove(desertation)
+            except:
+                download_flag = False
+
+        return download_flag, source_url, desertation
 
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = os.path.join(self.path_support_file, file_name)
+
+        download_flag = True
         
         if not os.path.isfile(desertation):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            except:
+                download_flag = False
+
+        return download_flag, source_url, desertation
 
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:

@@ -83,59 +83,75 @@ class ELDBETADataset(BaseDataset):
                                 subject: SubInfo):
         data_file = os.path.join(subject.path, subject.ID + '.mat')
 
+        sub_idx = int(subject.ID[1:])
+        if sub_idx <= 10:
+            file_name = 'S1-S10.tar.gz'
+        elif sub_idx <= 20:
+            file_name = 'S11-S20.tar.gz'
+        elif sub_idx <= 30:
+            file_name = 'S21-S30.tar.gz'
+        elif sub_idx <= 40:
+            file_name = 'S31-S40.tar.gz'
+        elif sub_idx <= 50:
+            file_name = 'S41-S50.tar.gz'
+        elif sub_idx <= 60:
+            file_name = 'S51-S60.tar.gz'
+        elif sub_idx <= 70:
+            file_name = 'S61-S70.tar.gz'
+        elif sub_idx <= 80:
+            file_name = 'S71-S80.tar.gz'
+        elif sub_idx <= 90:
+            file_name = 'S81-S90.tar.gz'
+        elif sub_idx <= 100:
+            file_name = 'S91-S100.tar.gz'
+        source_url = self.url + file_name
+        desertation = os.path.join(subject.path, file_name)
+
+        download_flag = True
+
         if not os.path.isfile(data_file):
-            sub_idx = int(subject.ID[1:])
-            if sub_idx <= 10:
-                file_name = 'S1-S10.tar.gz'
-            elif sub_idx <= 20:
-                file_name = 'S11-S20.tar.gz'
-            elif sub_idx <= 30:
-                file_name = 'S21-S30.tar.gz'
-            elif sub_idx <= 40:
-                file_name = 'S31-S40.tar.gz'
-            elif sub_idx <= 50:
-                file_name = 'S41-S50.tar.gz'
-            elif sub_idx <= 60:
-                file_name = 'S51-S60.tar.gz'
-            elif sub_idx <= 70:
-                file_name = 'S61-S70.tar.gz'
-            elif sub_idx <= 80:
-                file_name = 'S71-S80.tar.gz'
-            elif sub_idx <= 90:
-                file_name = 'S81-S90.tar.gz'
-            elif sub_idx <= 100:
-                file_name = 'S91-S100.tar.gz'
-            source_url = self.url + file_name
-            desertation = os.path.join(subject.path, file_name)
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
 
-            with tarfile.open(desertation,'r') as archive:
-                archive.extractall(subject.path)
+                with tarfile.open(desertation,'r') as archive:
+                    archive.extractall(subject.path)
+                
+                os.remove(desertation)
+            except:
+                download_flag = False
+
+        if download_flag:
+            # load age and gender
+            mat_data = loadmat(data_file)['data']['Suppl_info']
+            age = mat_data['Age']
+            gender = mat_data['Gender']
+            if gender.lower()=='male':
+                gender = 'M'
+            else:
+                gender = 'F'
             
-            os.remove(desertation)
+            for sub_idx, sub_info in enumerate(self.subjects):
+                if subject.ID == sub_info.ID:
+                    self.subjects[sub_idx].age = age
+                    self.subjects[sub_idx].gender = gender
+                    break
 
-        # load age and gender
-        mat_data = loadmat(data_file)['data']['Suppl_info']
-        age = mat_data['Age']
-        gender = mat_data['Gender']
-        if gender.lower()=='male':
-            gender = 'M'
-        else:
-            gender = 'F'
-        
-        for sub_idx, sub_info in enumerate(self.subjects):
-            if subject.ID == sub_info.ID:
-                self.subjects[sub_idx].age = age
-                self.subjects[sub_idx].gender = gender
-                break
+        return download_flag, source_url, desertation
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = os.path.join(self.path_support_file, file_name)
+
+        download_flag = True
         
         if not os.path.isfile(desertation):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            except:
+                download_flag = False
+        
+        return download_flag, source_url, desertation
 
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:

@@ -8,6 +8,7 @@ import abc
 from typing import Union, Optional, Dict, List, Tuple, Callable
 from numpy import ndarray, expand_dims
 import warnings
+import time
 
 import numpy as np
 
@@ -161,20 +162,50 @@ class BaseDataset(metaclass=abc.ABCMeta):
             raise ValueError("The shapes of EEG signals are not correct")
     def reset_filterbank(self):
         self.regist_filterbank(self.default_filterbank)
-    def download_all(self):
+    def download_all(self, total_retry_time = 10):
         """
         Download all subjects' data
         """
         for subject in self.subjects:
-            self.download_single_subject(subject)
+            download_try_count = 0
+            download_flag = False
+            while (not download_flag) and (download_try_count < total_retry_time):
+                if download_try_count>0:
+                    warnings.warn("There is an error when donwloading '{:s}' data. So retry ({:n}) after 10 seconds.".format(subject.ID, download_try_count))
+                    time.sleep(10)
+                download_flag_store, source_url_store, desertation_store = self.download_single_subject(subject)
+                if type(download_flag_store) is not list:
+                    download_flag_store = [download_flag_store]
+                    source_url_store = [source_url_store]
+                    desertation_store = [desertation_store]
+                for download_flag, source_url, desertation in zip(download_flag_store, source_url_store, desertation_store):
+                    if (not download_flag):
+                        if os.path.isfile(desertation):
+                            os.remove(desertation)
+                download_try_count += 1
+                download_flag = all(download_flag_store)
+            if not download_flag:
+                raise ValueError("Cannot download '{:s}' data.".format(subject.ID))
             
-    def download_support_files(self):
+    def download_support_files(self, total_retry_time = 10):
         """
         Download all support files
         """
         if self.support_files is not None and self.path_support_file is not None:
             for file_name in self.support_files:
-                self.download_file(file_name)
+                download_try_count = 0
+                download_flag = False
+                while (not download_flag) and (download_try_count < total_retry_time):
+                    if download_try_count>0:
+                        warnings.warn("There is an error when donwloading '{:s}'. So retry ({:n}) after 10 seconds.".format(file_name, download_try_count))
+                        time.sleep(10)
+                    download_flag, source_url, desertation = self.download_file(file_name)
+                    if (not download_flag):
+                        if os.path.isfile(desertation):
+                            os.remove(desertation)
+                    download_try_count += 1
+                if not download_flag:
+                    raise ValueError("Cannot download '{:s}'.".format(file_name))
     
     def leave_one_block_out(self,
                             block_idx: int) -> Tuple[List[int], List[int]]:

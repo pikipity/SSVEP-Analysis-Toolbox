@@ -78,26 +78,47 @@ class openBMIDataset(BaseDataset):
     
     def download_single_subject(self,
                                 subject: SubInfo):
+        download_flag_store=[]
+        source_url_store=[]
+        desertation_store=[]
         for sess_idx in range(2):
             data_file = os.path.join(subject.path, 'sess{:n}-{:s}.mat'.format(sess_idx+1, subject.ID))
+            sub_idx = int(subject.ID[1:])
+            if sub_idx<10:
+                file_name = 'session{:n}/s{:n}/sess0{:n}_subj0{:n}_EEG_SSVEP.mat'.format(sess_idx+1, sub_idx, sess_idx+1, sub_idx)
+            else:
+                file_name = 'session{:n}/s{:n}/sess0{:n}_subj{:n}_EEG_SSVEP.mat'.format(sess_idx+1, sub_idx, sess_idx+1, sub_idx)
+            source_url = self.url + file_name
+            desertation = data_file
+
+            download_flag = True
 
             if not os.path.isfile(data_file):
-                sub_idx = int(subject.ID[1:])
-                if sub_idx<10:
-                    file_name = 'session{:n}/s{:n}/sess0{:n}_subj0{:n}_EEG_SSVEP.mat'.format(sess_idx+1, sub_idx, sess_idx+1, sub_idx)
-                else:
-                    file_name = 'session{:n}/s{:n}/sess0{:n}_subj{:n}_EEG_SSVEP.mat'.format(sess_idx+1, sub_idx, sess_idx+1, sub_idx)
-                source_url = self.url + file_name
-                desertation = data_file
-                download_single_file(source_url, desertation)
+                try:
+                    download_single_file(source_url, desertation)
+                except:
+                    download_flag = False
+            
+            download_flag_store.append(download_flag)
+            source_url_store.append(source_url)
+            desertation_store.append(desertation)
+
+        return download_flag_store, source_url_store, desertation_store
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = os.path.join(self.path_support_file, file_name)
 
+        download_flag = True
+
         if not os.path.isfile(desertation):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            except:
+                download_flag = False
+
+        return download_flag, source_url, desertation
     
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:

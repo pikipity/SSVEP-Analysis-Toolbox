@@ -27,7 +27,7 @@ class BenchmarkDataset(BaseDataset):
     Paper:
     Y. Wang, X. Chen, X. Gao, and S. Gao, “A benchmark dataset for SSVEP-based braincomputer interfaces,” IEEE Trans. Neural Syst. Rehabil. Eng., vol. 25, no. 10, pp. 17461752, 2017.
     """
-
+ 
     _CHANNELS = [
         'FP1','FPZ','FP2','AF3','AF4','F7','F5','F3','F1','FZ','F2',
         'F4','F6','F8','FT7','FC5','FC3','FC1','FCz','FC2','FC4','FC6',
@@ -85,22 +85,36 @@ class BenchmarkDataset(BaseDataset):
         desertation = os.path.join(subject.path, subject.ID + '.mat.7z')
         
         data_file = os.path.join(subject.path, subject.ID + '.mat')
+
+        download_flag = True
         
         if not os.path.isfile(data_file):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            
+                with py7zr.SevenZipFile(desertation,'r') as archive:
+                    archive.extractall(subject.path)
+                    
+                os.remove(desertation)
+            except:
+                download_flag = False
         
-            with py7zr.SevenZipFile(desertation,'r') as archive:
-                archive.extractall(subject.path)
-                
-            os.remove(desertation)
+        return download_flag, source_url, desertation
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = os.path.join(self.path_support_file, file_name)
+
+        download_flag = True
         
         if not os.path.isfile(desertation):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            except:
+                download_flag = False
+        
+        return download_flag, source_url, desertation
         
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:
