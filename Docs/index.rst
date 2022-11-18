@@ -114,10 +114,12 @@ Datasets and Algorithms
     + `ConvCA <https://github.com/yaoli90/Conv-CA>`_
     + `GuneyNet <https://github.com/pikipity/brainda/blob/master/brainda/algorithms/deep_learning/guney_net.py>`_
     + `Subject transfer CCA <https://github.com/edwin465/SSVEP-stCCA>`_
+    + `Inter- and intra-subject maximal correlation <https://ieeexplore.ieee.org/document/9350285/>`_
     + `Least-squares transformation-based transfer learning <https://doi.org/10.1088/1741-2552/abcb6e>`_
     + `Leveraging cross-device shared latent responses <https://doi.org/10.1109/TBME.2019.2929745>`_
     + `Align and pool for EEG headset domain adaptation <https://ieeexplore.ieee.org/document/9516951/>`_
     + `Transfer learning CCA <https://github.com/edwin465/SSVEP-tlCCA>`_
+    + `Stimulus-stimulus transafer based on time-frequency-joint representation <https://ieeexplore.ieee.org/document/9857586/>`_
 
 
 
