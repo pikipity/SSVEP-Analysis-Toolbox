@@ -85,25 +85,32 @@ class NakanishiDataset(BaseDataset):
         desertation = os.path.join(subject.path, 'cca_ssvep.zip')
         
         data_file = os.path.join(subject.path, subject.ID + '.mat')
+
+        download_flag = True
         
         if not os.path.isfile(data_file):
-            download_single_file(source_url, desertation, progressbar = False)
-        
-            with zipfile.ZipFile(desertation,'r') as archive:
-                archive.extractall(subject.path)
-                
-            os.remove(desertation)
+            try:
+                download_single_file(source_url, desertation, progressbar = False)
+            
+                with zipfile.ZipFile(desertation,'r') as archive:
+                    archive.extractall(subject.path)
+                    
+                os.remove(desertation)
 
-            for (dirpath, dirnames, filenames) in os.walk(os.path.join(subject.path, 'cca_ssvep')):
-                for filename in filenames:
-                    src = os.path.join(dirpath, filename)
-                    dst = os.path.join(subject.path, filename)
-                    shutil.copyfile(src, dst)
-            shutil.rmtree(os.path.join(subject.path, 'cca_ssvep'))
+                for (dirpath, dirnames, filenames) in os.walk(os.path.join(subject.path, 'cca_ssvep')):
+                    for filename in filenames:
+                        src = os.path.join(dirpath, filename)
+                        dst = os.path.join(subject.path, filename)
+                        shutil.copyfile(src, dst)
+                shutil.rmtree(os.path.join(subject.path, 'cca_ssvep'))
+            except:
+                download_flag = False
+
+        return download_flag, source_url, desertation
 
     def download_file(self,
                       file_name: str):
-        pass
+        return True, None, None
 
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:

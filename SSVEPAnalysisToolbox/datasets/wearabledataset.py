@@ -13,6 +13,8 @@ from .subjectinfo import SubInfo
 from ..utils.download import download_single_file
 from ..utils.io import loadmat
 
+import warnings
+
 class WearableDataset_wet(BaseDataset):
     """
     Wearable SSVEP Dataset (wet)
@@ -98,63 +100,88 @@ class WearableDataset_wet(BaseDataset):
             file_name = 'S{:n}.mat'.format(sub_idx)
         data_file = os.path.join(subject.path, file_name)
 
+        sub_idx = int(subject.ID[1:])
+        if sub_idx <= 10:
+            file_name = 'S001-S010.zip'
+        elif sub_idx <= 20:
+            file_name = 'S011-S020.zip'
+        elif sub_idx <= 30:
+            file_name = 'S021-S030.zip'
+        elif sub_idx <= 40:
+            file_name = 'S031-S040.zip'
+        elif sub_idx <= 50:
+            file_name = 'S041-S050.zip'
+        elif sub_idx <= 60:
+            file_name = 'S051-S060.zip'
+        elif sub_idx <= 70:
+            file_name = 'S061-S070.zip'
+        elif sub_idx <= 80:
+            file_name = 'S071-S080.zip'
+        elif sub_idx <= 90:
+            file_name = 'S081-S090.zip'
+        else:
+            file_name = 'S091-S102.zip'
+        source_url = self.url + file_name
+        desertation = os.path.join(subject.path, file_name)
+
+        download_flag = True
+
         if not os.path.isfile(data_file):
-            sub_idx = int(subject.ID[1:])
-            if sub_idx <= 10:
-                file_name = 'S001-S010.zip'
-            elif sub_idx <= 20:
-                file_name = 'S011-S020.zip'
-            elif sub_idx <= 30:
-                file_name = 'S021-S030.zip'
-            elif sub_idx <= 40:
-                file_name = 'S031-S040.zip'
-            elif sub_idx <= 50:
-                file_name = 'S041-S050.zip'
-            elif sub_idx <= 60:
-                file_name = 'S051-S060.zip'
-            elif sub_idx <= 70:
-                file_name = 'S061-S070.zip'
-            elif sub_idx <= 80:
-                file_name = 'S071-S080.zip'
-            elif sub_idx <= 90:
-                file_name = 'S081-S090.zip'
-            else:
-                file_name = 'S091-S102.zip'
-            source_url = self.url + file_name
-            desertation = os.path.join(subject.path, file_name)
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
 
-            with zipfile.ZipFile(desertation,'r') as archive:
-                archive.extractall(subject.path)
+                with zipfile.ZipFile(desertation,'r') as archive:
+                    archive.extractall(subject.path)
 
-            os.remove(desertation)
+                os.remove(desertation)
+            except:
+                download_flag = False
+
+        return download_flag, source_url, desertation
     
     def download_file(self,
                       file_name: str):
         source_url = self.url + file_name
         desertation = os.path.join(self.path_support_file, file_name)
+
+        download_flag = True
         
         if not os.path.isfile(desertation):
-            download_single_file(source_url, desertation)
+            try:
+                download_single_file(source_url, desertation)
+            except:
+                download_flag = False
 
-        return desertation
+        return download_flag, source_url, desertation
 
-    def download_support_files(self):
+    def download_support_files(self, total_retry_time = 10):
         """
         Download all support files
         """
         if self.support_files is not None and self.path_support_file is not None:
             for file_name in self.support_files:
-                desertation = self.download_file(file_name)
+                download_try_count = 0
+                download_flag = False
+                while (not download_flag) and (download_try_count < total_retry_time):
+                    if download_try_count>0:
+                        warnings.warn("There is an error when donwloading '{:s}'. So retry ({:n})".format(file_name, download_try_count))
+                    download_flag, source_url, desertation = self.download_file(file_name)
+                    if (not download_flag):
+                        if os.path.isfile(desertation):
+                            os.remove(desertation)
+                    download_try_count += 1
                 # load subject information
-                if file_name == 'Subjects_Information.mat':
-                    sub_mat = np.array(loadmat(desertation)['Subjects_Information'], dtype=object)
-                    for sub_idx in range(len(self.subjects)):
-                        self.subjects[sub_idx].age = sub_mat[sub_idx+1, 2]
-                        if sub_mat[sub_idx+1, 1] == 'Male':
-                            self.subjects[sub_idx].gender = 'M'
-                        else:
-                            self.subjects[sub_idx].gender = 'F'
+                if download_flag:
+                    if file_name == 'Subjects_Information.mat':
+                        sub_mat = np.array(loadmat(desertation)['Subjects_Information'], dtype=object)
+                        for sub_idx in range(len(self.subjects)):
+                            self.subjects[sub_idx].age = sub_mat[sub_idx+1, 2]
+                            if sub_mat[sub_idx+1, 1] == 'Male':
+                                self.subjects[sub_idx].gender = 'M'
+                            else:
+                                self.subjects[sub_idx].gender = 'F'
+                else:
+                    raise ValueError("Cannot download '{:s}'.".format(file_name))
 
     def get_sub_data(self, 
                      sub_idx: int) -> ndarray:
