@@ -175,7 +175,7 @@ class pbarParallel(Parallel):
         self.desc = desc
         super().__init__(*args, **kwargs)
     def __call__(self, *args, **kwargs):
-        with create_pbar(self.use_tqdm, self.loop_list_num, self.desc) as self._pbar:
+        with create_pbar(use_tqdm = self.use_tqdm, loop_list_num = self.loop_list_num, desc = self.desc) as self._pbar:
             return Parallel.__call__(self, *args, **kwargs)
     def print_progress(self):
         # self._pbar.total = self.n_dispatched_tasks
