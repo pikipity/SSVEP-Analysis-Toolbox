@@ -242,7 +242,6 @@ def _r_cca_qr_withUV(X: ndarray,
     
     for k in range(filterbank_num):
         tmp = X[k,:,:]
-        X_Q, X_R, X_P = qr_remove_mean(tmp.T)
         for i in range(stimulus_num):
             if len(Y[i].shape)==2:
                 Y_tmp = Y[i]
@@ -453,56 +452,6 @@ def _r_cca_qr(X: ndarray,
         return R, U, V
     else:
         return R
-   
-def SCCA(n_component: int = 1,
-         n_jobs: Optional[int] = None,
-         weights_filterbank: Optional[List[float]] = None,
-         force_output_UV: bool = False,
-         update_UV: bool = True,
-         cca_type: str = 'qr'):
-    """
-    Generate sCCA model
-
-    Parameters
-    ----------
-    n_component : Optional[int], optional
-        Number of eigvectors for spatial filters. The default is 1.
-    n_jobs : Optional[int], optional
-        Number of CPU for computing different trials. The default is None.
-    weights_filterbank : Optional[List[float]], optional
-        Weights of spatial filters. The default is None.
-    force_output_UV : Optional[bool] 
-        Whether store U and V. Default is False
-    update_UV: Optional[bool]
-        Whether update U and V in next time of applying "predict" 
-        If false, and U and V have not been stored, they will be stored
-        Default is True
-    cca_type : Optional[str], optional
-        Methods for computing corr.
-        'qr' - QR decomposition
-        'canoncorr' - Canoncorr
-        The default is 'qr'.
-
-    Returns
-    -------
-    sCCA model: Union[SCCA_qr, SCCA_canoncorr]
-        if cca_type is 'qr' -> SCCA_qr
-        if cca_type is 'canoncorr' -> SCCA_canoncorr
-    """
-    if cca_type.lower() == 'qr':
-        return SCCA_qr(n_component,
-                       n_jobs,
-                       weights_filterbank,
-                       force_output_UV,
-                       update_UV)
-    elif cca_type.lower() == 'canoncorr':
-        return SCCA_canoncorr(n_component,
-                              n_jobs,
-                              weights_filterbank,
-                              force_output_UV,
-                              update_UV)
-    else:
-        raise ValueError('Unknown cca_type')
 
 class MsetCCA(BaseModel):
     """
@@ -1142,7 +1091,7 @@ class ITCCA(BaseModel):
         self.model['V'] = None
         
     def __copy__(self):
-        copy_model = ECCA(n_component = self.n_component,
+        copy_model = ITCCA(n_component = self.n_component,
                             n_jobs = self.n_jobs,
                             weights_filterbank = self.model['weights_filterbank'],
                             force_output_UV = self.force_output_UV,
@@ -1541,7 +1490,7 @@ class MSCCA(BaseModel):
         channel_num = template_sig[0].shape[1]
         harmonic_num = ref_sig[0].shape[0]
         n_component = self.n_component
-        n_neighbor = self.n_neighbor
+        n_neighbor = min(self.n_neighbor,stimulus_num)
         # construct reference and template signals for ms-cca
         d0 = int(np.floor(n_neighbor/2))
         U = np.zeros((filterbank_num, stimulus_num, channel_num, n_component))
