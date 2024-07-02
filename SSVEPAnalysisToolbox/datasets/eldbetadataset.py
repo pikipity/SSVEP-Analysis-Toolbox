@@ -78,6 +78,9 @@ class ELDBETADataset(BaseDataset):
                          t_prestim = 0.5,
                          t_break = 0.5,
                          default_t_latency = 0.14)
+        self.trial_label_check_list = {}
+        for trial_i in range(self.trial_num):
+            self.trial_label_check_list[trial_i] = trial_i
 
     def download_single_subject(self,
                                 subject: SubInfo):
@@ -173,5 +176,5 @@ class ELDBETADataset(BaseDataset):
                                sub_idx: int,
                                block_idx: int,
                                trial_idx: int) -> int:
-        return trial_idx
+        return self.trial_label_check_list[trial_idx]
         

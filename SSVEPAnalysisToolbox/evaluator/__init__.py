@@ -2,8 +2,10 @@
 
 from .baseevaluator import (
     BaseEvaluator, 
+    gen_trials_onedataset_individual_diffsignlen_specfic_trainblcokNum,
     gen_trials_onedataset_individual_diffsiglen,
-    gen_trials_onedataset_individual_online
+    gen_trials_onedataset_individual_online,
+    gen_trials_onedataset_cross_subj_notarget_diffsignlen_specfic_trainblcokNum
 )
 
 from .performance import (
@@ -13,7 +15,8 @@ from .performance import (
     cal_performance_onedataset_individual_diffsiglen,
     cal_itr_trials_onebyone, cal_itr_trials, 
     cal_acc_trials_onebyone, cal_acc_trials,
-    cal_acc, cal_itr
+    cal_acc, cal_itr,
+    cal_performance_onedataset_crossSubj_diffsiglen
 )
 
 from .plot import (
