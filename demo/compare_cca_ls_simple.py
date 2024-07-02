@@ -39,49 +39,10 @@ dataset.regist_filterbank(filterbank)
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank()
-# recog_model = SCCA_qr(weights_filterbank = weights_filterbank, force_output_UV=True)
-# # recog_model_ls = SCCA_ls_qr(weights_filterbank = weights_filterbank, force_output_UV=True,
-# #                                     LSMethod = 'lasso',
-# #                                     l1_alpha = 0.0001,
-# #                                     reg_iter = 1000,
-# #                                     reg_tol = 1e-4,
-# #                                     M_error_threshold = 1e-4,
-# #                                     W_error_threshold = 1e-4,
-# #                                     max_n = 100)
-# recog_model_ls = SCCA_ls_qr(weights_filterbank = weights_filterbank, force_output_UV=True,
-#                             LSMethod = 'elastic_net',
-#                             l1_alpha = 0.0001,
-#                             alpha = 0.1,
-#                             reg_iter = 1000,
-#                             reg_tol = 1e-4,
-#                             M_error_threshold = 1e-4,
-#                             W_error_threshold = 1e-4,
-#                             max_n = 100)
-# recog_model = TRCAwithR_ls(weights_filterbank = weights_filterbank)
-# recog_model_ls = TRCAwithR_ls(weights_filterbank = weights_filterbank,
-#                                 LSMethod = 'lasso',
-#                                 l1_alpha = 0.01,
-#                                 reg_iter = 2000,
-#                                 reg_tol = 1e-6,
-#                                 M_error_threshold = 1e-4,
-#                                 W_error_threshold = 1e-4,
-#                                 max_n = 100)
-recog_model = MsetCCAwithR_ls(weights_filterbank = weights_filterbank)
-recog_model_ls = MsetCCAwithR_ls(weights_filterbank = weights_filterbank,
-                                LSMethod = 'elastic_net',
-                                l1_alpha = 0.01,
-                                alpha = 0.3,
-                                reg_iter = 1000,
-                                reg_tol = 1e-4,
-                                M_error_threshold = 1e-4,
-                                W_error_threshold = 1e-4,
-                                max_n = 100)
+recog_model = SCCA_qr(weights_filterbank = weights_filterbank)
+recog_model_ls = SCCA_ls(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
-# 19ch: 
-# ch1 = list(range(43,59)); ch2 = list(range(60,63)); ch_used = [y for x in [ch1,ch2] for y in x]
-# 32ch: 
-# ch1 = list(range(32,64)); ch_used = [y for x in [ch1] for y in x]
 # 9ch:
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
