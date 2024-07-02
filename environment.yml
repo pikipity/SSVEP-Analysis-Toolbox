@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
   - python=3.9
-  - numpy
+  - numpy=1.23.4
   - scipy
   - pip
   - py7zr
@@ -13,5 +13,6 @@ dependencies:
   - joblib
   - matplotlib
   - tqdm
+  - scikit-learn
   - pip:
     - mat73

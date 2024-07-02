@@ -168,7 +168,7 @@ class TDCA(BaseModel):
                          n_component = n_component,
                          n_jobs = n_jobs,
                          weights_filterbank = weights_filterbank)
-        self.n_delay = n_delay
+        self.n_delay = n_delay + 1
         self.model['U'] = None # Spatial filter of EEG
 
     def __copy__(self):

@@ -8,6 +8,49 @@ import numpy as np
 import numpy.linalg as nplin
 import numpy.matlib as npmat
 
+def get_depend_column_ind(X: ndarray):
+    """
+    Obtain depend column index
+
+    Parameters
+    ------------
+    X : ndarray
+        Input matrix
+    """
+    X_rank = nplin.matrix_rank(X)
+    _, X_r = nplin.qr(X)
+    X_r_diag = np.diag(X_r)
+    X_r_diag_abssort_ind = np.argsort(np.abs(X_r_diag))[::-1]
+    return X_r_diag_abssort_ind[X_rank:]
+
+
+def remove_mean_all_trial(X : ndarray,
+                          axis : int = 0, 
+                          remove_val : Optional[ndarray] = None):
+    """
+    Remove mean of all trials
+
+    Parameters
+    ------------
+    X : ndarray
+        All trial signals
+        Shape: [trials, samples, ch]
+    axis : int
+        Remove which axis's mean
+    """
+    Nt, Np, Nc = X.shape
+    X_remove_mean = np.zeros_like(X)
+    for i in range(Nt):
+        if remove_val is None:
+            X_remove_mean[i,:,:] = X[i,:,:] - np.mean(X[i,:,:], axis)
+        else:
+            X_remove_mean[i,:,:] = X[i,:,:] - remove_val
+    return X_remove_mean
+
+def column_eyes(number_of_eyes : int, 
+                size_of_eyes : int):
+    return repmat(np.eye(size_of_eyes),number_of_eyes,1)
+
 def inv(X : ndarray):
     return nplin.inv(X)
 
@@ -114,6 +157,9 @@ def eigvec(X : ndarray,
     else:
         eig_d1, eig_v1 = slin.eig(X, Y) #eig(Y\X)
 
+    if len(eig_d1.shape) == 2:
+        eig_d1 = np.diagonal(eig_d1)
+
     sort_idx = np.argsort(eig_d1)[::-1]
     eig_vec = eig_v1[:,sort_idx]
 
@@ -175,19 +221,29 @@ def blkmat(X: ndarray):
 
     Parameters
     -----------
-    X : ndarray
+    X : ndarray or list
         Matrix used for building the block diag matrix
-        (trial_num, channel_num, signal_len)
+        (trial_num, channel_num, signal_len) or [(channel_num, signal_len)]
     """
-    trial_num, channel_num, signal_len = X.shape
     blkmatrix = np.ndarray([])
-    for trial_idx in range(trial_num):
-        if len(blkmatrix.shape)==0:
-            blkmatrix = X[trial_idx,:,:]
-        else:
-            A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], signal_len))), axis = 1)
-            A2 = np.concatenate((np.zeros((channel_num, blkmatrix.shape[1])), X[trial_idx,:,:]), axis = 1)
-            blkmatrix = np.concatenate((A1, A2), axis = 0)
+    if type(X) == np.ndarray:
+        trial_num, channel_num, signal_len = X.shape
+        for trial_idx in range(trial_num):
+            if len(blkmatrix.shape)==0:
+                blkmatrix = X[trial_idx,:,:]
+            else:
+            #     A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], signal_len))), axis = 1)
+            #     A2 = np.concatenate((np.zeros((channel_num, blkmatrix.shape[1])), X[trial_idx,:,:]), axis = 1)
+            #     blkmatrix = np.concatenate((A1, A2), axis = 0)
+                blkmatrix = slin.block_diag(blkmatrix, X[trial_idx,:,:])
+    elif type(X) == list:
+        for tmp in X:
+            if len(blkmatrix.shape)==0:
+                blkmatrix = tmp
+            else:
+                blkmatrix = slin.block_diag(blkmatrix, tmp)
+    else:
+        raise ValueError('Unknown input type in blkmat')
     return blkmatrix
 
 def blkrep(X: ndarray,
@@ -205,11 +261,12 @@ def blkrep(X: ndarray,
     blkmatrix = np.ndarray([])
     for _ in range(N):
         if len(blkmatrix.shape)==0:
-            blkmatrix = X
+            blkmatrix = X.copy()
         else:
-            A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], X.shape[1]))), axis = 1)
-            A2 = np.concatenate((np.zeros((X.shape[0], blkmatrix.shape[1])), X), axis = 1)
-            blkmatrix = np.concatenate((A1, A2), axis = 0)
+        #     A1 = np.concatenate((blkmatrix, np.zeros((blkmatrix.shape[0], X.shape[1]))), axis = 1)
+        #     A2 = np.concatenate((np.zeros((X.shape[0], blkmatrix.shape[1])), X), axis = 1)
+        #     blkmatrix = np.concatenate((A1, A2), axis = 0)
+            blkmatrix = slin.block_diag(blkmatrix, X)
     return blkmatrix
 
 

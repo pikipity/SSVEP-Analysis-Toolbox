@@ -14,10 +14,82 @@ import os
 import pickle
 import copy
 
+from itertools import combinations
+
 from joblib import Parallel, delayed
 from functools import partial
 
 import warnings
+
+def gen_trials_onedataset_cross_subj_notarget_diffsignlen_specfic_trainblcokNum(dataset_idx: int,
+                                         tw_seq: List[float],
+                                         dataset_container: list,
+                                         harmonic_num: int,
+                                         # trials: List[int],
+                                         ch_used: List[int],
+                                         # trainblockNum: int,
+                                         train_subjects: Optional[List[int]],
+                                         test_subjects: Optional[List[int]],
+                                         t_latency: Optional[float] = None,
+                                         shuffle: bool = False) -> list:
+    """
+    Generate cross-subject evaluation trials for one dataset
+    Evaluations will be carried out on each signal length for given pair of train and test subjects
+
+    Parameters
+    ----------
+    dataset_idx : int
+        dataset index of dataset_container
+    tw_seq : List[float]
+        List of signal length
+    dataset_container : list
+        List of datasets
+    harmonic_num : int
+        Number of harmonics
+    ch_used : List[int]
+        List of channels
+    train_subjects : Optional[List[int]]
+        List of subject indices in training dataset
+    test_subjects : Optional[List[int]]
+        List of subject indices in testing dataset
+    t_latency : Optional[float]
+        Latency time
+        If None, default latency time of dataset will be used
+    shuffle : bool
+        Whether shuffle
+
+    Returns
+    -------
+    trial_container : list
+        List of trial information
+
+    """
+    AllBlockInd = [i for i in range(dataset_container[dataset_idx].block_num)]
+    all_trials = [i for i in range(dataset_container[dataset_idx].trial_num)]
+    
+    trial_container = []
+    for tw in tw_seq:
+        train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                sub_idx = train_subjects,
+                                                block_idx = AllBlockInd,
+                                                trial_idx = all_trials,
+                                                ch_idx = ch_used,
+                                                harmonic_num = harmonic_num,
+                                                tw = tw,
+                                                t_latency = t_latency,
+                                                shuffle = shuffle)
+        test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                sub_idx = test_subjects,
+                                                block_idx = AllBlockInd,
+                                                trial_idx = all_trials,
+                                                ch_idx = ch_used,
+                                                harmonic_num = harmonic_num,
+                                                tw = tw,
+                                                t_latency = t_latency,
+                                                shuffle = shuffle)
+        trial_container.append([train_trial, test_trial])
+    return trial_container
+        
 
 def gen_trials_onedataset_individual_online(dataset_idx: int,
                                          tw_seq: List[float],
@@ -89,6 +161,88 @@ def gen_trials_onedataset_individual_online(dataset_idx: int,
                                                         tw = tw,
                                                         t_latency = t_latency,
                                                         shuffle = shuffle)
+                trial_container.append([train_trial, test_trial])
+    return trial_container
+
+def gen_trials_onedataset_individual_diffsignlen_specfic_trainblcokNum(dataset_idx: int,
+                                         tw_seq: List[float],
+                                         dataset_container: list,
+                                         harmonic_num: int,
+                                         trials: List[int],
+                                         ch_used: List[int],
+                                         trainblockNum: int,
+                                         subjects: Optional[List[int]] = None,
+                                         t_latency: Optional[float] = None,
+                                         shuffle: bool = False) -> list:
+    """
+    Generate evaluation trials for one dataset with specific training block number
+    Evaluations will be carried out on each subject and each signal length
+
+    Parameters
+    ----------
+    dataset_idx : int
+        dataset index of dataset_container
+    tw_seq : List[float]
+        List of signal length
+    dataset_container : list
+        List of datasets
+    harmonic_num : int
+        Number of harmonics
+    trials: List[int]
+        List of trial index
+    ch_used : List[int]
+        List of channels
+    trainblockNum : int
+        Number of training blocks
+    subjects : Optional[List[int]]
+        List of subject indices
+        If None, all subjects will be included
+    t_latency : Optional[float]
+        Latency time
+        If None, default latency time of dataset will be used
+    shuffle : bool
+        Whether shuffle
+
+    Returns
+    -------
+    trial_container : list
+        List of trial information
+
+    """
+    if subjects is None:
+        sub_num = len(dataset_container[dataset_idx].subjects)
+        subjects = list(range(sub_num))
+    AllBlockInd = [i for i in range(dataset_container[dataset_idx].block_num)]
+    train_block_list = []
+    for c in combinations(AllBlockInd, trainblockNum):
+        train_block_list.append(list(c))
+    trial_container = []
+    for tw in tw_seq:
+        for sub_idx in subjects:
+            # for block_idx in range(dataset_container[dataset_idx].block_num):
+            for train_block in train_block_list:
+                # test_block, train_block = dataset_container[dataset_idx].leave_one_block_out(block_idx)
+                test_block = AllBlockInd.copy()
+                for train_block_ind in train_block:
+                    test_block.remove(train_block_ind)
+                train_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                      sub_idx = sub_idx,
+                                                      block_idx = train_block,
+                                                      trial_idx = trials,
+                                                      ch_idx = ch_used,
+                                                      harmonic_num = harmonic_num,
+                                                      tw = tw,
+                                                      t_latency = t_latency,
+                                                      shuffle = shuffle)
+                test_trial = TrialInfo().add_dataset(dataset_idx = dataset_idx,
+                                                      sub_idx = sub_idx,
+                                                      block_idx = test_block,
+                                                      trial_idx = trials,
+                                                      ch_idx = ch_used,
+                                                      harmonic_num = harmonic_num,
+                                                      tw = tw,
+                                                      t_latency = t_latency,
+                                                      shuffle = shuffle)
                 trial_container.append([train_trial, test_trial])
     return trial_container
 
@@ -354,8 +508,15 @@ class TrialInfo:
             List of stimulus frequencies corresponding to reference signal
         """
         dataset = dataset_container[self.dataset_idx[0]]
+        
+        trial_ind = self.trial_idx[0].copy()
+        trial_ind.sort()
+
         ref_sig = dataset.get_ref_sig(self.tw,self.harmonic_num, ignore_stim_phase)
+        ref_sig = [ref_sig[i] for i in trial_ind]
         freqs = dataset.stim_info['freqs']
+        freqs = [freqs[i] for i in trial_ind]
+
         X = []
         Y = []
         for (dataset_idx,
@@ -379,8 +540,8 @@ class TrialInfo:
                                             sig_len = self.tw,
                                             t_latency = t_latency,
                                             shuffle = shuffle)
-        X.extend(X_tmp)
-        Y.extend(Y_tmp)
+            X.extend(X_tmp)
+            Y.extend(Y_tmp)
         return X, Y, ref_sig, freqs
         
 
@@ -520,20 +681,25 @@ class BaseEvaluator:
                         pickle.dump(self.performance_container, file_, pickle.HIGHEST_PROTOCOL)
 
     def load(self,
-             file: str):
+             file: str,
+             only_performance: bool = False):
         if not os.path.isfile(file):
             raise ValueError('{:s} does not exist!!'.format(file))
         with open(file,'rb') as file_:
             self_load = pickle.load(file_)
         if type(self_load) is not list and type(self_load) is not tuple:
-            self.dataset_container = copy.deepcopy(self_load.dataset_container)
-            self.model_container = copy.deepcopy(self_load.model_container)
-            self.trial_container = copy.deepcopy(self_load.trial_container)
-            self.save_model = copy.deepcopy(self_load.save_model)
-            self.disp_processbar = copy.deepcopy(self_load.disp_processbar)
-            self.ignore_stim_phase = copy.deepcopy(self_load.ignore_stim_phase)
-            self.performance_container = copy.deepcopy(self_load.performance_container)
-            self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
+            if only_performance:
+                self.performance_container = copy.deepcopy(self_load.performance_container)
+                self.trial_container = copy.deepcopy(self_load.trial_container)
+            else:
+                self.dataset_container = copy.deepcopy(self_load.dataset_container)
+                self.model_container = copy.deepcopy(self_load.model_container)
+                self.trial_container = copy.deepcopy(self_load.trial_container)
+                self.save_model = copy.deepcopy(self_load.save_model)
+                self.disp_processbar = copy.deepcopy(self_load.disp_processbar)
+                self.ignore_stim_phase = copy.deepcopy(self_load.ignore_stim_phase)
+                self.performance_container = copy.deepcopy(self_load.performance_container)
+                self.trained_model_container = copy.deepcopy(self_load.trained_model_container)
         else:
             self.performance_container = copy.deepcopy(self_load)
             warnings.warn("'{:s}' only contains a list or a tuple. So only 'performance_container' is reloaded.".format(file))

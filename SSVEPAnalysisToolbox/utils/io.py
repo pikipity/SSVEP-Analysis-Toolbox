@@ -30,8 +30,13 @@ def savedata(file: str,
         'np' - Binary file in NumPy .npy format
         The default is 'mat'.
     """
+    if file == '':
+        raise ValueError('The input "file" cannot be empty.')
+
     desertation_dir = os.path.dirname(file)
-    if not os.path.exists(desertation_dir):
+    if desertation_dir == '':
+        pass
+    elif not os.path.exists(desertation_dir):
         os.makedirs(desertation_dir)
     
     if save_type.lower() == 'mat':

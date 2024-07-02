@@ -682,7 +682,7 @@ class MSETRCA(BaseModel):
         filterbank_num = template_sig[0].shape[0]
         stimulus_num = len(template_sig)
         channel_num = template_sig[0].shape[1]
-        n_neighbor = self.n_neighbor
+        n_neighbor = min(self.n_neighbor,stimulus_num)
         # n_component = 1
         d0 = int(np.floor(n_neighbor/2))
         _, freqs_idx, return_freqs_idx = sort(freqs)
