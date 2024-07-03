@@ -2,7 +2,7 @@ User API
 =======================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     API_datasets
     API_methods
