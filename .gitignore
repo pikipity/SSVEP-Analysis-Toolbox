@@ -3,8 +3,6 @@ demo/benchmark_support_file/*
 demo/2016_Tsinghua_SSVEP_database/*
 demo/BETA Dataset/*
 demo/2020_BETA_SSVEP_database_update/*
-demo/res/*.mat
-demo/res/*.npy
 Docs/_build/*
 .vscode/*
 demo/Nakanishi_2015/*
@@ -17,5 +15,4 @@ explore_*
 *plore_*
 phase_*
 temp.*
-*.pkl
 /demo/.ipynb_checkpoints
