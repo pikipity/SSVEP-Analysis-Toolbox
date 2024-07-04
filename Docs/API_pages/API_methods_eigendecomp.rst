@@ -1,50 +1,11 @@
 .. role::  raw-html(raw)
     :format: html
 
-Recognition algorithms
--------------------------
-
-.. _common-functions-in-methods:
-
-Common methods for all models
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-All following recognition models have these methods. The inputs and outputs are same so they will not be repeatedly introduced in following sections. 
-
-When you define your own algorithm class, You may use the ``BaseModel`` as the father class and re-define the ``__init__`` method and the following methods. 
-
-.. py:function:: __copy__
-
-    Copy the recognition model.
-
-    :return:
-
-        + ``model``: The returned new model is same as the original one.
-
-.. py:function:: fit
-
-    Train the recognition model. The trained model parameters will be stored in the class parameter ``model``. Different methods may require different input parameters. You may follow the below parameter names to define your own fit function. 
-
-    :param X: List of training EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
-
-    :param Y: List of training labels. Each element is one single trial label that is an integer number.
-
-    :param ref_sig: List of reference signals. Each element is the reference signal of one stimulus. 
-
-    :param freqs: List of stimulus frequencies. 
-
-.. py:function:: predict
-
-    Recognize the testing signals.
-
-    :param X: List of testing EEG signals. Each element is one 3D single trial EEG signal (filterbank :raw-html:`&#215;` channels :raw-html:`&#215;` samples).
-
-    :return:
-
-        + ``Y_pred``: List of predicted labels for testing signals. Each element is one single trial label that is an integer number.
+Implementations based on eigen decomposition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Standard CCA and filterbank CCA
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""
 
 Related papers: 
 
@@ -100,7 +61,7 @@ where :math:`I` denotes the total number of stimuli.
     Although the FBCCA is a training-free method, these models still need run `"fit" function <#fit>`_ to store reference signals in the model.
 
 Individual template CCA (itCCA) and extended CCA (eCCA)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -156,7 +117,7 @@ where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://e
 
 .. py:function:: SSVEPAnalysisToolbox.algorithms.ITCCA
 
-    ITCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.SCCA_qr>`_.
+    itCCA. The implementation is similar as the `"SCCA_qr" model <#SSVEPAnalysisToolbox.algorithms.SCCA_qr>`_.
 
     :param n_component: Number of components of eigen vectors that will be applied as the spatial filters. The default number is ``1``, which means the eigen vector with the highest eigen value is regarded as the spatial filter.
 
@@ -181,7 +142,7 @@ where :math:`\text{sign}\left\{\cdot\right\}` is the `signum function <https://e
     :param update_UV: If ``True``, :math:`\left\{\mathbf{U}_i,\mathbf{V}_i\right\}_{i=1,2,\cdots,I}` will be re-computed in following training and testing trials. Otherwise, they will not be re-computed if they are already existed. Default is ``True``.
 
 Multi-stimulus CCA
-^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""
 
 Related paper:
 
@@ -224,7 +185,7 @@ The target stimulus is predicted by combining two correlation coefficients:
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 Multi-set CCA (MsetCCA)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -283,7 +244,7 @@ where
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 Multi-set CCA with reference signals (MsetCCA-R)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -334,7 +295,7 @@ where :math:`\mathbf{Q}_i` is the QR decomposition of the :math:`i\text{-th}` st
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 Task-related component analysis (TRCA) and ensemble TRCA (eTRCA)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -375,7 +336,7 @@ The target stimulus can be predicted by
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 TRCA with reference signals (TRCA-R) and eTRCA with reference signals (eTRCA-R)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -410,7 +371,7 @@ where :math:`\mathbf{X}_i^{(j)}` denotes the :math:`j\text{-th}` trial training 
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 Sum of squared correlations (SSCOR) and Ensemble sum of squared correlations (eSSCOR)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -478,7 +439,7 @@ Let's define :math:`\mathbf{U}_i = \left(\mathbf{K}_i^{\overline{\mathbf{X}}}\ri
     :param weights_filterbank: Weights of filterbanks. It is a list of float numbers. Default is ``None``, which means all weights of filterbanks are 1.
 
 Multi-stimulus TRCA
-^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""
 
 Related paper:
 
@@ -522,7 +483,7 @@ The multi-stimulus TRCA (ms-TRCA) is similar as the `ms-CCA <#multi-stimulus-cca
 
 
 Task-discriminant component analysis
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""
 
 Related paper:
 
@@ -592,7 +553,7 @@ Finally, the target stimulus can be predicted by
     :param n_delay: Total number of delays. Default is ``0``, which means no delay.
 
 Online adaptive CCA
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""
 
 Related paper:
 
@@ -622,7 +583,7 @@ The OACCA ensembles three parts:
 
 The basic idea of the OACCA is shown below:
 
-.. image:: ./_static/oacca.png
+.. image:: ../_static/oacca.png
 
 .. py:function:: SSVEPAnalysisToolbox.algorithms.OACCA
 

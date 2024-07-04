@@ -13,7 +13,9 @@ You can join this project from the following ways. No matter which way you join 
 
     .. note::
 
-        Because we are also working on this toolbox, what you want to implement may be already finished but has not been published. To avoid the duplicate work, you may check the following work plan and contact us by Email (pikiptyw@gmail.com) before you want to add existing datasets or existing algorithms.
+        Because we are also working on this toolbox, what you want to implement may be already finished but has not been published. To avoid the duplicate work, please contact us by Email (pikiptyw@gmail.com) before you want to add existing datasets or existing algorithms.
+
+        .. Because we are also working on this toolbox, what you want to implement may be already finished but has not been published. To avoid the duplicate work, you may check the following work plan and contact us by Email (pikiptyw@gmail.com) before you want to add existing datasets or existing algorithms.
 
     #. Fork this `this repository <https://github.com/pikipity/SSVEP-Analysis-Toolbox.git>`_ from the Github. You may read `"Forking a repository" <https://docs.github.com/en/get-started/quickstart/fork-a-repo#forking-a-repository>`_ to learn how to do it. Simply speaking, you just need to click the "Fork" button in the repository page.
     #. After you fork this repository, you can edit it. You may face the following problems:
@@ -30,9 +32,9 @@ You can join this project from the following ways. No matter which way you join 
 
     #. After you finish your work. You can create a pull request to our ``dev`` branch (you may read `"Create a pull request" <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_ to learn how to create a pull request). If we think your codes are satisfied, we will merge your codes to the ``main`` branch. 
 
-Work Plan
-------------
+.. Work Plan
+.. ------------
 
-.. raw:: html
+.. .. raw:: html
 
-    <iframe width="700" height="630" frameborder="0" scrolling="no" src="https://onedrive.live.com/embed?resid=44EDF235CF3FC8C2%21380426&authkey=%21AIJTfXbmfmKoXCY&em=2&wdAllowInteractivity=False&Item='Task%20Plan'!A1%3AAJ18&wdInConfigurator=True&wdInConfigurator=True&edesNext=false&resen=false"></iframe>
+..    <iframe width="700" height="630" frameborder="0" scrolling="no" src="https://onedrive.live.com/embed?resid=44EDF235CF3FC8C2%21380426&authkey=%21AIJTfXbmfmKoXCY&em=2&wdAllowInteractivity=False&Item='Task%20Plan'!A1%3AAJ18&wdInConfigurator=True&wdInConfigurator=True&edesNext=false&resen=false"></iframe>

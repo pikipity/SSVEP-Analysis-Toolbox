@@ -45,7 +45,7 @@ Each trial lasted a total of 6 s.
     Sampling rate                   250 Hz
     =============================   =======
 
-    .. image:: ./_static/benchmarkdataset.png
+    .. image:: ../_static/benchmarkdataset.png
 
     Total: around 3.45 GB.
 
@@ -106,7 +106,7 @@ Additional details about the channel and condition information can be found in t
     Sampling rate                   250 Hz
     =============================   =======
 
-    .. image:: ./_static/beta.png
+    .. image:: ../_static/beta.png
 
     Total: around 4.91 GB.
     
@@ -168,7 +168,7 @@ size(eeg) = [Num. of targets, Num. of channels, Num. of sampling points, Num. of
     Sampling rate                   256 Hz
     =============================   ====================
 
-    .. image:: ./_static/Nakanishi2015.png
+    .. image:: ../_static/Nakanishi2015.png
 
     Total: around 148 MB.
     
@@ -223,7 +223,7 @@ Different from the epoched data, the raw EEG provided continuous EEG that were c
     Sampling rate                   250 Hz
     =============================   ====================
 
-    .. image:: ./_static/eldBETA.png
+    .. image:: ../_static/eldBETA.png
 
     Total: around 20.0 GB
 
@@ -282,7 +282,7 @@ Four target SSVEP stimuli were designed to flicker at 5.45, 6.67, 8.57, and 12 H
     Sampling rate                   1000 Hz
     =============================   ===============================================
 
-    .. image:: ./_static/openbmi.png
+    .. image:: ../_static/openbmi.png
 
     Total: around 55.6 GB
 
@@ -359,7 +359,7 @@ The “stimulation_information.pdf” file lists the stimulation parameters of t
     Sampling rate                   250 Hz
     =============================   ===============================================
 
-    .. image:: ./_static/wearable.png
+    .. image:: ../_static/wearable.png
 
     Total: around 929 MB
 
@@ -410,7 +410,7 @@ The “stimulation_information.pdf” file lists the stimulation parameters of t
     Sampling rate                   250 Hz
     =============================   ===============================================
 
-    .. image:: ./_static/wearable.png
+    .. image:: ../_static/wearable.png
 
     Total: around 929 MB
 
@@ -605,7 +605,7 @@ For all datasets, the toolbox will the unified APIs to hook the proprocessing an
 
         The extraction process follows the below figure.
 
-    .. image:: _static/dataset-processing.png
+    .. image:: ../_static/dataset-processing.png
 
 .. py:function:: get_data_all_trials
 

@@ -14,14 +14,14 @@ from SSVEPAnalysisToolbox.evaluator import (
 from SSVEPAnalysisToolbox.utils.io import savedata
 from SSVEPAnalysisToolbox.utils.algsupport import nextpow2
 
-snr_list = []
-legend = []
-dataset_no = 0
-harmonic_num = 5
-sig_len = 1
-# filterbank index is 0
-
 for snr_type in ['fft','sine']:
+
+    snr_list = []
+    legend = []
+    dataset_no = 0
+    harmonic_num = 5
+    sig_len = 1
+    # filterbank index is 0
 
     # Benchmark dataset
     from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
