@@ -19,3 +19,6 @@ temp.*
 *.mat
 
 /Docs/Demos_pages/tmp
+/build
+/dist
+/SSVEPAnalysisToolbox.egg-info
