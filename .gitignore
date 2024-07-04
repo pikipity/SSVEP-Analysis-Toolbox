@@ -16,3 +16,6 @@ explore_*
 phase_*
 temp.*
 /demo/.ipynb_checkpoints
+*.pkl
+*.mat
+
