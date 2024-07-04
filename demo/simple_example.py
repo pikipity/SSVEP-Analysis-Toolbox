@@ -24,14 +24,14 @@ dataset.regist_filterbank(filterbank)
 
 # Prepare recognition model
 weights_filterbank = suggested_weights_filterbank()
-recog_model = ETRCAwithR(weights_filterbank = weights_filterbank)
+recog_model = ECCA(weights_filterbank = weights_filterbank)
 
 # Set simulation parameters
 ch_used = suggested_ch()
 all_trials = [i for i in range(dataset.trial_num)]
 harmonic_num = 5
 tw = 1
-sub_idx = 1
+sub_idx = 2-1
 test_block_idx = 0
 test_block_list, train_block_list = dataset.leave_one_block_out(block_idx = test_block_idx)
 
