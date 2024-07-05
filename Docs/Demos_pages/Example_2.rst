@@ -59,7 +59,7 @@ Now, we can prepare the simulation. In this example,
 
 Then, we need to initialize the recognition methods for the performance
 comparisions. In this example, we compare the eTRCA implemented based on
-the QR decomposition and the least-square framework. For other methods,
+the eigen decomposition and the least-square framework. For other methods,
 we only provide the suggested parameters for the Benchmark Dataset for
 your reference.
 
