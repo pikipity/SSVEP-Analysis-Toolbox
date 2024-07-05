@@ -18,8 +18,6 @@ example, the dataset will not be downloaded again.
 
 .. code:: ipython3
 
-    import sys
-    sys.path.append('..')
     from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
     from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
         preprocess, filterbank
@@ -60,7 +58,10 @@ Now, we can prepare the simulation. In this example,
                                                                  shuffle = False)
 
 Then, we need to initialize the recognition methods for the performance
-comparisions.
+comparisions. In this example, we compare the eTRCA implemented based on
+the QR decomposition and the least-square framework. For other methods,
+we only provide the suggested parameters for the Benchmark Dataset for
+your reference.
 
 .. code:: ipython3
 
@@ -69,24 +70,34 @@ comparisions.
     from SSVEPAnalysisToolbox.algorithms import (
         SCCA_qr, SCCA_canoncorr, ECCA, MSCCA, MsetCCA, MsetCCAwithR,
         TRCA, ETRCA, MSETRCA, MSCCA_and_MSETRCA, TRCAwithR, ETRCAwithR, SSCOR, ESSCOR,
-        TDCA
+        TDCA,
+        SCCA_ls, SCCA_ls_qr,
+        ECCA_ls, ITCCA_ls,
+        MSCCA_ls,
+        TRCA_ls, ETRCA_ls,
+        MsetCCA_ls,
+        MsetCCAwithR_ls,
+        TRCAwithR_ls, ETRCAwithR_ls,
+        MSETRCA_ls,
+        TDCA_ls
     )
     model_container = [
-                       SCCA_qr(weights_filterbank = weights_filterbank),
-                       SCCA_canoncorr(weights_filterbank = weights_filterbank),
-                       MsetCCA(weights_filterbank = weights_filterbank),
-                       MsetCCAwithR(weights_filterbank = weights_filterbank),
-                       ECCA(weights_filterbank = weights_filterbank),
-                       MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
-                       SSCOR(weights_filterbank = weights_filterbank),
-                       ESSCOR(weights_filterbank = weights_filterbank),
-                       TRCA(weights_filterbank = weights_filterbank),
-                       TRCAwithR(weights_filterbank = weights_filterbank),
+                       # SCCA_qr(weights_filterbank = weights_filterbank),
+                       # SCCA_canoncorr(weights_filterbank = weights_filterbank),
+                       # MsetCCA(weights_filterbank = weights_filterbank),
+                       # MsetCCAwithR(weights_filterbank = weights_filterbank),
+                       # ECCA(weights_filterbank = weights_filterbank),
+                       # MSCCA(n_neighbor = 12, weights_filterbank = weights_filterbank),
+                       # SSCOR(weights_filterbank = weights_filterbank),
+                       # ESSCOR(weights_filterbank = weights_filterbank),
+                       # TRCA(weights_filterbank = weights_filterbank),
+                       # TRCAwithR(weights_filterbank = weights_filterbank),
                        ETRCA(weights_filterbank = weights_filterbank),
-                       ETRCAwithR(weights_filterbank = weights_filterbank),
-                       MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
-                       MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
-                       TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
+                       # ETRCAwithR(weights_filterbank = weights_filterbank),
+                       # MSETRCA(n_neighbor = 2, weights_filterbank = weights_filterbank),
+                       # MSCCA_and_MSETRCA(n_neighbor_mscca = 12, n_neighber_msetrca = 2, weights_filterbank = weights_filterbank),
+                       # TDCA(n_component = 8, weights_filterbank = weights_filterbank, n_delay = 6)
+                       ETRCA_ls(weights_filterbank = weights_filterbank),
                       ]
 
 After preparing the dataset, the recognition methods and the simulation
@@ -95,8 +106,6 @@ parameter ``n_jobs`` is the number of threading. Higher number requires
 the computer with higher performance. You can adjust this parameter
 based on your own situation, or set it as ``-1`` to automatically
 generate the threading number based on your core number in your CPU.
-Because this example contains many methods, the evaluation may require
-lots of time.
 
 .. code:: ipython3
 
@@ -117,14 +126,14 @@ lots of time.
     ========================
        Start
     ========================
-    
-    100.000%|███████████████████████████████████████████████████████████████████████████████████████████| 3360/3360 [Time: 12:27:17<00:00]
+
+    100.000%|████████████████████████████████████████████████████████████| 3360/3360 [Time: 4:28:51<00:00]
 
     ========================
        End
     ========================
     
-    
+
 
 All simulation results has been stored in ``evaluator``. We can save it
 for further analysis.
@@ -193,5 +202,3 @@ data file).
             "method_ID": [model.ID for model in model_container]}
     data_file = 'res/benchmarkdataset_res.mat'
     savedata(data_file, data, 'mat')
-
-

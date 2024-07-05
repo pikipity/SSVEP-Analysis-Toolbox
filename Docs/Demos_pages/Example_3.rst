@@ -14,8 +14,6 @@ results.
 
 .. code:: ipython3
 
-    import sys
-    sys.path.append('..')
     from SSVEPAnalysisToolbox.utils.io import loaddata
     data_file = 'res/benchmarkdataset_res.mat'
     data = loaddata(data_file, 'mat')
@@ -49,6 +47,7 @@ and ITR by using bar charts, and save the corresponding figures.
 
 
 .. image:: ../../demo/res/benchmark_acc_bar.jpg
+
 
 
 .. code:: ipython3
