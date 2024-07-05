@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="SSVEPAnalysisToolbox",
-    version="0.0.1",
+    version="0.0.2",
     author="Ze Wang",
     author_email="pikipityw@gmail.com",
     description="Python package for SSVEP datasets and algorithms",
@@ -20,15 +20,15 @@ setuptools.setup(
     ],
     # Required packages
     install_requires=[
-        'numpy==1.23.4',
-        'scipy==1.13.0',
-        'py7zr==0.21.0',
-        'pooch==1.8.1',
-        'joblib==1.4.2',
-        'matplotlib==3.8.4',
-        'tqdm==4.66.4',
-        'scikit-learn==1.3.0',
-        'mat73==0.63'
+        'numpy<=1.23,>1.0',
+        'scipy<=1.13,>1.0',
+        'py7zr<=0.21',
+        'pooch<=1.8,>1.0',
+        'joblib<=1.4,>1.0',
+        'matplotlib<=3.8,>3.0',
+        'tqdm<=4.66,>4.0',
+        'scikit-learn<=1.3,>1.0',
+        'mat73<=1.0'
     ],
     python_requires='>=3.9',
 )
