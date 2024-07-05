@@ -16,6 +16,7 @@ Contents
 .. toctree::
    :maxdepth: 2
    
+   Introduction_LS/Introduction_LS
    Installation_pages/Installation
    API_pages/API
    Demos_pages/Examples

@@ -18,8 +18,6 @@ results of 0.5s signal length.
 
 .. code:: ipython3
 
-    import sys
-    sys.path.append('..')
     from SSVEPAnalysisToolbox.utils.io import loaddata
     data_file = 'res/benchmarkdataset_res.mat'
     data = loaddata(data_file, 'mat')
@@ -44,8 +42,9 @@ we recreate the dataset and read the information.
     sort_idx = list(np.argsort(freqs))
 
 In the 2nd example, we evaluate multiple methods’ performance. This
-example only consider the 1st method, i.e., sCCA method. We can get the
-corresponding confusion matrix and plot it.
+example only consider the 1st method, i.e., eTRCA method implemented by
+the eigen decomposition. We can get the corresponding confusion matrix
+and plot it.
 
 .. code:: ipython3
 

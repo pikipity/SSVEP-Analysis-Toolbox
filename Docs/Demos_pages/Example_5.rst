@@ -13,8 +13,6 @@ initialize the dataset.
 
 .. code:: ipython3
 
-    import sys
-    sys.path.append('..')
     from SSVEPAnalysisToolbox.datasets import BenchmarkDataset
     from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import (
         preprocess, filterbank

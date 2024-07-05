@@ -14,15 +14,8 @@ This example shows the basic functions of this toolbox, including:
 
 You can find the related code in :file:`demo/simple_example.py` or :file:`demo/simple_example.ipynb`.
 
-First, We need to add the toolbox into the search path.
-
-.. code:: ipython3
-
-    import sys
-    sys.path.append('..')
-
-Then, before we start the simulation, we need to prepare the dataset. If
-there is not data in the given path, the dataset API will automatically
+Before we start the simulation, we need to prepare the dataset. If there
+is not data in the given path, the dataset API will automatically
 download the correspnding data. In this example, we will use the
 Benchmark Dataset as example.
 
@@ -236,7 +229,7 @@ included in this toolbox and can be directly used.
 
 After preparing the dataset, we need to prepare the recognition method.
 The toolbox contains various methods with different implementations.
-This example use the eCCA method as an example to show how to use the
+This example use the eTRCA method as an example to show how to use the
 method API. In addition, because we use the filter-bank approach, we
 need to predefine the weights of different filter banks. The Benchmark
 Dataset paper already provides the suggested weights. The method of
@@ -247,7 +240,7 @@ directly used.
 
     from SSVEPAnalysisToolbox.utils.benchmarkpreprocess import suggested_weights_filterbank
     weights_filterbank = suggested_weights_filterbank()
-    from SSVEPAnalysisToolbox.algorithms import ECCA
+    from SSVEPAnalysisToolbox.algorithms import ETRCA
     recog_model = ETRCA(weights_filterbank = weights_filterbank)
 
 Now, we can prepare the simulation. In this example,
@@ -378,14 +371,11 @@ classification accuracy and ITR.
         Subject index: 1
         Testing block: [0]
         Training block: [1, 2, 3, 4, 5]
-        Training time: 0.08602 s
-        Total Testing time: 1.27929 s
-        Testing time of single trial: 0.03198 s
+        Training time: 0.07302 s
+        Total Testing time: 1.12959 s
+        Testing time of single trial: 0.02824 s
     
     Performance:
         Acc: 97.500 %
-        ITR: 180.186 bits/min
+        ITR: 180.590 bits/min
     
-    
-
-
