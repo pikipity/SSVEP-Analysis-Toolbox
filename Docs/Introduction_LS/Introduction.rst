@@ -1,6 +1,8 @@
 .. role::  raw-html(raw)
     :format: html
 
+The lease-square unified framework has been published in **IEEE TNSRE**: `<https://ieeexplore.ieee.org/document/10587150/>`_
+
 Introduction
 -------------------
 

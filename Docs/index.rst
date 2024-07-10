@@ -10,6 +10,8 @@ This repository provides a python package for SSVEP datasets and recognition alg
 
 Most conventional recognition algorithms are implemented using both **eigen decomposition** and **least-square unified framework**. The least-square unified framework demonstrates various design strategies applied in the correlatiion analysis (CA)-based SSVEP spatial filtering algorithms and their relationships. 
 
+The lease-square unified framework has been published in **IEEE TNSRE**: `<https://ieeexplore.ieee.org/document/10587150/>`_
+
 Contents
 -------------
 
