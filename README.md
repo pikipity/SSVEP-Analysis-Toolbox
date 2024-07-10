@@ -6,6 +6,19 @@ Most conventional recognition algorithms are implemented using both **eigen deco
 
 More detailed information can be found in [document](http://ssvep-analysis-toolbox.readthedocs.io/).
 
+The lease-square unified framework has been published in **IEEE TNSRE**: [https://ieeexplore.ieee.org/document/10587150/](https://ieeexplore.ieee.org/document/10587150/). If you use this toolbox, the lease-square unified framework, or the new spatial filtering methods (ms-MsetCCA-R-1, ms-MsetCCA-R-2, ms-MsetCCA-R-3, ms-(e)TRCA-R-1, ms-(e)TRCA-R-2), please cite this paper. 
+
+```
+  @article{LSFrameWork,
+    author={Wang, Ze and Shen, Lu and Yang, Yi and Ma, Yueqi and Wong, Chi Man and Liu, Zige and Lin, Cuiyun and Hon, Chi Tin and Qian, Tao and Wan, Feng},
+    journal={IEEE Transactions on Neural Systems and Rehabilitation Engineering}, 
+    title={A Least-Square Unified Framework for Spatial Filtering in SSVEP-based BCIs}, 
+    year={2024},
+    note={early access},
+    doi={10.1109/TNSRE.2024.3424410}
+  }
+```
+
 ## Features
 
 + Mutiple implementations of various algorithms:
