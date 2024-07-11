@@ -3,6 +3,8 @@
 Installation
 ==============================
 
+This toolbox require ``Python>=3.9``.
+
 Install from pip
 ------------------
 
@@ -14,7 +16,7 @@ If you already installed this toolbox, you can update it by
 
 ``pip install --upgrade --force-reinstall SSVEPAnalysisToolbox``
 
-Note: This toolbox does not contain `jupyter`. You may check `jupyter official website <https://jupyter.org/install>`_ to install `jupyter` and run some demos.
+Note: This toolbox does not contain ``jupyter``. You may check `jupyter official website <https://jupyter.org/install>`_ to install ``jupyter`` and run some demos.
 
 
 Directly download from Github

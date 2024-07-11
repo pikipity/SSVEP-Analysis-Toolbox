@@ -1,7 +1,9 @@
 .. role::  raw-html(raw)
     :format: html
 
-The lease-square unified framework has been published in **IEEE TNSRE**: `<https://ieeexplore.ieee.org/document/10587150/>`_
+The lease-square unified framework has been published in **IEEE TNSRE**: `<https://ieeexplore.ieee.org/document/10587150/>`_.
+
+There is a Chinese introduction: `IEEE TNSRE: SSVEP识别算法的统一框架与工具箱 <http://zewang.site/blog/2024/07/IEEE%20TNSRE:%20SSVEP%E8%AF%86%E5%88%AB%E7%AE%97%E6%B3%95%E7%9A%84%E7%BB%9F%E4%B8%80%E6%A1%86%E6%9E%B6%E4%B8%8E%E5%B7%A5%E5%85%B7%E7%AE%B1>`_.
 
 Introduction
 -------------------
