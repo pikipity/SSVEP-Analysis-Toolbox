@@ -1,5 +1,19 @@
 # SSVEP Analysis Toolbox
 
+![PyPI - Version](https://img.shields.io/pypi/v/SSVEPAnalysisToolbox?label=pypi%20version)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/SSVEPAnalysisToolbox?label=pypi%20download)
+![Read the Docs (version)](https://img.shields.io/readthedocs/ssvep-analysis-toolbox/stable?label=docs%20(stable)) 
+![Read the Docs (version)](https://img.shields.io/readthedocs/ssvep-analysis-toolbox/latest?label=docs%20(latest))
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/pikipity/SSVEP-Analysis-Toolbox)
+
+
+<!-- ![PyPI - License](https://img.shields.io/pypi/l/SSVEPAnalysisToolbox) -->
+
+![GitHub forks](https://img.shields.io/github/forks/pikipity/SSVEP-Analysis-Toolbox)
+![GitHub Repo stars](https://img.shields.io/github/stars/pikipity/SSVEP-Analysis-Toolbox)
+![GitHub watchers](https://img.shields.io/github/watchers/pikipity/SSVEP-Analysis-Toolbox)
+
+
 This repository provides a python package for SSVEP datasets and recognition algorithms. The goal of this toolbox is to make researchers be familier with SSVEP signals and related recognition algorithms quickly, and focus on improving algorithms with shortest preparation time.
 
 Most conventional recognition algorithms are implemented using both **eigen decomposition** and **least-square unified framework**. The least-square unified framework demonstrates various design strategies applied in the correlatiion analysis (CA)-based SSVEP spatial filtering algorithms and their relationships. 
