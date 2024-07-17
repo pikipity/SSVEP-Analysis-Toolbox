@@ -24,12 +24,14 @@ The lease-square unified framework has been published in **IEEE TNSRE**: [https:
 
 ```
   @article{LSFrameWork,
-    author={Wang, Ze and Shen, Lu and Yang, Yi and Ma, Yueqi and Wong, Chi Man and Liu, Zige and Lin, Cuiyun and Hon, Chi Tin and Qian, Tao and Wan, Feng},
-    journal={IEEE Transactions on Neural Systems and Rehabilitation Engineering}, 
-    title={A Least-Square Unified Framework for Spatial Filtering in SSVEP-based BCIs}, 
-    year={2024},
-    note={early access},
-    doi={10.1109/TNSRE.2024.3424410}
+    title = {A least-square unified framework for spatial filtering in {SSVEP}-based {BCIs}},
+    volume = {32},
+    url = {https://ieeexplore.ieee.org/document/10587150/},
+    doi = {10.1109/TNSRE.2024.3424410},
+    journal = {IEEE Trans. Neural Syst. Rehabil. Eng.},
+    author = {Wang, Ze and Shen, Lu and Yang, Yi and Ma, Yueqi and Wong, Chi Man and Liu, Zige and Lin, Cuiyun and Hon, Chi Tin and Qian, Tao and Wan, Feng},
+    year = {2024},
+    pages = {2470--2481},
   }
 ```
 
