@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="SSVEPAnalysisToolbox",
-    version="0.0.3",
+    version="0.0.4",
     author="Ze Wang",
     author_email="pikipityw@gmail.com",
     description="Python package for SSVEP datasets and algorithms",
@@ -14,8 +14,7 @@ setuptools.setup(
     url="https://github.com/pikipity/SSVEP-Analysis-Toolbox",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.9",
         "Operating System :: OS Independent",
     ],
     # Required packages
