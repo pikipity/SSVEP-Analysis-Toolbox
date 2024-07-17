@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="SSVEPAnalysisToolbox",
-    version="0.0.4",
+    version="0.0.5",
     author="Ze Wang",
     author_email="pikipityw@gmail.com",
     description="Python package for SSVEP datasets and algorithms",
